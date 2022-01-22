@@ -13,10 +13,10 @@
 			"console": "integratedTerminal"
 		},
 		{
-			"name": "Python: Predict video",
+			"name": "Python: Analyze video",
 			"type": "python",
 			"request": "launch",
-			"program": "./predict.py",
+			"program": "./analyze.py",
 			"args": [
 				"--video=./data/videos/01.mp4"
 			],

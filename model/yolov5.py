@@ -12,17 +12,15 @@ in this case we want to detect only persons.
 
 """
 
-from collections import namedtuple
-import cv2
 import torch
 from torch.nn import Module
+from collections import namedtuple
 
-
-CustomDetection = namedtuple('CustomDetection', ['x_min', 'y_min', 'x_max', 'y_max'])
+YOLOFrameDetection = namedtuple('YOLOFrameDetection', ['x_min', 'y_min', 'x_max', 'y_max'])
 
 class YoloV5CustomModel(Module):
 	def __init__(self, 
-				pretrained_model='yolov5s',
+				pretrained_model='yolov5n',
 				confidence=0.6,
 				iou_threshold=0.45,
 				classes=[0],
@@ -30,22 +28,19 @@ class YoloV5CustomModel(Module):
 				number_detections_per_image=1):
 
 		super(YoloV5CustomModel, self).__init__()
+
 		model = torch.hub.load('ultralytics/yolov5', pretrained_model, pretrained=True, verbose=False)
 		model.conf = confidence
 		model.iou = iou_threshold
 		model.classes = classes
 		model.multi_label = multi_label
 		model.max_det = number_detections_per_image
+		model.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+		model.eval()
 
 		self.model = model
 	
-	def forward(self, x):
-		return self.model(x)
-	
-	def predict_image(self, image:str):
-		"""
-		Returns the predictions of the model for an image.
-		"""
+	def forward(self, image) -> YOLOFrameDetection:
 		results = self.model(image)
 		if len(results) and len(results.xyxy[0]) and len(results.xyxy[0][0]):
 			# Results is of type models.common.Detections
@@ -54,41 +49,6 @@ class YoloV5CustomModel(Module):
 			# we need to filter only the fields that we're gonna use
 			# later on our algorithm.
 			# That is, 'xmin', 'ymin', 'xmax', 'ymax' since we are only detecting
-			# persons, and in this case, we only detect one person per image
-			return CustomDetection(*results.xyxy[0][0][:4].tolist())
-		return None
-
-	def predict_video(self, video_path:str):
-		"""
-		Returns the predictions of the model for a video, frame by frame.
-		"""
-		predictions = []
-		video = cv2.VideoCapture(video_path)
-		while video.isOpened():
-			ret, frame = video.read()
-			if not ret:
-				break
-			prediction = self.predict_image(frame)
-			if prediction:
-				start_point = (int(prediction.x_min), int(prediction.y_min))
-				# Ending coordinate
-				# represents the bottom right corner of rectangle
-				end_point = (int(prediction.x_max), int(prediction.y_max))
-				
-				# Blue color in BGR
-				color = (0, 0, 255)
-				
-				# Line thickness of 2 px
-				thickness = 2
-				
-				# Using cv2.rectangle() method
-				# Draw a rectangle with blue line borders of thickness of 2 px
-				frame = cv2.rectangle(frame, start_point, end_point, color, thickness)
-			
-			predictions.append([frame, prediction])
-
-			cv2.imshow('Predict video frame',frame)
-			cv2.waitKey(1)
-		video.release()
-		cv2.destroyAllWindows()
-		return predictions
+			# persons, and in this case, we only detect ONE PERSON PER IMAGE
+			return YOLOFrameDetection(*map(lambda x: round(x), results.xyxy[0][0][:4].tolist()))
+		return YOLOFrameDetection(None, None, None, None)

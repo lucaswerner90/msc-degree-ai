@@ -130,4 +130,4 @@ dmypy.json
 .pyre/
 
 runs/
-**/yolov5s.pt
+**/yolov5*.pt
