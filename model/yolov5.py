@@ -58,5 +58,7 @@ class YoloV5CustomModel(Module):
 		results = self.model(image)
 		if len(results) and len(results.xyxy[0]) and len(results.xyxy[0][0]):
 			xmin, ymin, xmax, ymax = list(map(lambda x: round(x), results.xyxy[0][0][:4].tolist()))
-			return round(xmax - xmin), round(ymax - ymin)
+			x_center = round(xmin+((xmax-xmin)/2))
+			y_center = round(ymin+((ymax-ymin)/2))
+			return x_center, y_center
 		return None
