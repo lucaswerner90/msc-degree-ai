@@ -5,6 +5,7 @@
 	"version": "0.2.0",
 	"configurations": [
 
+
 		{
 			"name": "Python: Archivo actual",
 			"type": "python",
@@ -19,6 +20,16 @@
 			"program": "./analyze.py",
 			"args": [
 				"--video=./data/videos/01.mp4"
+			],
+			"console": "integratedTerminal"
+		},
+		{
+			"name": "Python: Predict central point",
+			"type": "python",
+			"request": "launch",
+			"program": "./predict.py",
+			"args": [
+				"--data=./data/dataframe.csv"
 			],
 			"console": "integratedTerminal"
 		}

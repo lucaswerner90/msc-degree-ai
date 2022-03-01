@@ -8,6 +8,7 @@ of the RL agent.
 import os
 import logging
 import warnings
+import numpy as np
 import pandas as pd
 import argparse
 import cv2
@@ -15,60 +16,64 @@ from tqdm import tqdm
 from model.yolov5 import YoloV5CustomModel
 
 IMAGE_WIDTH, IMAGE_HEIGHT = 640, 360
-DATAFRAME_COLUMNS = ['frame', 'x_min', 'y_min', 'x_max', 'y_max']
 
 # The YOLO model is giving us a warning because of the missing CUDA GPU
 # so we can simply ignore the warning (we don't need it)
 warnings.filterwarnings("ignore", category=UserWarning)
+model = YoloV5CustomModel()
 
-def analyze_video(video_path, output_path):
+def analyze_video(video_path, output_path) -> None:
 	"""
 	It opens a video, runs YoloV5 model on it
-	and saves the results on the output path
+	and saves the results on the output path.
 
-	Args:
-		video_path ([str]): Contains the path of the video
-		output_path ([str]): Path of the resulting Pandas dataframe
+	Only frames that contain predictions will be 
+	added to the output dataframe.
 	"""
+	output_dir = os.path.join(output_path,'processed_frames')
+	if not os.path.exists(output_dir):
+		os.mkdir(output_dir)
 
 	video = cv2.VideoCapture(video_path)
-	model = YoloV5CustomModel()
-	total_frames = video.get(cv2.CAP_PROP_FRAME_COUNT)
+	total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
 
 	logging.info(f'Analyzing video {video_path}, total frames: {total_frames}')
 	# Add a progress bar to track the progress of the process,
 	# using the total number of frames in the video
 	progress_bar = tqdm(total=total_frames, desc='Processing video frames')
 
-	if os.path.exists(output_path):
-		dataframe = pd.read_csv(output_path)
-	else:
-		dataframe = pd.DataFrame(columns=DATAFRAME_COLUMNS)
-
+	filenames = []
+	predictions = []
+	frame_number = 0
 	while video.isOpened():
 		ret, frame = video.read()
 		if not ret:
 			break
 		frame = cv2.resize(frame, (IMAGE_WIDTH, IMAGE_HEIGHT))
 		prediction = model(frame)
-		df_prediction = pd.DataFrame([[
-			frame,
-			prediction.x_min,
-			prediction.y_min,
-			prediction.x_max,
-			prediction.y_max
-		]], columns=DATAFRAME_COLUMNS)
-		dataframe = pd.concat([dataframe, df_prediction], ignore_index=True)
+		if prediction:
+			filename = os.path.join(output_dir, f'{total_frames}_{frame_number}_{prediction[0]}_{prediction[1]}.jpg')
+			# [center_x, center_y]
+			predictions.append(prediction)
+			cv2.imwrite(filename, frame)
+			filenames.append(filename)
+			frame_number += 1
 		progress_bar.update(1)
 	
 	video.release()
-	dataframe.to_csv(output_path, index=False)
-	logging.info(f'Results saved on {output_path}')
+	progress_bar.close()
+
+	df = pd.DataFrame({
+		'filename': filenames,
+		'prediction_x': list(map(lambda x: x[0], predictions)),
+		'prediction_y': list(map(lambda x: x[1], predictions))
+	})
+	df.to_csv(os.path.join(output_path,'dataframe.csv'), index=False)
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--video', type=str)
-	parser.add_argument('--output', type=str, default='./data/output.csv')
+	parser.add_argument('--output', type=str, default='./data')
 	opt = parser.parse_args()
 
 	if not opt.video:

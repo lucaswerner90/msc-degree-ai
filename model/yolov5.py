@@ -10,13 +10,14 @@ to comply with our requirements.
 The model.classes variable contains the list of classes that we want to detect,
 in this case we want to detect only persons.
 
+The model will return the bounding box central point that will be used
+later for our RL agent in order to approximate the person's position and move the
+drone accordingly.
+
 """
 
 import torch
 from torch.nn import Module
-from collections import namedtuple
-
-YOLOFrameDetection = namedtuple('YOLOFrameDetection', ['x_min', 'y_min', 'x_max', 'y_max'])
 
 class YoloV5CustomModel(Module):
 	def __init__(self, 
@@ -40,15 +41,22 @@ class YoloV5CustomModel(Module):
 
 		self.model = model
 	
-	def forward(self, image) -> YOLOFrameDetection:
+	def forward(self, image):
+		"""
+		Results is of type models.common.Detections
+		https://github.com/ultralytics/yolov5/blob/a2f4a1799ba6dabea4cd74a3b1e292c102918670/models/common.pyL548
+		
+		So in order to get the correct values,
+		we need to filter only the fields that we're gonna use
+		later on our algorithm.
+		
+		That is, 'xmin', 'ymin', 'xmax', 'ymax' since we are only detecting
+		persons, and in this case, we only detect ONE PERSON PER IMAGE.
+
+		We will return the bounding box central point coordinates, specified by the X and Y positions on the image.
+		"""
 		results = self.model(image)
 		if len(results) and len(results.xyxy[0]) and len(results.xyxy[0][0]):
-			# Results is of type models.common.Detections
-			# https://github.com/ultralytics/yolov5/blob/a2f4a1799ba6dabea4cd74a3b1e292c102918670/models/common.py#L548
-			# So in order to get the correct values,
-			# we need to filter only the fields that we're gonna use
-			# later on our algorithm.
-			# That is, 'xmin', 'ymin', 'xmax', 'ymax' since we are only detecting
-			# persons, and in this case, we only detect ONE PERSON PER IMAGE
-			return YOLOFrameDetection(*map(lambda x: round(x), results.xyxy[0][0][:4].tolist()))
-		return YOLOFrameDetection(None, None, None, None)
+			xmin, ymin, xmax, ymax = list(map(lambda x: round(x), results.xyxy[0][0][:4].tolist()))
+			return round(xmax - xmin), round(ymax - ymin)
+		return None

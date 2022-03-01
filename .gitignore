@@ -131,3 +131,4 @@ dmypy.json
 
 runs/
 **/yolov5*.pt
+data/processed_frames

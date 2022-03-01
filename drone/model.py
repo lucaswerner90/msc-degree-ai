@@ -77,7 +77,7 @@ class DroneModel:
 			if not ret:
 				print("Can't receive frame. Exiting ...")
 				break
-			
+
 			self._video_frame = frame
 
 			if self.get_battery() < DroneModel.LOW_BATTERY_LEVEL:
@@ -90,15 +90,8 @@ class DroneModel:
 				self.streamoff()
 				break
 
-	def connect(self, video_bitrate=Tello.BITRATE_1MBPS, video_resolution=Tello.VIDEO_RESOLUTION_480P):
+	def connect(self):
 		self._device.connect()
-		self._device.set_video_bitrate(video_bitrate)
-		
-		#Tello.RESOLUTION_480P
-		#Tello.RESOLUTION_720P
-		self._device.set_video_resolution(video_resolution)
-		
-		self._is_connected = True
 
 	def land(self):
 		self._device.land()

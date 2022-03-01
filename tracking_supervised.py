@@ -10,9 +10,46 @@ to control the drone, otherwise the drone will stay still.
 
 Be sure that you connected the drone to the computer
 """
+import cv2
+from djitellopy import Tello
 
-from drone.model import DroneModel
+ARROW_KEYS = {
+	'UP': 0,
+	'DOWN': 1,
+	'LEFT': 2,
+	'RIGHT': 3
+}
+tello = Tello()
+tello.connect()
+print(f'Available battery: {tello.get_battery()}')
+tello.streamon()
+cap = tello.get_video_capture()
 
 
-if __name__ == '__main__':
-	drone = DroneModel()
+while True:
+	ret, frame = cap.read()
+	if not ret:
+		break
+	
+	frame = cv2.resize(frame, (160, 90))
+	cv2.imshow('Drone video frame', frame)
+
+	if cv2.waitKey(1) == ARROW_KEYS['UP']:
+		print(f'Pressed UP')
+		tello.takeoff()
+
+	if cv2.waitKey(1) == ARROW_KEYS['RIGHT']:
+		print(f'Pressed RIGHT')
+		tello.rotate_clockwise(60)
+
+	if cv2.waitKey(1) == ARROW_KEYS['LEFT']:
+		print(f'Pressed LEFT')
+		tello.rotate_counter_clockwise(60)
+
+	if cv2.waitKey(1) == ARROW_KEYS['DOWN']:
+		print(f'Pressed DOWN')
+		tello.land()
+		tello.streamoff()
+		break
+
+cv2.destroyAllWindows()
