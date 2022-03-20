@@ -37,4 +37,8 @@ if __name__ == '__main__':
 		cv2.imshow('image', image)
 		cv2.waitKey()
 		# cv2.waitKey(1)
+
+		# el movimiento del dron solo de izquierda a derecha 
+		# implementar policy gradient => nos sirve para tener el bucle de entrenamiento listo
+		# Varias imagenes => Varios steps por imagen
 	
