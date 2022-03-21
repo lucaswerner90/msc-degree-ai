@@ -171,7 +171,7 @@ class PolicyNet(nn.Module):
                 if reward == 1 or t > MAX_STEPS_PER_IMAGE:
                     episodes_duration.append(t + 1)
                     print('-------------------------------------------------')
-                    print(f'Episode {episode}/{total_episodes} \t duration:{t} \t\t Last Reward: {reward}')
+                    print(f'Episode {episode+1}/{total_episodes} \t duration:{t} \t\t Last Reward: {reward}')
                     print(f'Action LEFT taken:{actions_taken["LEFT"]}')
                     print(f'Action RIGHT taken:{actions_taken["RIGHT"]}')
                     print(f'Action NONE taken:{actions_taken["NONE"]}')
