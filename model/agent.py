@@ -58,8 +58,8 @@ class PolicyNet(nn.Module):
         # Define the model structure
         self.fc1 = nn.Linear(4096+1, 1024)
         self.fc2 = nn.Linear(1024, 256)
-        self.fc2 = nn.Linear(256, 64)
-        self.fc3 = nn.Linear(64, self.num_actions)
+        self.fc3 = nn.Linear(256, 64)
+        self.fc4 = nn.Linear(64, self.num_actions)
 
     def calculate_next_movement(self, image_width:int, point_of_view:int, action:str) -> int:
         """
@@ -232,5 +232,6 @@ class PolicyNet(nn.Module):
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = F.softmax(self.fc3(x),dim=-1)
+        x = F.relu(self.fc3(x))
+        x = F.softmax(self.fc4(x),dim=-1)
         return x
