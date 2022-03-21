@@ -1,3 +1,4 @@
+import random
 from itertools import count
 import pandas as pd
 import cv2
@@ -130,7 +131,8 @@ class PolicyNet(nn.Module):
             img = img.squeeze()
 
             # Calculate the initial point of view
-            point_of_view = torch.Tensor([0.5])  # img_width/2
+            point_of_view = torch.Tensor([random.random()])  # img_width/2
+            # point_of_view = torch.Tensor([0.5])  # img_width/2
 
             initial_state = torch.concat((img, point_of_view))
             state = Variable(initial_state)
