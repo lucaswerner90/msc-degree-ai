@@ -1,13 +1,12 @@
 import random
 from itertools import count
-import pandas as pd
+
 import cv2
 import torch
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
-
 from torch.distributions import Categorical
 from torch.autograd import Variable
 
@@ -36,10 +35,12 @@ class PolicyNet(nn.Module):
             ),
         ]
     ),
-    writer = SummaryWriter(), 
+    writer = SummaryWriter(),
+    save_file = 'policy_gradient_agent', 
     pretrained_model = models.vgg19(pretrained=True)
     ):
         super(PolicyNet, self).__init__()
+        self.save_file = save_file
         self.transforms = transforms
         self.writer = writer
         self.hparams = hparams
@@ -96,7 +97,17 @@ class PolicyNet(nn.Module):
         m = Categorical(probs)
         return m.sample().item()
 
-    def train_model(self, df):
+
+    def get_row(self,df,row_number):
+        row = df.iloc[row_number]
+        image = cv2.imread(row["filename"])
+        return (
+            image,
+            row["prediction_x"],
+            row["prediction_y"],
+        )
+
+    def train_model(self, df_train, df_test):
         self.train()
         optimizer = torch.optim.RMSprop(self.parameters(), lr=self.hparams["learning_rate"])
     
@@ -112,19 +123,12 @@ class PolicyNet(nn.Module):
         reward_pool = []
         state_pool = []
         steps = 0
-        total_episodes = self.hparams["train_epochs"]
+        total_episodes = len(df_train)
 
         for episode in range(total_episodes):
-            row = df.iloc[episode]
-            filename, real_x, real_y = (
-                row["filename"],
-                row["prediction_x"],
-                row["prediction_y"],
-            )
-
+            original_image, real_x, real_y = self.get_row(df_train,episode)
             # Read and transform the original image to be able to fit it
             # into our model correctly
-            original_image = cv2.imread(filename)
             _, img_width, img_height = original_image.shape
             img = self.transforms(original_image)
             img = self.pretrained_model(torch.unsqueeze(img, 0))
@@ -196,8 +200,16 @@ class PolicyNet(nn.Module):
                 reward_mean = np.mean(reward_pool)
                 reward_std = np.std(reward_pool)
 
-                self.writer.add_scalar('Reward mean', reward_mean, episode)
-                self.writer.add_scalar('Reward std', reward_std, episode)
+                self.writer.add_hparams(
+                    self.hparams,
+                    {
+                        'train/reward_mean':reward_mean,
+                        'train/reward_std':reward_std 
+                    }
+                )
+
+                self.writer.add_scalar('Training reward mean', reward_mean, episode)
+                self.writer.add_scalar('Training reward std', reward_std, episode)
 
                 for i in range(steps):
                     reward_pool[i] = (reward_pool[i] - reward_mean) / reward_std
@@ -206,6 +218,7 @@ class PolicyNet(nn.Module):
                 optimizer.zero_grad()
 
                 print('Calculating loss...')
+
                 for i in range(steps):
                     state = state_pool[i]
                     action = Variable(torch.Tensor([action_pool[i]]))
@@ -224,12 +237,88 @@ class PolicyNet(nn.Module):
                 reward_pool = []
                 steps = 0
                 
-                # Save the model
-                print('Saving the model...')
-                torch.save(self.state_dict(), "policy_gradient_agent.pth")
 
-    def eval_model(self,):
+                # Test the network
+                test_rewards = self.test_model(df_test)
+                self.writer.add_scalar(
+                    'Testing reward mean',
+                    np.mean(test_rewards),
+                    episode
+                )
+                self.writer.add_scalar(
+                    'Testing reward std',
+                    np.std(test_rewards),
+                    episode
+                )
+                print(f'Mean reward: {np.mean(test_rewards)}')
+                self.train()
+
+        # Save the model
+        print(f'Saving the model to...{self.save_file}_{episode}.pth')
+        torch.save(self.state_dict(), f'{self.save_file}.pth')
+
+    def predict_image(self, image, initial_point_of_view = random.random()):
+        """
+        Gets the file name of the image and returns the predicted points
+        and actions till we reach a number of tries or the action is NONE 
+        which would mean that we're in the correct spot
+        """
         self.eval()
+        _, img_width, img_height = image.shape
+        img = self.transforms(image)
+        img = self.pretrained_model(torch.unsqueeze(img, 0))
+        img = img.squeeze()
+
+        do_action = True
+        num_tries = 0
+        # Calculate the initial point of view
+        point_of_view = torch.Tensor([initial_point_of_view])
+        state = torch.concat((img, point_of_view))
+
+        actions = []
+        points = [round(point_of_view.item() * img_width)]
+
+        while do_action or num_tries < 20:
+
+            probs = self.forward(torch.unsqueeze(state, 0))
+            action = self.select_action(probs.squeeze())
+
+            if self.actions[action] == 'NONE':
+                break
+
+            # Calculate reward based on the current point of view 
+            # and the action selected
+            point_of_view = round(point_of_view.item() * img_width)
+            next_point_of_view = self.calculate_next_movement(
+                img_width,
+                point_of_view, 
+                self.actions[action]
+            )
+            point_of_view = torch.Tensor([next_point_of_view / img_width])
+
+            actions.append(self.actions[action])
+            points.append(round(point_of_view.item()*img_width))
+
+            state = torch.concat((img, point_of_view))
+
+            num_tries+=1
+
+        return actions, points
+
+
+    def test_model(self,df):
+        self.eval()
+        rewards = []
+        print(f'Init testing on test dataframe with {len(df)} images')
+        for i in range(len(df)):
+            image, real_x, _ = self.get_row(df,i)
+            _, img_width, _ = image.shape
+            actions, points = self.predict_image(image)
+            last_reward = self.calculate_reward(img_width, real_x, points[-1])
+            rewards.append(last_reward)
+            print(f'Reward for image number {i} \t\t -> \t{last_reward}')
+
+        return rewards
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
