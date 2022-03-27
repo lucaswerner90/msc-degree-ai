@@ -8,7 +8,6 @@ import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
-from PIL import Image
 from torch.distributions import Categorical
 from torch.autograd import Variable
 
