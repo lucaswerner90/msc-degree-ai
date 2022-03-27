@@ -1,4 +1,5 @@
 import random
+import os
 from itertools import count
 
 import cv2
@@ -7,6 +8,7 @@ import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
+from PIL import Image
 from torch.distributions import Categorical
 from torch.autograd import Variable
 
@@ -14,7 +16,7 @@ from torchvision import transforms
 import torchvision.models as models
 
 MAX_STEPS_PER_IMAGE = 500
-
+MAX_REWARD = 10
 np.random.seed(42)
 
 class PolicyNet(nn.Module):
@@ -25,6 +27,7 @@ class PolicyNet(nn.Module):
     def __init__(self, 
     actions, 
     hparams,
+    writer = SummaryWriter(),
     transforms = transforms.Compose(
         [
             transforms.ToTensor(),
@@ -35,12 +38,9 @@ class PolicyNet(nn.Module):
             ),
         ]
     ),
-    writer = SummaryWriter(),
-    save_file = 'policy_gradient_agent', 
     pretrained_model = models.vgg19(pretrained=True)
     ):
         super(PolicyNet, self).__init__()
-        self.save_file = save_file
         self.transforms = transforms
         self.writer = writer
         self.hparams = hparams
@@ -86,7 +86,7 @@ class PolicyNet(nn.Module):
         num_sections = 32
         section_width = image_width // num_sections
         num_sections_away = abs(predicted_x_coordinate - real_x_coordinate) // section_width
-        return 1 if num_sections_away == 0 else 1 - (num_sections_away / num_sections)
+        return MAX_REWARD if num_sections_away == 0 else 1 - (num_sections_away / num_sections)
 
     def select_action(self, probs: torch.Tensor) -> int:
         """
@@ -174,7 +174,7 @@ class PolicyNet(nn.Module):
 
                 # If we reach the correct segment of the image, we know
                 # that we're doing good and we can stop there
-                if reward == 1 or t > MAX_STEPS_PER_IMAGE:
+                if reward == MAX_REWARD or t > MAX_STEPS_PER_IMAGE:
                     episodes_duration.append(t + 1)
                     print('-------------------------------------------------')
                     print(f'Episode {episode+1}/{total_episodes} \t duration:{t} \t\t Last Reward: {reward}')
@@ -199,14 +199,6 @@ class PolicyNet(nn.Module):
                 # Normalize reward
                 reward_mean = np.mean(reward_pool)
                 reward_std = np.std(reward_pool)
-
-                self.writer.add_hparams(
-                    self.hparams,
-                    {
-                        'train/reward_mean':reward_mean,
-                        'train/reward_std':reward_std 
-                    }
-                )
 
                 self.writer.add_scalar('Training reward mean', reward_mean, episode)
                 self.writer.add_scalar('Training reward std', reward_std, episode)
@@ -250,75 +242,138 @@ class PolicyNet(nn.Module):
                     np.std(test_rewards),
                     episode
                 )
-                print(f'Mean reward: {np.mean(test_rewards)}')
-                self.train()
 
-        # Save the model
-        print(f'Saving the model to...{self.save_file}_{episode}.pth')
-        torch.save(self.state_dict(), f'{self.save_file}.pth')
-
-    def predict_image(self, image, initial_point_of_view = random.random()):
+    def predict_image(
+            self,
+            image,
+            initial_point_of_view = random.random(),
+            use_action_break = True,
+            max_actions = 10
+        ):
         """
         Gets the file name of the image and returns the predicted points
         and actions till we reach a number of tries or the action is NONE 
         which would mean that we're in the correct spot
         """
-        self.eval()
-        _, img_width, img_height = image.shape
-        img = self.transforms(image)
-        img = self.pretrained_model(torch.unsqueeze(img, 0))
-        img = img.squeeze()
+        with torch.no_grad():
+            _, img_width, img_height = image.shape
+            img = self.transforms(image)
+            img = self.pretrained_model(torch.unsqueeze(img, 0))
+            img = img.squeeze()
 
-        do_action = True
-        num_tries = 0
-        # Calculate the initial point of view
-        point_of_view = torch.Tensor([initial_point_of_view])
-        state = torch.concat((img, point_of_view))
-
-        actions = []
-        points = [round(point_of_view.item() * img_width)]
-
-        while do_action or num_tries < 20:
-
-            probs = self.forward(torch.unsqueeze(state, 0))
-            action = self.select_action(probs.squeeze())
-
-            if self.actions[action] == 'NONE':
-                break
-
-            # Calculate reward based on the current point of view 
-            # and the action selected
-            point_of_view = round(point_of_view.item() * img_width)
-            next_point_of_view = self.calculate_next_movement(
-                img_width,
-                point_of_view, 
-                self.actions[action]
-            )
-            point_of_view = torch.Tensor([next_point_of_view / img_width])
-
-            actions.append(self.actions[action])
-            points.append(round(point_of_view.item()*img_width))
-
+            # Calculate the initial point of view
+            point_of_view = torch.Tensor([initial_point_of_view])
             state = torch.concat((img, point_of_view))
 
-            num_tries+=1
+            actions = []
+            points = [round(point_of_view.item() * img_width)]
+
+            for _ in range(max_actions):
+                probs = self.forward(torch.unsqueeze(state, 0))
+                action = self.select_action(probs.squeeze())
+
+                if use_action_break and self.actions[action] == 'NONE':
+                    break
+
+                point_of_view = round(point_of_view.item() * img_width)
+                next_point_of_view = self.calculate_next_movement(
+                    img_width,
+                    point_of_view, 
+                    self.actions[action]
+                )
+                point_of_view = torch.Tensor([next_point_of_view / img_width])
+
+                actions.append(self.actions[action])
+                points.append(round(point_of_view.item()*img_width))
+
+                state = torch.concat((img, point_of_view))
 
         return actions, points
 
 
     def test_model(self,df):
-        self.eval()
-        rewards = []
-        print(f'Init testing on test dataframe with {len(df)} images')
-        for i in range(len(df)):
-            image, real_x, _ = self.get_row(df,i)
-            _, img_width, _ = image.shape
-            actions, points = self.predict_image(image)
-            last_reward = self.calculate_reward(img_width, real_x, points[-1])
-            rewards.append(last_reward)
-            print(f'Reward for image number {i} \t\t -> \t{last_reward}')
+        with torch.no_grad():
+            rewards = []
+            print(f'Init testing on test dataframe with {len(df)} images')
+            for i in range(len(df)):
+                image, real_x, _ = self.get_row(df,i)
+                _, img_width, _ = image.shape
+                actions, points = self.predict_image(image)
+                last_reward = self.calculate_reward(img_width, real_x, points[-1])
+                rewards.append(last_reward)
+                print(f'Reward for image number {i} \t\t -> \t{last_reward}')
 
-        return rewards
+            return rewards
+
+
+    def eval_model(self,df,images_dir='./data/model_test_images/reward_10'):
+        """
+        Uses a validation dataframe to test the model after training.
+        Saves the images with the prediction information into the images_dir param
+        """
+        num_images = len(df)
+        for row in range(num_images):
+            image, real_x, _ = self.get_row(df, row)
+            img_height, img_width, _ = image.shape
+            image_y_position = round(img_height/2)
+            actions, points = self.predict_image(image, 0.5)
+
+            # Print the real and predicted point in the image
+            # and text with the real point and the predicted point
+            image = cv2.circle(
+                image,
+                (points[-1],image_y_position),
+                radius=4,
+                color=(0, 255, 255),
+                thickness=5
+            )
+            image = cv2.circle(
+                image,
+                (real_x,image_y_position),
+                radius=4,
+                color=(0, 0, 255),
+                thickness=5
+            )
+            image = cv2.putText(
+                image,
+                "Predicted",
+                (points[-1],image_y_position+30),
+                cv2.FONT_HERSHEY_PLAIN,
+                1,
+                (0, 255, 255),
+                1,
+                cv2.LINE_AA
+            )
+            
+            image = cv2.putText(
+                image,
+                f"Predicted: {points[-1]}",
+                (20,img_height-50),
+                cv2.FONT_HERSHEY_PLAIN,
+                1,
+                (0, 255, 255),
+                1,
+                cv2.LINE_AA
+            )
+            image = cv2.putText(
+                image,
+                f"Real: {real_x}",
+                (20,img_height-20),
+                cv2.FONT_HERSHEY_PLAIN,
+                1,
+                (0, 255, 255),
+                1,
+                cv2.LINE_AA
+            )
+            
+            # Save the image into the directory
+            filename = os.path.join(
+                images_dir,
+                f'{row}_real_{real_x}_predicted_{points[-1]}.jpg'
+            )
+            cv2.imwrite(filename,image)
+
+            print(f'{row}/{num_images}\t Predicted:{points[-1]}\tReal:{real_x}\tNum of actions:{len(actions)}\t')
 
     def forward(self, x):
         x = F.relu(self.fc1(x))

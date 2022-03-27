@@ -8,7 +8,6 @@ of the RL agent.
 import os
 import logging
 import warnings
-import numpy as np
 import pandas as pd
 import argparse
 import cv2
