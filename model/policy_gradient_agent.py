@@ -26,38 +26,34 @@ class PolicyNet(nn.Module):
     def __init__(self, 
     actions, 
     hparams,
-    use_dropout = False,
     experiment_name = 'policy_gradient_reward1',
-    transforms = transforms.Compose(
-        [
-            transforms.ToTensor(),
-            transforms.Resize([224, 224]),
-            transforms.Normalize(
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225]
-            ),
-        ]
-    ),
-    pretrained_model = models.vgg19(pretrained=True)
     ):
         super(PolicyNet, self).__init__()
-        self.use_dropout = use_dropout
-        self.transforms = transforms
         self.experiment_name = experiment_name
         self.writer = SummaryWriter(log_dir='runs',comment=self.experiment_name)
         self.hparams = hparams
         self.actions = actions
         self.num_actions = len(self.actions)
-
+        self.transforms = transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Resize([224, 224]),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.224, 0.225]
+                ),
+            ]
+        )
         # Load the pretrained model that will preprocess the image
         # before moving it to the agent
-        pretrained_model.classifier = nn.Sequential(
-            *list(pretrained_model.classifier.children())[:-2]
+        self.pretrained_model = models.vgg19(pretrained=True)
+
+        self.pretrained_model.classifier = nn.Sequential(
+            *list(self.pretrained_model.classifier.children())[:-2]
         )
-        for params in pretrained_model.parameters():
+        for params in self.pretrained_model.parameters():
             params.requires_grad = False
 
-        self.pretrained_model = pretrained_model
 
         self.model = nn.Sequential(
             nn.Linear(4096+1, 1024),
@@ -134,7 +130,9 @@ class PolicyNet(nn.Module):
         state_pool = []
         steps = 0
         total_episodes = len(df_train)
-
+        
+        # Añadir un bucle de EPOCHS
+        
         for episode in range(total_episodes):
             original_image, real_x, real_y = self.get_row(df_train,episode)
             # Read and transform the original image to be able to fit it
@@ -200,7 +198,8 @@ class PolicyNet(nn.Module):
                     break
             
             # Update the policy after batch size steps
-            if episode > 0 and episode % self.hparams["batch_size"] == 0:
+            # La recompensa maxima seria 16
+            if episode > 0 and episode % self.hparams["batch_size"] == 0: 
                 running_add = 0
                 for i in reversed(range(steps)):
                     running_add = running_add * self.hparams["gamma"] + reward_pool[i]
@@ -318,7 +317,10 @@ class PolicyNet(nn.Module):
         Uses a validation dataframe to test the model after training.
         Saves the images with the prediction information into the images_dir param
         """
+
         images_dir=f'./data/model_test_images/{self.experiment_name}'
+        if not os.path.exists(images_dir):
+            os.makedirs(images_dir)
 
         with torch.no_grad():
             num_images = len(df)

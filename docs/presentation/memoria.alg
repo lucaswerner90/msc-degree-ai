@@ -1,6 +1,6 @@
 ;; This logfile was generated automatically by `xindy'
-;; at 02.08.2020  07:57:16
-;; Indexstyle: "/var/folders/4n/jnlz0qvx39qdxmjjq0xpqftw0000gn/T/KhbcmZg6oj", Rawindex: "/var/folders/4n/jnlz0qvx39qdxmjjq0xpqftw0000gn/T/t8bP6TdsoD", Output: "memoria.acr"
+;; at 30.03.2022  18:58:23
+;; Indexstyle: "/var/folders/m3/_my7yl913gs59vc5prp0lrzh0000gn/T/cDR3GXQvwT", Rawindex: "/var/folders/m3/_my7yl913gs59vc5prp0lrzh0000gn/T/bYOqbKpKdv", Output: "memoria.acr"
 
 
 Building indexentry-tree:
