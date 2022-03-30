@@ -15,7 +15,7 @@ from torchvision import transforms
 import torchvision.models as models
 
 MAX_STEPS_PER_IMAGE = 500
-MAX_REWARD = 10
+MAX_REWARD = 1
 np.random.seed(42)
 
 class PolicyNet(nn.Module):
@@ -26,7 +26,8 @@ class PolicyNet(nn.Module):
     def __init__(self, 
     actions, 
     hparams,
-    writer = SummaryWriter(),
+    use_dropout = False,
+    experiment_name = 'policy_gradient_reward1',
     transforms = transforms.Compose(
         [
             transforms.ToTensor(),
@@ -40,8 +41,10 @@ class PolicyNet(nn.Module):
     pretrained_model = models.vgg19(pretrained=True)
     ):
         super(PolicyNet, self).__init__()
+        self.use_dropout = use_dropout
         self.transforms = transforms
-        self.writer = writer
+        self.experiment_name = experiment_name
+        self.writer = SummaryWriter(log_dir='runs',comment=self.experiment_name)
         self.hparams = hparams
         self.actions = actions
         self.num_actions = len(self.actions)
@@ -56,23 +59,19 @@ class PolicyNet(nn.Module):
 
         self.pretrained_model = pretrained_model
 
-        # Define the model structure
-        self.fc1 = nn.Linear(4096+1, 1024)
-        self.fc2 = nn.Linear(1024, 256)
-        self.fc3 = nn.Linear(256, 64)
-        self.fc4 = nn.Linear(64, self.num_actions)
-
-    def calculate_next_movement(self, image_width:int, point_of_view:int, action:str) -> int:
-        """
-        Given the current position of our view, the total image width in pixels
-        and the next action, we return the next point of view
-        """
-        distance = 20  # pixels distance
-        if action == "LEFT":
-            return max(1, point_of_view - distance)  # 200 => 200 - distancia
-        if action == "RIGHT":
-            return min(image_width - 1, point_of_view + distance)
-        return point_of_view
+        self.model = nn.Sequential(
+            nn.Linear(4096+1, 1024),
+            nn.ReLU(),
+            nn.Dropout(),
+            nn.Linear(1024, 256),
+            nn.ReLU(),
+            nn.Dropout(),
+            nn.Linear(256, 64),
+            nn.ReLU(),
+            nn.Dropout(),
+            nn.Linear(64, self.num_actions),
+            nn.Softmax(dim=-1)
+        )
 
     def calculate_reward(self, image_width, real_x_coordinate, predicted_x_coordinate):
         """
@@ -86,6 +85,18 @@ class PolicyNet(nn.Module):
         section_width = image_width // num_sections
         num_sections_away = abs(predicted_x_coordinate - real_x_coordinate) // section_width
         return MAX_REWARD if num_sections_away == 0 else 1 - (num_sections_away / num_sections)
+
+    def calculate_next_movement(self, image_width:int, point_of_view:int, action:str) -> int:
+        """
+        Given the current position of our view, the total image width in pixels
+        and the next action, we return the next point of view
+        """
+        distance = 20  # pixels distance
+        if action == "LEFT":
+            return max(1, point_of_view - distance)  # 200 => 200 - distancia
+        if action == "RIGHT":
+            return min(image_width - 1, point_of_view + distance)
+        return point_of_view
 
     def select_action(self, probs: torch.Tensor) -> int:
         """
@@ -208,8 +219,6 @@ class PolicyNet(nn.Module):
                 # Gradient Descent
                 optimizer.zero_grad()
 
-                print('Calculating loss...')
-
                 for i in range(steps):
                     state = state_pool[i]
                     action = Variable(torch.Tensor([action_pool[i]]))
@@ -228,7 +237,6 @@ class PolicyNet(nn.Module):
                 reward_pool = []
                 steps = 0
                 
-
                 # Test the network
                 test_rewards = self.test_model(df_test)
                 self.writer.add_scalar(
@@ -305,78 +313,78 @@ class PolicyNet(nn.Module):
             return rewards
 
 
-    def eval_model(self,df,images_dir='./data/model_test_images/reward_10'):
+    def eval_model(self, df):
         """
         Uses a validation dataframe to test the model after training.
         Saves the images with the prediction information into the images_dir param
         """
-        num_images = len(df)
-        for row in range(num_images):
-            image, real_x, _ = self.get_row(df, row)
-            img_height, img_width, _ = image.shape
-            image_y_position = round(img_height/2)
-            actions, points = self.predict_image(image, 0.5)
+        images_dir=f'./data/model_test_images/{self.experiment_name}'
 
-            # Print the real and predicted point in the image
-            # and text with the real point and the predicted point
-            image = cv2.circle(
-                image,
-                (points[-1],image_y_position),
-                radius=4,
-                color=(0, 255, 255),
-                thickness=5
-            )
-            image = cv2.circle(
-                image,
-                (real_x,image_y_position),
-                radius=4,
-                color=(0, 0, 255),
-                thickness=5
-            )
-            image = cv2.putText(
-                image,
-                "Predicted",
-                (points[-1],image_y_position+30),
-                cv2.FONT_HERSHEY_PLAIN,
-                1,
-                (0, 255, 255),
-                1,
-                cv2.LINE_AA
-            )
-            
-            image = cv2.putText(
-                image,
-                f"Predicted: {points[-1]}",
-                (20,img_height-50),
-                cv2.FONT_HERSHEY_PLAIN,
-                1,
-                (0, 255, 255),
-                1,
-                cv2.LINE_AA
-            )
-            image = cv2.putText(
-                image,
-                f"Real: {real_x}",
-                (20,img_height-20),
-                cv2.FONT_HERSHEY_PLAIN,
-                1,
-                (0, 255, 255),
-                1,
-                cv2.LINE_AA
-            )
-            
-            # Save the image into the directory
-            filename = os.path.join(
-                images_dir,
-                f'{row}_real_{real_x}_predicted_{points[-1]}.jpg'
-            )
-            cv2.imwrite(filename,image)
+        with torch.no_grad():
+            num_images = len(df)
+            for row in range(num_images):
+                image, real_x, _ = self.get_row(df, row)
+                img_height, img_width, _ = image.shape
+                image_y_position = round(img_height/2)
+                actions, points = self.predict_image(image, 0.5)
 
-            print(f'{row}/{num_images}\t Predicted:{points[-1]}\tReal:{real_x}\tNum of actions:{len(actions)}\t')
+                # Print the real and predicted point in the image
+                # and text with the real point and the predicted point
+                image = cv2.circle(
+                    image,
+                    (points[-1],image_y_position),
+                    radius=4,
+                    color=(0, 255, 255),
+                    thickness=5
+                )
+                image = cv2.circle(
+                    image,
+                    (real_x,image_y_position),
+                    radius=4,
+                    color=(0, 0, 255),
+                    thickness=5
+                )
+                image = cv2.putText(
+                    image,
+                    "Predicted",
+                    (points[-1],image_y_position+30),
+                    cv2.FONT_HERSHEY_PLAIN,
+                    1,
+                    (0, 255, 255),
+                    1,
+                    cv2.LINE_AA
+                )
+                
+                image = cv2.putText(
+                    image,
+                    f"Predicted: {points[-1]}",
+                    (20,img_height-50),
+                    cv2.FONT_HERSHEY_PLAIN,
+                    1,
+                    (0, 255, 255),
+                    1,
+                    cv2.LINE_AA
+                )
+                image = cv2.putText(
+                    image,
+                    f"Real: {real_x}",
+                    (20,img_height-20),
+                    cv2.FONT_HERSHEY_PLAIN,
+                    1,
+                    (0, 255, 255),
+                    1,
+                    cv2.LINE_AA
+                )
+                
+                # Save the image into the directory
+                filename = os.path.join(
+                    images_dir,
+                    f'{row}_real_{real_x}_predicted_{points[-1]}_actions_taken_{len(actions)}_{self.experiment_name}.jpg'
+                )
+                cv2.imwrite(filename,image)
+
+                print(f'{row}/{num_images}\t Predicted:{points[-1]}\tReal:{real_x}\tNum of actions:{len(actions)}\t')
 
     def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
-        x = F.softmax(self.fc4(x),dim=-1)
+        x = self.model(x)
         return x

@@ -1,6 +1,6 @@
 #%%
 import pandas as pd
-from model.agent import PolicyNet
+from model.policy_gradient_agent import PolicyNet
 from sklearn.model_selection import train_test_split
 from torch.utils.tensorboard import SummaryWriter
 import torch

@@ -1,7 +1,7 @@
 #%%
 import torch
 import pandas as pd
-from model.agent import PolicyNet
+from model.policy_gradient_agent import PolicyNet
 from sklearn.model_selection import train_test_split
 # %%
 # Read the dataframe and split into train/test/validation
@@ -21,19 +21,17 @@ train, test = train_test_split(
     shuffle=True
 )
 
+#%%
 hparams = dict(
     learning_rate = 1e-4,
     batch_size = 16,
     gamma = 0.99
 )
 
-#%%
-save_file = 'policy_gradient_reward_10.pth'
 actions = ["LEFT", "RIGHT", "NONE"]
 agent = PolicyNet(actions, hparams)
 
-#%%
-# Train the model
+save_file = 'policy_gradient_reward_10.pth'
 agent.train_model(train, test)
 torch.save(agent.state_dict(), save_file)
 agent.eval_model(df_validation)
