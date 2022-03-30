@@ -21,13 +21,18 @@ IMAGE_WIDTH, IMAGE_HEIGHT = 640, 360
 warnings.filterwarnings("ignore", category=UserWarning)
 model = YoloV5CustomModel()
 
-def analyze_video(video_path, output_path) -> None:
+def analyze_video(video_path, output_path, csv_file_output='dataframe.csv') -> None:
 	"""
 	It opens a video, runs YoloV5 model on it
-	and saves the results on the output path.
+	and saves the frames that contain persons on the output path.
 
 	Only frames that contain predictions will be 
 	added to the output dataframe.
+
+	The final dataframe will contain rows with 3 diffrent properties:
+		* filename
+		* prediction_x
+		* prediction_y
 	"""
 	output_dir = os.path.join(output_path,'processed_frames')
 	if not os.path.exists(output_dir):
@@ -67,7 +72,7 @@ def analyze_video(video_path, output_path) -> None:
 		'prediction_x': list(map(lambda x: x[0], predictions)),
 		'prediction_y': list(map(lambda x: x[1], predictions))
 	})
-	df.to_csv(os.path.join(output_path,'dataframe.csv'), index=False)
+	df.to_csv(os.path.join(output_path,csv_file_output), index=False)
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()

@@ -129,6 +129,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-runs/
 **/yolov5*.pt
 **/*.pth
