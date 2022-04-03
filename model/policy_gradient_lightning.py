@@ -20,10 +20,8 @@ class PolicyGradientLightning(pl.LightningModule):
             nn.Dropout(),
             nn.Linear(1024, 256),
             nn.ReLU(),
-            nn.Dropout(),
             nn.Linear(256, 64),
             nn.ReLU(),
-            nn.Dropout(),
             nn.Linear(64, self.num_actions),
             nn.Softmax(dim=-1)
         )
@@ -67,17 +65,16 @@ class PolicyGradientLightning(pl.LightningModule):
 		return x
 
 	def configure_optimizers(self):
-		optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
-		lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1)
-		return [optimizer], [lr_scheduler]
+		optimizer = torch.optim.RMSprop(self.parameters(), lr=1e-4)
+		return optimizer
 
 	def training_step(self, train_batch, batch_idx):
 		original_image, image, real_x = train_batch["original_image"], train_batch["image"], train_batch["real_x"]
 		batch_size, _, img_width, _ = original_image.shape
+		episodes_duration = []
 		reward_pool = []
 		action_pool = []
 		state_pool = []
-		final_reward_per_image = []
 		steps = 0
 		for i in range(batch_size):
 			# We get the image and the point of view
@@ -116,9 +113,9 @@ class PolicyGradientLightning(pl.LightningModule):
 
 				steps+=1
 
-				if reward == MAX_REWARD or t > 20:
-					final_reward_per_image.append(reward)
-					print(f'Episode {i+1}/{batch_size} finished after {t+1} steps with reward {reward}')
+				if reward == MAX_REWARD:
+					episodes_duration.append(t)
+					print(f'Episode {i+1}/{batch_size} finished after {t+1} steps')
 					break
 
 		
@@ -126,15 +123,17 @@ class PolicyGradientLightning(pl.LightningModule):
 		gamma = 0.99
 
 		for i in reversed(range(steps)):
-			running_add = running_add * gamma + reward_pool[i]
-			reward_pool[i] = running_add
+			if reward_pool[i] == MAX_REWARD:
+				running_add = 0
+			else:
+				running_add = running_add * gamma + reward_pool[i]
+				reward_pool[i] = running_add
 
 		# Normalize reward
 		reward_mean = np.mean(reward_pool)
 		reward_std = np.std(reward_pool)
 		
-		self.log('train_final_reward_per_image', np.mean(final_reward_per_image))
-		self.log('train_reward_std', reward_std)
+		self.log('train_episode_duration', np.mean(episodes_duration))
 		
 		for i in range(steps):
 			reward_pool[i] = (reward_pool[i] - reward_mean) / reward_std

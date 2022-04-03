@@ -16,8 +16,8 @@ if __name__ == '__main__':
         dataset,
         [train_length, len(dataset) - train_length]
     )
-    train_loader = DataLoader(train, batch_size=16)
-    val_loader = DataLoader(validation, batch_size=16)
+    train_loader = DataLoader(train, batch_size=16, shuffle=True)
+    val_loader = DataLoader(validation, batch_size=16, shuffle=True)
 
     actions = ["LEFT", "RIGHT", "NONE"]
     model = PolicyGradientLightning(actions)
