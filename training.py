@@ -1,43 +1,43 @@
 #%%
-import torch
-import pandas as pd
-from model.policy_gradient_agent import PolicyNet
-from sklearn.model_selection import train_test_split
-# %%
-# Read the dataframe and split into train/test/validation
-dataframe = pd.read_csv('./data/dataframe.csv')
+from distutils.util import strtobool
+import pytorch_lightning as pl
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from pytorch_lightning.loggers import TensorBoardLogger
 
-df_train, df_validation = train_test_split(
-    dataframe, 
-    test_size=0.1,
-    random_state=42,
-    shuffle=True
-)
-
-train, test = train_test_split(
-    df_train,
-    test_size=0.2,
-    random_state=42,
-    shuffle=True
-)
+from torch.utils.data import DataLoader
+from torch.utils.data import random_split
+from dataloader import DroneImages
+from model.policy_gradient_lightning import PolicyGradientLightning
 
 #%%
-hparams = dict(
-    learning_rate = 1e-4,
-    batch_size = 16,
-    gamma = 0.99
+# Read the dataframe and split into train/test/validation
+dataset = DroneImages("./data/dataframe.csv")
+train_length = int(len(dataset) * 0.8)
+train, validation = random_split(
+    dataset,
+    [train_length, len(dataset) - train_length]
 )
+train_loader = DataLoader(train, batch_size=32, num_workers=4)
+val_loader = DataLoader(validation, batch_size=32, num_workers=4)
 
 actions = ["LEFT", "RIGHT", "NONE"]
-agent = PolicyNet(actions, hparams)
+model = PolicyGradientLightning(actions)
 
-save_file = 'policy_gradient_reward_1_dropout.pth'
-agent.train_model(train, test)
-torch.save(agent.state_dict(), save_file)
-agent.eval_model(df_validation)
+logger = TensorBoardLogger("runs", name="policy_gradient_lightning")
+checkpoint_callback = ModelCheckpoint(dirpath="./model/checkpoints/policy_gradient", save_top_k=2, monitor="val_loss")
+early_stopping = EarlyStopping(monitor="val_loss", mode="min", patience=3)
+
+trainer = pl.Trainer(
+    gpus=0,
+    min_epochs=10,
+    max_epochs=100,
+    logger=logger,
+    log_every_n_steps=5,
+    callbacks=[checkpoint_callback, early_stopping]
+)
+trainer.fit(model, train_loader, val_loader)
 
 # Usar una sola acción por imagen => en vez de ejecutar una accion y mover el punto central, ejecutar solamente esa acción por cada imagen
 # Empezar a probar con diferentes algoritmos => probar con el actor critic
 
-def calculate_reward(image_width, real_x, action):
-    pass
+# %%
