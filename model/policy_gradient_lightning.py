@@ -77,12 +77,13 @@ class PolicyGradientLightning(pl.LightningModule):
 		reward_pool = []
 		action_pool = []
 		state_pool = []
+		final_reward_per_image = []
 		steps = 0
 		for i in range(batch_size):
 			# We get the image and the point of view
 			image_i = image[i]
 			real_i = real_x[i]
-			point_of_view = torch.Tensor([0.5]) 
+			point_of_view = torch.Tensor([np.random.rand()]) 
 			initial_state = torch.concat((image_i, point_of_view))
 			state = Variable(initial_state)
 
@@ -116,6 +117,8 @@ class PolicyGradientLightning(pl.LightningModule):
 				steps+=1
 
 				if reward == MAX_REWARD or self.actions[action] == "NONE" or t > 20:
+					final_reward_per_image.append(reward)
+					print(f'Episode {i+1}/{batch_size} finished after {t+1} steps with reward {reward}')
 					break
 
 		
@@ -129,7 +132,10 @@ class PolicyGradientLightning(pl.LightningModule):
 		# Normalize reward
 		reward_mean = np.mean(reward_pool)
 		reward_std = np.std(reward_pool)
-
+		
+		self.log('train_final_reward_per_image', np.mean(final_reward_per_image))
+		self.log('train_reward_std', reward_std)
+		
 		for i in range(steps):
 			reward_pool[i] = (reward_pool[i] - reward_mean) / reward_std
 
@@ -144,7 +150,6 @@ class PolicyGradientLightning(pl.LightningModule):
 			current_loss = -m.log_prob(action) * reward  # Negative score function x reward
 			loss += current_loss
 
-		loss = loss / steps
 		self.log('train_loss', loss)
 		return loss
 
@@ -154,12 +159,13 @@ class PolicyGradientLightning(pl.LightningModule):
 		reward_pool = []
 		action_pool = []
 		state_pool = []
+		final_reward_per_image = []
 		steps = 0
 		for i in range(batch_size):
 			# We get the image and the point of view
 			image_i = image[i]
 			real_i = real_x[i]
-			point_of_view = torch.Tensor([0.5]) 
+			point_of_view = torch.Tensor([np.random.rand()]) 
 			initial_state = torch.concat((image_i, point_of_view))
 			state = Variable(initial_state)
 
@@ -193,6 +199,7 @@ class PolicyGradientLightning(pl.LightningModule):
 				steps+=1
 
 				if self.actions[action] == 'NONE':
+					final_reward_per_image.append(reward)
 					break
 
 		running_add = 0
@@ -205,6 +212,9 @@ class PolicyGradientLightning(pl.LightningModule):
 		# Normalize reward
 		reward_mean = np.mean(reward_pool)
 		reward_std = np.std(reward_pool)
+
+		self.log('validation_reward_mean', np.mean(final_reward_per_image))
+		self.log('validation_reward_std', reward_std)
 
 		for i in range(steps):
 			reward_pool[i] = (reward_pool[i] - reward_mean) / reward_std
@@ -220,7 +230,6 @@ class PolicyGradientLightning(pl.LightningModule):
 			current_loss = -m.log_prob(action) * reward  # Negative score function x reward
 			loss += current_loss
 
-		loss = loss / steps
 		self.log('val_loss', loss)
 		return loss
 
