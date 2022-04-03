@@ -116,7 +116,7 @@ class PolicyGradientLightning(pl.LightningModule):
 
 				steps+=1
 
-				if reward == MAX_REWARD or self.actions[action] == "NONE" or t > 20:
+				if reward == MAX_REWARD or t > 20:
 					final_reward_per_image.append(reward)
 					print(f'Episode {i+1}/{batch_size} finished after {t+1} steps with reward {reward}')
 					break

@@ -1,5 +1,5 @@
 #%%
-from distutils.util import strtobool
+import torch
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -16,8 +16,8 @@ if __name__ == '__main__':
         dataset,
         [train_length, len(dataset) - train_length]
     )
-    train_loader = DataLoader(train, batch_size=16, num_workers=4)
-    val_loader = DataLoader(validation, batch_size=16, num_workers=4)
+    train_loader = DataLoader(train, batch_size=16)
+    val_loader = DataLoader(validation, batch_size=16)
 
     actions = ["LEFT", "RIGHT", "NONE"]
     model = PolicyGradientLightning(actions)
@@ -27,7 +27,6 @@ if __name__ == '__main__':
     # early_stopping = EarlyStopping(monitor="validation_reward_mean", mode="min", patience=3)
 
     trainer = pl.Trainer(
-        gpus=0,
         min_epochs=10,
         max_epochs=100,
         logger=logger,
