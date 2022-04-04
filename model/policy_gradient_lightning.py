@@ -113,9 +113,8 @@ class PolicyGradientLightning(pl.LightningModule):
 
 				steps+=1
 
-				if reward == MAX_REWARD:
+				if reward == MAX_REWARD or t == 99:
 					episodes_duration.append(t)
-					print(f'Episode {i+1}/{batch_size} finished after {t+1} steps')
 					break
 
 		
@@ -133,6 +132,7 @@ class PolicyGradientLightning(pl.LightningModule):
 		reward_mean = np.mean(reward_pool)
 		reward_std = np.std(reward_pool)
 		
+		print(f'Episodes duration: {np.mean(episodes_duration)}')
 		self.log('train_episode_duration', np.mean(episodes_duration))
 		
 		for i in range(steps):

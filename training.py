@@ -16,13 +16,13 @@ if __name__ == '__main__':
         dataset,
         [train_length, len(dataset) - train_length]
     )
-    train_loader = DataLoader(train, batch_size=16, shuffle=True)
-    val_loader = DataLoader(validation, batch_size=16, shuffle=True)
+    train_loader = DataLoader(train, batch_size=16, num_workers=16)
+    val_loader = DataLoader(validation, batch_size=16, num_workers=16)
 
     actions = ["LEFT", "RIGHT", "NONE"]
     model = PolicyGradientLightning(actions)
 
-    logger = TensorBoardLogger("runs", name="policy_gradient_lightning")
+    logger = TensorBoardLogger("runs", name="policy_gradient_lightning", version=4)
     checkpoint_callback = ModelCheckpoint(dirpath="./model/checkpoints/policy_gradient", save_top_k=2, monitor="validation_reward_mean")
     # early_stopping = EarlyStopping(monitor="validation_reward_mean", mode="min", patience=3)
 
