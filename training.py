@@ -23,21 +23,19 @@ train, test = train_test_split(
 
 #%%
 hparams = dict(
-    learning_rate = 1e-4,
+    learning_rate = 1e-5,
     batch_size = 16,
-    gamma = 0.99
+    gamma = 0.95,
+    epochs=50
 )
 
 actions = ["LEFT", "RIGHT", "NONE"]
 agent = PolicyNet(actions, hparams)
 
-save_file = 'policy_gradient_reward_1_dropout.pth'
+save_file = 'policy_gradient_reward_50_steps_per_image_v2.pth'
 agent.train_model(train, test)
 torch.save(agent.state_dict(), save_file)
 agent.eval_model(df_validation)
 
 # Usar una sola acción por imagen => en vez de ejecutar una accion y mover el punto central, ejecutar solamente esa acción por cada imagen
 # Empezar a probar con diferentes algoritmos => probar con el actor critic
-
-def calculate_reward(image_width, real_x, action):
-    pass

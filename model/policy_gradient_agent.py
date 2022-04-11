@@ -14,7 +14,7 @@ from torch.autograd import Variable
 from torchvision import transforms
 import torchvision.models as models
 
-MAX_STEPS_PER_IMAGE = 500
+MAX_STEPS_PER_IMAGE = 50
 MAX_REWARD = 1
 np.random.seed(42)
 
@@ -26,11 +26,11 @@ class PolicyNet(nn.Module):
     def __init__(self, 
     actions, 
     hparams,
-    experiment_name = 'policy_gradient_reward1',
+    experiment_name = 'policy_gradient_agent_v7',
     ):
         super(PolicyNet, self).__init__()
         self.experiment_name = experiment_name
-        self.writer = SummaryWriter(log_dir='runs',comment=self.experiment_name)
+        self.writer = SummaryWriter(log_dir='runs/Policy gradient normalized image rewards v2',comment=self.experiment_name)
         self.hparams = hparams
         self.actions = actions
         self.num_actions = len(self.actions)
@@ -114,147 +114,131 @@ class PolicyNet(nn.Module):
         )
 
     def train_model(self, df_train, df_test):
-        self.train()
-        optimizer = torch.optim.RMSprop(self.parameters(), lr=self.hparams["learning_rate"])
+        self.model.train()
+        optimizer = torch.optim.RMSprop(self.model.parameters(), lr=self.hparams["learning_rate"], alpha=0.99, eps=1e-08)
     
-        actions_taken = {
-            "LEFT":0,
-            "RIGHT":0,
-            "NONE":0
-        }
-
-        # Batch history
-        episodes_duration = []
-        action_pool = []
-        reward_pool = []
-        state_pool = []
-        steps = 0
-        total_episodes = len(df_train)
         
         # Añadir un bucle de EPOCHS
-        
-        for episode in range(total_episodes):
-            original_image, real_x, real_y = self.get_row(df_train,episode)
-            # Read and transform the original image to be able to fit it
-            # into our model correctly
-            _, img_width, img_height = original_image.shape
-            img = self.transforms(original_image)
-            img = self.pretrained_model(torch.unsqueeze(img, 0))
-            img = img.squeeze()
+        for epoch in range(self.hparams["epochs"]):
 
-            # Calculate the initial point of view
-            point_of_view = torch.Tensor([random.random()])  # img_width/2
-            # point_of_view = torch.Tensor([0.5])  # img_width/2
+            # Batch history
+            action_pool = []
+            reward_pool = np.array([])
+            state_pool = []
+            episodes_duration = [] 
+            steps = 0
+            total_episodes = len(df_train)
 
-            initial_state = torch.concat((img, point_of_view))
-            state = Variable(initial_state)
+            for episode in range(total_episodes):
+                original_image, real_x, real_y = self.get_row(df_train,episode)
+                # Read and transform the original image to be able to fit it
+                # into our model correctly
+                _, img_width, _ = original_image.shape
+                img = self.transforms(original_image)
+                img = self.pretrained_model(torch.unsqueeze(img, 0))
+                img = img.squeeze()
 
-            print('-------------------------------------------------')
-            for t in count():
-                # Approximate the model prediction to the real value
-                probs = self.forward(torch.unsqueeze(state, 0))
-                action = self.select_action(probs.squeeze())
+                # Calculate the initial point of view
+                point_of_view = torch.Tensor([random.random()])  # img_width/2
+                # point_of_view = torch.Tensor([0.5])  # img_width/2
 
-                actions_taken[self.actions[action]]+=1
+                initial_state = torch.concat((img, point_of_view))
+                state = Variable(initial_state)
 
-                # Calculate reward based on the current point of view and the action selected
-                point_of_view = round(point_of_view.item() * img_width)
-                next_point_of_view = self.calculate_next_movement(
-                    img_width,
-                    point_of_view, 
-                    self.actions[action]
-                )
-                reward = self.calculate_reward(
-                    img_width,
-                    real_x,
-                    next_point_of_view
-                )
-
-                reward_pool.append(reward)
-                action_pool.append(action)
-                state_pool.append(state.squeeze())
-
-                point_of_view = torch.Tensor([next_point_of_view / img_width])
-                state = torch.concat((img, point_of_view))
-                state = Variable(state)
-
-                steps += 1
-
-                # If we reach the correct segment of the image, we know
-                # that we're doing good and we can stop there
-                if reward == MAX_REWARD or t > MAX_STEPS_PER_IMAGE:
-                    episodes_duration.append(t + 1)
-                    print('-------------------------------------------------')
-                    print(f'Episode {episode+1}/{total_episodes} \t duration:{t} \t\t Last Reward: {reward}')
-                    print(f'Action LEFT taken:{actions_taken["LEFT"]}')
-                    print(f'Action RIGHT taken:{actions_taken["RIGHT"]}')
-                    print(f'Action NONE taken:{actions_taken["NONE"]}')
-                    print('-------------------------------------------------')
-
-                    # Reset the action count 
-                    for act in self.actions:
-                        actions_taken[act]=0
-
-                    break
-            
-            # Update the policy after batch size steps
-            # La recompensa maxima seria 16
-            if episode > 0 and episode % self.hparams["batch_size"] == 0: 
-                running_add = 0
-                for i in reversed(range(steps)):
-                    running_add = running_add * self.hparams["gamma"] + reward_pool[i]
-                    reward_pool[i] = running_add
-
-                # Normalize reward
-                reward_mean = np.mean(reward_pool)
-                reward_std = np.std(reward_pool)
-
-                self.writer.add_scalar('Training reward mean', reward_mean, episode)
-                self.writer.add_scalar('Training reward std', reward_std, episode)
-
-                for i in range(steps):
-                    reward_pool[i] = (reward_pool[i] - reward_mean) / reward_std
-
-                # Gradient Descent
-                optimizer.zero_grad()
-
-                for i in range(steps):
-                    state = state_pool[i]
-                    action = Variable(torch.Tensor([action_pool[i]]))
-                    reward = reward_pool[i]
-
+                image_rewards = []
+                for t in count():
+                    # Approximate the model prediction to the real value
                     probs = self.forward(torch.unsqueeze(state, 0))
-                    probs = probs.squeeze()
-                    m = Categorical(probs)
-                    loss = -m.log_prob(action) * reward  # Negative score function x reward
-                    loss.backward()
+                    action = self.select_action(probs.squeeze())
 
-                optimizer.step()
+                    # Calculate reward based on the current point of view and the action selected
+                    point_of_view = round(point_of_view.item() * img_width)
+                    next_point_of_view = self.calculate_next_movement(
+                        img_width,
+                        point_of_view, 
+                        self.actions[action]
+                    )
+                    reward = self.calculate_reward(
+                        img_width,
+                        real_x,
+                        next_point_of_view
+                    )
 
-                state_pool = []
-                action_pool = []
-                reward_pool = []
-                steps = 0
+                    image_rewards.append(reward)
+                    action_pool.append(action)
+                    state_pool.append(state.squeeze())
+
+                    point_of_view = torch.Tensor([next_point_of_view / img_width])
+                    state = torch.concat((img, point_of_view))
+                    state = Variable(state)
+
+                    steps += 1
+
+                    # If we reach the correct segment of the image, we know
+                    # that we're doing good and we can stop there
+                    if reward == MAX_REWARD or t == MAX_STEPS_PER_IMAGE - 1:
+                        episodes_duration.append(t)
+                        print(f"Episode {episode} finished in {t} steps")
+                        r = np.array(list(reversed([(self.hparams["gamma"]**(len(image_rewards)-i-1)) * image_rewards[i] for i in reversed(range(len(image_rewards)))])))
+                        reward_pool = np.concatenate((reward_pool, r), axis=None)
+                        break
                 
-                # Test the network
-                test_rewards = self.test_model(df_test)
-                self.writer.add_scalar(
-                    'Testing reward mean',
-                    np.mean(test_rewards),
-                    episode
-                )
-                self.writer.add_scalar(
-                    'Testing reward std',
-                    np.std(test_rewards),
-                    episode
-                )
+                # Update the policy after batch size steps
+                if episode > 0 and episode % self.hparams["batch_size"] == 0: 
 
+                    # Normalize reward
+                    reward_mean = np.mean(reward_pool)
+                    reward_std = np.std(reward_pool)
+
+                    self.writer.add_scalar('Training reward mean', reward_mean, (epoch+1)*episode)
+                    self.writer.add_scalar('Training reward std', reward_std, (epoch+1)*episode)
+                    self.writer.add_scalar('Episodes duration', np.mean(episodes_duration), (epoch+1)*episode)
+                    print('-----------------------------------------------------')
+                    print(f"Epoch {epoch} - Reward mean: {reward_mean} - Reward std: {reward_std} - Episodes duration: {np.mean(episodes_duration)}")
+                    print('-----------------------------------------------------')
+
+                    reward_pool -= reward_mean
+                    reward_pool /= reward_std
+
+                    # Gradient Descent
+                    optimizer.zero_grad()
+
+                    for i in range(steps):
+                        state = state_pool[i]
+                        action = Variable(torch.Tensor([action_pool[i]]))
+                        reward = reward_pool[i]
+
+                        probs = self.forward(torch.unsqueeze(state, 0))
+                        probs = probs.squeeze()
+                        m = Categorical(probs)
+                        loss = -m.log_prob(action) * reward  # Negative score function x reward
+                        loss.backward()
+
+                    optimizer.step()
+                    episodes_duration = []
+                    state_pool = []
+                    action_pool = []
+                    reward_pool = np.array([])
+                    steps = 0
+
+            # Test the network
+            test_rewards = self.test_model(df_test)
+            self.writer.add_scalar(
+                'Testing reward mean',
+                np.mean(test_rewards),
+                epoch
+            )
+            self.writer.add_scalar(
+                'Testing reward std',
+                np.std(test_rewards),
+                epoch
+            )
     def predict_image(
             self,
             image,
             initial_point_of_view = random.random(),
             use_action_break = True,
-            max_actions = 10
+            max_actions = 20
         ):
         """
         Gets the file name of the image and returns the predicted points
@@ -262,7 +246,7 @@ class PolicyNet(nn.Module):
         which would mean that we're in the correct spot
         """
         with torch.no_grad():
-            _, img_width, img_height = image.shape
+            img_height, img_width, channels = image.shape
             img = self.transforms(image)
             img = self.pretrained_model(torch.unsqueeze(img, 0))
             img = img.squeeze()
@@ -317,7 +301,7 @@ class PolicyNet(nn.Module):
         Uses a validation dataframe to test the model after training.
         Saves the images with the prediction information into the images_dir param
         """
-
+        
         images_dir=f'./data/model_test_images/{self.experiment_name}'
         if not os.path.exists(images_dir):
             os.makedirs(images_dir)

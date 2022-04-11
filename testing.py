@@ -1,10 +1,10 @@
 #%%
+import torch
 import pandas as pd
 from model.policy_gradient_agent import PolicyNet
 from sklearn.model_selection import train_test_split
-from torch.utils.tensorboard import SummaryWriter
-import torch
-
+# %%
+# Read the dataframe and split into train/test/validation
 dataframe = pd.read_csv('./data/dataframe.csv')
 
 _, df_validation = train_test_split(
@@ -14,31 +14,15 @@ _, df_validation = train_test_split(
     shuffle=True
 )
 
+#%%
 hparams = dict(
-    learning_rate = 1e-4,
+    learning_rate = 1e-5,
     batch_size = 16,
-    gamma = 0.99
+    gamma = 0.95,
+    epochs=50
 )
 
 actions = ["LEFT", "RIGHT", "NONE"]
-
-writer = SummaryWriter(
-	log_dir='runs',
-	comment='PG_basic_reward_10'
-)
-agent = PolicyNet(
-	actions,
-	hparams,
-	writer
-)
-
-# Load the model and test the agent
-agent.load_state_dict(
-	torch.load('policy_gradient_agent_reward_10.pth')
-)
-
-#%%
+agent = PolicyNet(actions, hparams, experiment_name="policy_gradient_50epochs_lr_1e-5_batch_16_gamma_95")
+agent.load_state_dict(torch.load('policy_gradient_reward_50_steps_per_image_v2.pth'))
 agent.eval_model(df_validation)
-
-
-# %%
