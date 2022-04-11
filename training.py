@@ -36,6 +36,3 @@ save_file = 'policy_gradient_reward_50_steps_per_image_v2.pth'
 agent.train_model(train, test)
 torch.save(agent.state_dict(), save_file)
 agent.eval_model(df_validation)
-
-# Usar una sola acción por imagen => en vez de ejecutar una accion y mover el punto central, ejecutar solamente esa acción por cada imagen
-# Empezar a probar con diferentes algoritmos => probar con el actor critic
