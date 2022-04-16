@@ -1,22 +1,18 @@
 #%%
 import torch
-import pandas as pd
 import argparse
 import numpy as np
-from itertools import count
 from collections import namedtuple
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 from torch.distributions import Categorical
 from torch.autograd import Variable
 from collections import namedtuple
-from dataloader import train_dataloader, test_dataloader
+from dataloader import train_dataset, test_dataset
 from model.actor_critic import ActorCritic
 from environment import DroneEnvironment
-
+from torch.utils.tensorboard import SummaryWriter
 
 ACTIONS = ["LEFT","RIGHT","NONE"]
 (WIDTH, HEIGHT, CHANNELS) = (640,360,3)
@@ -40,8 +36,8 @@ args = parser.parse_args()
 
 
 torch.manual_seed(args.seed)
-SavedAction = namedtuple('SavedAction', ['log_prob', 'value'])
 
+writer = SummaryWriter(log_dir="runs/Actor-Critic-v1", flush_secs=10)
 
 model = ActorCritic()
 optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
@@ -49,16 +45,19 @@ eps = np.finfo(np.float32).eps.item()
 
 
 def main():
-    num_training_images = len(train_dataloader)
+    num_training_images = len(train_dataset)
+    model.train(True)
     for epoch in range(1, args.epochs + 1):
 
-        env = DroneEnvironment(train_dataloader)
+        env = DroneEnvironment(train_dataset)
+        rewards_mean = []
+        loss_mean = []
 
         for i_episode in range(num_training_images):
 
             # reset environment and episode reward
             state = env.reset()
-            ep_reward = 0
+            
             log_probs = []
             rewards = []
             values = []
@@ -88,8 +87,8 @@ def main():
 
                 if done:
                     break
-            
-            print("Episode finished after {} timesteps".format(t+1))
+            print("-------------------------------------------------------")
+            print("Episode {}\t finished after {} timesteps".format(i_episode+1, t+1))
             
             R = 0
             if not done:
@@ -108,12 +107,66 @@ def main():
 
             optimizer.zero_grad()
             loss_fn = (policy_loss + VALUE_LOSS_COEF * value_loss)
-            loss_fn.backward(retain_graph=True)
+            
+            print("Loss: {}".format(loss_fn.mean()))
+            print("-------------------------------------------------------")
+            writer.add_scalar("Train Loss", loss_fn.mean(), (epoch*num_training_images) + i_episode)
+            writer.add_scalar("Train Rewards", np.mean(rewards), (epoch*num_training_images) + i_episode)
+            
+            loss_fn.mean().backward(retain_graph=True)
             optimizer.step()
 
+
+            rewards_mean.append(np.mean(rewards))
+            loss_mean.append(loss_fn)
+
             if i_episode % args.log_interval == 0 and i_episode > 0:
-                print('Epoch {} Episode {}\tLast reward: {:.2f}\tAverage reward: {:.2f}'.format(
-                    epoch, i_episode, ep_reward, np.mean(rewards)))
+                print('Epoch {} Episode {}\t Average reward: {:.2f}'.format(
+                    epoch, i_episode, np.mean(rewards_mean)))
+
+
+        if (epoch+1) % 2 == 0:
+            test(epoch)
+            torch.save(model.state_dict(), "checkpoints/actor_critic_model_epoch_{}.pth".format(epoch+1))
+
+def test(epoch):
+    num_test_images = len(test_dataset)
+    env = DroneEnvironment(test_dataset)
+    rewards = []
+    actions_taken = []
+    model.eval()
+    with torch.no_grad():
+        for _ in range(num_test_images):
+
+            state = env.reset()
+            done = False
+            num_actions = 0
+
+            while not done:
+                probs, state_value = model(state)
+                probs, state_value = probs.squeeze(), state_value.squeeze()
+                m = Categorical(probs)
+                action = m.sample()
+                state, reward, done, _ = env.step(ACTIONS[action])
+                num_actions+=1
+                
+                if done:
+                    rewards.append(reward)
+                    actions_taken.append(num_actions)
+                    break
+
+        writer.add_scalar(
+            "Test Mean Reward", 
+            np.mean(rewards),
+            epoch+1
+        )
+        writer.add_scalar(
+            "Test Num Actions till finish",
+            np.mean(actions_taken),
+            epoch+1
+        )
+
+    model.train(True)
 
 if __name__ == '__main__':
     main()

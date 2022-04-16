@@ -1,6 +1,5 @@
 from torch import nn
-from torch.distributions import Categorical
-import torch.functional as F
+import torch.nn.functional as F
 
 
 ACTIONS = ["LEFT","RIGHT","NONE"]

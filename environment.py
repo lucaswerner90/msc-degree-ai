@@ -9,10 +9,11 @@ from gym import spaces
 class DroneEnvironment(gym.Env):
 	metadata = {'render.modes': ['human']}
 
-	def __init__(self, dataloader):
+	def __init__(self, dataset):
+		self.current_image_index = 0
 		self.current_point = None
 		self.action_space = spaces.Discrete(3)
-		self.images_dataloader = dataloader 
+		self.dataset = dataset
 		self.observation_space = spaces.Box(low=-1, high=1, shape=(224, 224, CHANNELS))
 
 	def calculate_reward(self, predicted):
@@ -29,7 +30,11 @@ class DroneEnvironment(gym.Env):
 		return 1 if num_sections_away == 0 else 1 - (num_sections_away / num_sections)
 
 	def reset(self):
-		sample = next(iter(self.images_dataloader))
+		# Get the next image from the dataset
+		idx = self.current_image_index % len(self.dataset)
+		sample = self.dataset.__getitem__(idx)
+		self.current_image_index+=1
+
 		self.real_point = sample['real_x']
 		self.image = sample['image'].squeeze()
 		self.original_image = sample['original_image']
