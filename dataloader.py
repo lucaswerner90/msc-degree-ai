@@ -2,10 +2,11 @@ import torch
 import pandas as pd
 import numpy as np
 import cv2
-from sklearn import train_test_split
+from sklearn.model_selection import train_test_split
 import torchvision.models as models
-from torch.utils.data import Dataset, DataLoader, random_split, Subset
+from torch.utils.data import Dataset
 from torchvision import transforms
+
 np.random.seed(42)
 torch.manual_seed(42)
 
@@ -28,10 +29,10 @@ pretrained_model.classifier = torch.nn.Sequential(
 for params in pretrained_model.parameters():
 	params.requires_grad = False
 
-class DroneImages(Dataset):
+class DroneImagesDataset(Dataset):
 
-	def __init__(self, csv_path='./data/dataframe.csv', transform=IMAGE_TRANSFORMS):
-		self.df = pd.read_csv(csv_path)
+	def __init__(self, dataframe, transform=IMAGE_TRANSFORMS):
+		self.df = dataframe
 		self.transform = transform
 		self.pretrained_model = pretrained_model
 
@@ -57,8 +58,22 @@ class DroneImages(Dataset):
 
 		return sample
 
-dataset = DroneImages()
-# Split the dataset into training and validation
-train_size = int(0.8 * len(dataset))
-val_size = len(dataset) - train_size
-train_idx, val_idx = train_test_split()
+dataframe = pd.read_csv('./data/dataframe.csv')
+
+df_train, df_validation = train_test_split(
+    dataframe, 
+    test_size=0.1,
+    random_state=42,
+    shuffle=True
+)
+
+df_train, df_test = train_test_split(
+    df_train,
+    test_size=0.2,
+    random_state=42,
+    shuffle=True
+)
+
+train_dataset = DroneImagesDataset(df_train)
+validation_dataset = DroneImagesDataset(df_validation)
+test_dataset = DroneImagesDataset(df_test)

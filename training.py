@@ -3,13 +3,12 @@ import torch
 import argparse
 import cv2
 import numpy as np
-from collections import namedtuple
-
+import os
 import torch
 import torch.optim as optim
+from itertools import count
 from torch.distributions import Categorical
 from torch.autograd import Variable
-from collections import namedtuple
 from dataloader import train_dataset, test_dataset
 from model.actor_critic import ActorCritic
 from environment import DroneEnvironment
@@ -17,8 +16,8 @@ from torch.utils.tensorboard import SummaryWriter
 
 ACTIONS = ["LEFT","RIGHT","NONE"]
 (WIDTH, HEIGHT, CHANNELS) = (640,360,3)
-VALUE_LOSS_COEF = 0.5
-GAMMA = 0.99
+VALUE_LOSS_COEF = 0.8
+GAMMA = 0.95
 
 parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
 parser.add_argument('--epochs', type=int, default=20, metavar='N',
@@ -28,7 +27,7 @@ parser.add_argument('--gamma', type=float, default=0.99, metavar='G',
 parser.add_argument('--seed', type=int, default=42, metavar='N',
                     help='random seed (default: 42)')
 parser.add_argument('--learning-rate', type=float, default=1e-5, metavar='N',
-                    help='learning rate (default: 1e-3)')
+                    help='learning rate (default: 1e-5)')
 parser.add_argument('--render', action='store_true',
                     help='render the environment')
 parser.add_argument('--log-interval', type=int, default=10, metavar='N',
@@ -38,11 +37,19 @@ args = parser.parse_args()
 
 torch.manual_seed(args.seed)
 
-writer = SummaryWriter(log_dir="runs/Actor-Critic-v1", flush_secs=10)
+experiment_name = 'Actor-Critic-v2'
+images_testing_dir = f'data/training_images/actor_critic/{experiment_name}/testing'
+images_training_dir = f'data/training_images/actor_critic/{experiment_name}/training'
+
+if not os.path.exists(images_training_dir):
+    os.makedirs(images_training_dir)
+if not os.path.exists(images_testing_dir):
+    os.makedirs(images_testing_dir)
+
+writer = SummaryWriter(log_dir=f"runs/{experiment_name}", flush_secs=10)
 
 model = ActorCritic()
 optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
-eps = np.finfo(np.float32).eps.item()
 
 
 def main():
@@ -88,47 +95,51 @@ def main():
 
                 if done:
                     break
-            print("-------------------------------------------------------")
-            print("Episode {}\t finished after {} timesteps with reward {}".format(i_episode+1, t+1, reward))
-            
-            cv2.imwrite("data/training_images/actor_critic/v1/training/image_{}_epoch_{}_reward_{}.png".format(i_episode, epoch, reward),env.get_image())
-            R = 0
-            if not done:
-                _, value = model(state)
-                R = value.data
-
-            values.append(R)
-            policy_loss = 0
-            value_loss = 0
-
-            for i in reversed(range(len(rewards))):
-                R = GAMMA * R + rewards[i]
-                advantage = R - values[i]
-                value_loss = value_loss + 0.5 * advantage.pow(2)
-                policy_loss = policy_loss - (log_probs[i] * Variable(advantage))
-
-            optimizer.zero_grad()
-            loss_fn = (policy_loss + VALUE_LOSS_COEF * value_loss)
-            
-            print("Loss: {}".format(loss_fn.mean()))
-            print("-------------------------------------------------------")
-            writer.add_scalar("Train Loss", loss_fn.mean(), (epoch*num_training_images) + i_episode)
-            writer.add_scalar("Train Rewards", np.mean(rewards), (epoch*num_training_images) + i_episode)
-            
-            loss_fn.mean().backward(retain_graph=True)
-            optimizer.step()
-
-
-            rewards_mean.append(np.mean(rewards))
 
             if i_episode % args.log_interval == 0 and i_episode > 0:
+                print("Episode {}\t finished after {} timesteps with reward {}".format(i_episode+1, t+1, reward))
+                R = 0
+                if not done:
+                    _, value = model(state)
+                    R = value.data
+
+                values.append(R)
+                policy_loss = 0
+                value_loss = 0
+
+                for i in reversed(range(len(rewards))):
+                    R = GAMMA * R + rewards[i]
+                    advantage = R - values[i]
+                    value_loss = value_loss + 0.5 * advantage.pow(2)
+                    policy_loss = policy_loss - (log_probs[i] * Variable(advantage))
+
+                optimizer.zero_grad()
+                loss_fn = (policy_loss + VALUE_LOSS_COEF * value_loss)
+
+                writer.add_scalar("Train Loss", loss_fn.sum(), (epoch*num_training_images) + i_episode)
+                writer.add_scalar("Train Rewards", np.mean(rewards), (epoch*num_training_images) + i_episode)
+                writer.add_scalar("Episodes duration", t+1, (epoch*num_training_images) + i_episode)
+                
+                loss_fn.sum().backward()
+                optimizer.step()
+
+
+                rewards_mean.append(np.mean(rewards))
+
+            
                 print('Epoch {} Episode {}\t Average reward: {:.2f}'.format(
                     epoch, i_episode, np.mean(rewards_mean)))
+                cv2.imwrite(
+                    os.path.join(images_training_dir, "image_{}_epoch_{}_reward_{}.png".format(i_episode+1,epoch,reward)),
+                    env.get_image()
+                )
+                rewards_mean = []
 
 
         if (epoch+1) % 2 == 0:
             test(epoch)
             torch.save(model.state_dict(), "checkpoints/actor_critic_model_epoch_{}.pth".format(epoch+1))
+
 
 def test(epoch):
     num_test_images = len(test_dataset)
@@ -151,10 +162,14 @@ def test(epoch):
                 state, reward, done, _ = env.step(ACTIONS[action])
                 num_actions+=1
                 
-                if done:
+                if ACTIONS[action] == 'NONE':
+                    done = True
                     rewards.append(reward)
                     actions_taken.append(num_actions)
-                    cv2.imwrite("data/training_images/actor_critic/v1/testing/image_{}_epoch_{}_actions_taken_{}.png".format(idx, epoch, num_actions),env.get_image())
+                    cv2.imwrite(
+                        os.path.join(images_testing_dir, "image_{}_epoch_{}_actions_taken_{}.png".format(idx, epoch, num_actions)),
+                        env.get_image()
+                    )
                     break
 
         writer.add_scalar(

@@ -3,8 +3,9 @@ import torch
 import numpy as np
 import cv2
 from gym import spaces
-
+from dataloader import DroneImagesDataset
 (WIDTH, HEIGHT, CHANNELS) = (640,360,3)
+
 
 class DroneEnvironment(gym.Env):
 	metadata = {'render.modes': ['human']}
@@ -15,6 +16,7 @@ class DroneEnvironment(gym.Env):
 		self.actions_taken = 0
 		self.action_space = spaces.Discrete(3)
 		self.dataset = dataset
+
 		self.observation_space = spaces.Box(low=-1, high=1, shape=(224, 224, CHANNELS))
 
 	def calculate_reward(self, predicted):
