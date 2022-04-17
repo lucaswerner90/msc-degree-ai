@@ -2,6 +2,7 @@ import torch
 import pandas as pd
 import numpy as np
 import cv2
+from sklearn import train_test_split
 import torchvision.models as models
 from torch.utils.data import Dataset, DataLoader, random_split, Subset
 from torchvision import transforms
@@ -40,7 +41,7 @@ class DroneImages(Dataset):
 	def __getitem__(self, idx):
 		row = self.df.iloc[idx]
 		original_image, real_x, real_y = (
-			cv2.imread(row["filename"]),
+			cv2.imread(row["filename"],cv2.COLOR_BGR2RGB),
 			row["prediction_x"],
 			row["prediction_y"],
 		)
@@ -59,12 +60,5 @@ class DroneImages(Dataset):
 dataset = DroneImages()
 # Split the dataset into training and validation
 train_size = int(0.8 * len(dataset))
-validation_size = len(dataset) - train_size
-train_dataset, validation_dataset = random_split(dataset, [train_size, validation_size])
-
-train_dataset = Subset(train_dataset, np.arange(0, int(0.8*train_size)))
-test_dataset = Subset(train_dataset, np.arange(int(0.8*train_size), train_size))
-
-train_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True)
-test_dataloader = DataLoader(test_dataset, batch_size=1, shuffle=True)
-validation_dataloader = DataLoader(validation_dataset, batch_size=1, shuffle=True)
+val_size = len(dataset) - train_size
+train_idx, val_idx = train_test_split()

@@ -1,6 +1,7 @@
 #%%
 import torch
 import argparse
+import cv2
 import numpy as np
 from collections import namedtuple
 
@@ -47,11 +48,11 @@ eps = np.finfo(np.float32).eps.item()
 def main():
     num_training_images = len(train_dataset)
     model.train(True)
-    for epoch in range(1, args.epochs + 1):
+    for epoch in range(args.epochs + 1):
 
         env = DroneEnvironment(train_dataset)
+        env.current_image_index = 0
         rewards_mean = []
-        loss_mean = []
 
         for i_episode in range(num_training_images):
 
@@ -88,8 +89,9 @@ def main():
                 if done:
                     break
             print("-------------------------------------------------------")
-            print("Episode {}\t finished after {} timesteps".format(i_episode+1, t+1))
+            print("Episode {}\t finished after {} timesteps with reward {}".format(i_episode+1, t+1, reward))
             
+            cv2.imwrite("data/training_images/actor_critic/v1/training/image_{}_epoch_{}_reward_{}.png".format(i_episode, epoch, reward),env.get_image())
             R = 0
             if not done:
                 _, value = model(state)
@@ -118,7 +120,6 @@ def main():
 
 
             rewards_mean.append(np.mean(rewards))
-            loss_mean.append(loss_fn)
 
             if i_episode % args.log_interval == 0 and i_episode > 0:
                 print('Epoch {} Episode {}\t Average reward: {:.2f}'.format(
@@ -136,7 +137,7 @@ def test(epoch):
     actions_taken = []
     model.eval()
     with torch.no_grad():
-        for _ in range(num_test_images):
+        for idx in range(1,num_test_images):
 
             state = env.reset()
             done = False
@@ -153,6 +154,7 @@ def test(epoch):
                 if done:
                     rewards.append(reward)
                     actions_taken.append(num_actions)
+                    cv2.imwrite("data/training_images/actor_critic/v1/testing/image_{}_epoch_{}_actions_taken_{}.png".format(idx, epoch, num_actions),env.get_image())
                     break
 
         writer.add_scalar(
