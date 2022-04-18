@@ -16,7 +16,7 @@ ACTIONS = ["LEFT","RIGHT","NONE"]
 
 def run_experiment(experiment_name):
     model_file = f'checkpoints/{experiment_name}.pth'
-    images_validation_dir = f'data/validation_images/actor_critic_stop_is_none/{experiment_name}'
+    images_validation_dir = f'data/validation_images/actor_critic/{experiment_name}'
 
     if not os.path.exists(images_validation_dir):
         os.makedirs(images_validation_dir)
@@ -54,9 +54,9 @@ def run_experiment(experiment_name):
 
 if __name__ == "__main__":
     experiments = [
-        'actor_critic_model_experiment_name_softmax-state-value-rmsprop_learning_rate_1e-05_gamma_0.99_epochs_20_epoch_',
+        'actor_critic_model_experiment_name_ac-discourage_epoch_',
     ]
-    epochs = [2,4,6,10,20]
+    epochs = [2,20,50,70,100]
     for experiment in experiments:    
         for epoch in epochs:
             experiment_name = f'{experiment}{epoch}'

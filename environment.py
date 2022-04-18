@@ -30,7 +30,7 @@ class DroneEnvironment(gym.Env):
 		num_sections = 32
 		section_width = WIDTH // num_sections
 		num_sections_away = int(abs(predicted.item() - self.real_point.item()) // section_width)
-		return 1 if num_sections_away == 0 else 1 - (num_sections_away / num_sections)
+		return 2 if num_sections_away == 0 else 1 - (num_sections_away / num_sections)
 
 	def reset(self, eval:bool = False):
 		# Get the next image from the dataset

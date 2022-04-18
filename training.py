@@ -6,6 +6,7 @@ import numpy as np
 import os
 import torch
 import torch.optim as optim
+import torch.nn.functional as F
 from itertools import count
 from torch.distributions import Categorical
 from torch.autograd import Variable
@@ -20,9 +21,9 @@ VALUE_LOSS_COEF = 0.8
 GAMMA = 0.95
 
 parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
-parser.add_argument('--experiment-name', type=str, default='ac-discourage', metavar='N',
+parser.add_argument('--experiment-name', type=str, default='ac-discourage-reward-2', metavar='N',
                     help='epochs (default: 20)')
-parser.add_argument('--epochs', type=int, default=20, metavar='N',
+parser.add_argument('--epochs', type=int, default=100, metavar='N',
                     help='epochs (default: 20)')
 parser.add_argument('--gamma', type=float, default=0.99, metavar='G',
                     help='discount factor (default: 0.99)')
@@ -32,8 +33,8 @@ parser.add_argument('--learning-rate', type=float, default=1e-5, metavar='N',
                     help='learning rate (default: 1e-5)')
 parser.add_argument('--render', action='store_true',
                     help='render the environment')
-parser.add_argument('--log-interval', type=int, default=10, metavar='N',
-                    help='interval between training status logs (default: 10)')
+parser.add_argument('--log-interval', type=int, default=5, metavar='N',
+                    help='interval between training status logs (default: 5)')
 args = parser.parse_args()
 
 
@@ -51,13 +52,14 @@ if not os.path.exists(images_testing_dir):
 writer = SummaryWriter(log_dir=f"runs/Actor-Critic-{experiment_name}", flush_secs=10)
 
 model = ActorCritic()
-optimizer = optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=1e-4)
-
+optimizer = optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=1e-4, eps=1e-5)
+eps = np.finfo(np.float32).eps.item()
 
 def main():
     num_training_images = len(train_dataset)
     model.train(True)
     for epoch in range(args.epochs + 1):
+        actions_taken = {'LEFT':0, 'RIGHT':0, 'NONE':0}
 
         env = DroneEnvironment(train_dataset)
         env.current_image_index = 0
@@ -71,11 +73,9 @@ def main():
             log_probs = []
             rewards = []
             values = []
-            # for each episode, only run 99 steps so that we don't 
-            # infinite loop while learning
-            for t in count():
 
-                # select action from policy
+            for t in range(50):
+
                 if len(state.shape) == 1:
                     state = state.unsqueeze(0)
 
@@ -91,51 +91,63 @@ def main():
                 # take the action
                 state, reward, done, _ = env.step(ACTIONS[action])
 
-                log_probs.append(probs)
+                actions_taken[ACTIONS[action]]+=1
+
+                log_probs.append(m.log_prob(action))
                 rewards.append(reward)
                 values.append(state_value)
 
-                if done:
+                if done or ACTIONS[action] == 'NONE':
                     break
 
+            policy_losses = [] # list to save actor (policy) loss
+            value_losses = [] # list to save critic (value) loss
+            returns = [] # list to save the true values
+
+            # calculate the true value using rewards returned from the environment
+            R = 0
+            for r in rewards[::-1]:
+                # calculate the discounted value
+                R = r + args.gamma * R
+                returns.insert(0, R)
+
+            returns = torch.tensor(returns)
+            returns = (returns - returns.mean()) / (returns.std(unbiased=False) + eps)
+
+            for log_prob, value, R in zip(log_probs, values, returns):
+                advantage = R - value.item()
+
+                # calculate actor (policy) loss 
+                policy_losses.append(-log_prob * advantage)
+
+                # calculate critic (value) loss using L1 smooth loss
+                value_losses.append(F.smooth_l1_loss(value, torch.tensor([R])))
+
+            # reset gradients
+            optimizer.zero_grad()
+
+            # sum up all the values of policy_losses and value_losses
+            loss = torch.stack(policy_losses).sum() + torch.stack(value_losses).sum()
+
+            writer.add_scalar("Train Loss", loss.item(), (epoch*num_training_images) + i_episode)
+            writer.add_scalar("Train Rewards", np.mean(rewards), (epoch*num_training_images) + i_episode)
+            writer.add_scalar("Episodes duration", t+1, (epoch*num_training_images) + i_episode)
+
+
+            # perform backprop
+            loss.backward()
+            optimizer.step()
+
+            rewards_mean.append(np.mean(rewards))
+
             if i_episode % args.log_interval == 0 and i_episode > 0:
-                print("Episode {}\t finished after {} timesteps with reward {}".format(i_episode+1, t+1, reward))
-                R = 0
-                if not done:
-                    _, value = model(state)
-                    R = value.data
-
-                values.append(R)
-                policy_loss = 0
-                value_loss = 0
-
-                for i in reversed(range(len(rewards))):
-                    R = GAMMA * R + rewards[i]
-                    advantage = R - values[i]
-                    value_loss = value_loss + 0.5 * advantage.pow(2)
-                    policy_loss = policy_loss - (log_probs[i] * Variable(advantage))
-
-                optimizer.zero_grad()
-                loss_fn = (policy_loss + VALUE_LOSS_COEF * value_loss)
-
-                writer.add_scalar("Train Loss", loss_fn.sum(), (epoch*num_training_images) + i_episode)
-                writer.add_scalar("Train Rewards", np.mean(rewards), (epoch*num_training_images) + i_episode)
-                writer.add_scalar("Episodes duration", t+1, (epoch*num_training_images) + i_episode)
-                
-                loss_fn.sum().backward()
-                optimizer.step()
-
-
-                rewards_mean.append(np.mean(rewards))
-
-            
-                print('Epoch {} Episode {}\t Average reward: {:.2f}'.format(
-                    epoch, i_episode, np.mean(rewards_mean)))
+                print('Epoch {} Episode {} Left:{} \t Right: {}\t None: {}\t'.format(epoch, i_episode, actions_taken['LEFT'], actions_taken['RIGHT'], actions_taken['NONE']))
                 cv2.imwrite(
                     os.path.join(images_training_dir, "image_{}_epoch_{}_reward_{}.png".format(i_episode+1,epoch,reward)),
                     env.get_image()
                 )
                 rewards_mean = []
+                actions_taken = {'LEFT':0, 'RIGHT':0, 'NONE':0}
 
 
         if (epoch+1) % 2 == 0:
@@ -150,9 +162,9 @@ def test(epoch):
     actions_taken = []
     model.eval()
     with torch.no_grad():
-        for idx in range(1,num_test_images):
+        for idx in range(1, num_test_images+1):
 
-            state = env.reset()
+            state = env.reset(eval=True)
             done = False
             num_actions = 0
 
@@ -169,7 +181,7 @@ def test(epoch):
                     rewards.append(reward)
                     actions_taken.append(num_actions)
                     cv2.imwrite(
-                        os.path.join(images_testing_dir, "image_{}_epoch_{}_actions_taken_{}.png".format(idx, epoch, num_actions)),
+                        os.path.join(images_testing_dir, "image_{}_epoch_{}_actions_taken_{}_reward_{}.png".format(idx, epoch, num_actions, reward)),
                         env.get_image()
                     )
                     break
@@ -185,7 +197,7 @@ def test(epoch):
             epoch+1
         )
 
-    model.train(True)
+    model.train()
 
 if __name__ == '__main__':
     main()
