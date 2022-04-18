@@ -36,7 +36,7 @@ class ActorCritic(nn.Module):
         policy = F.softmax(self.actor(x), dim=-1)
 
         # critic: evaluates being in the state s_t
-        state_value =self.critic(x)
+        state_value = self.critic(x)
 
         # return values for both actor and critic as a tuple of 2 values:
         # 1. a list with the probability of each action over the action space

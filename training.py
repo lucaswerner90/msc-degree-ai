@@ -20,6 +20,8 @@ VALUE_LOSS_COEF = 0.8
 GAMMA = 0.95
 
 parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
+parser.add_argument('--experiment-name', type=str, default='softmax-for-state-value', metavar='N',
+                    help='epochs (default: 20)')
 parser.add_argument('--epochs', type=int, default=20, metavar='N',
                     help='epochs (default: 20)')
 parser.add_argument('--gamma', type=float, default=0.99, metavar='G',
@@ -37,7 +39,7 @@ args = parser.parse_args()
 
 torch.manual_seed(args.seed)
 
-experiment_name = 'Actor-Critic-v2'
+experiment_name = f'{args.experiment_name}_learning_rate_{args.learning_rate}_gamma_{args.gamma}_epochs_{args.epochs}'
 images_testing_dir = f'data/training_images/actor_critic/{experiment_name}/testing'
 images_training_dir = f'data/training_images/actor_critic/{experiment_name}/training'
 
@@ -46,10 +48,10 @@ if not os.path.exists(images_training_dir):
 if not os.path.exists(images_testing_dir):
     os.makedirs(images_testing_dir)
 
-writer = SummaryWriter(log_dir=f"runs/{experiment_name}", flush_secs=10)
+writer = SummaryWriter(log_dir=f"runs/Actor-Critic-{experiment_name}", flush_secs=10)
 
 model = ActorCritic()
-optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
+optimizer = optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=1e-4)
 
 
 def main():
@@ -71,7 +73,7 @@ def main():
             values = []
             # for each episode, only run 99 steps so that we don't 
             # infinite loop while learning
-            for t in range(100):
+            for t in count():
 
                 # select action from policy
                 if len(state.shape) == 1:
@@ -138,7 +140,7 @@ def main():
 
         if (epoch+1) % 2 == 0:
             test(epoch)
-            torch.save(model.state_dict(), "checkpoints/actor_critic_model_epoch_{}.pth".format(epoch+1))
+            torch.save(model.state_dict(), "checkpoints/actor_critic_model_experiment_name_{}_epoch_{}.pth".format(experiment_name, epoch+1))
 
 
 def test(epoch):

@@ -32,7 +32,7 @@ class DroneEnvironment(gym.Env):
 		num_sections_away = int(abs(predicted.item() - self.real_point.item()) // section_width)
 		return 1 if num_sections_away == 0 else 1 - (num_sections_away / num_sections)
 
-	def reset(self):
+	def reset(self, eval:bool = False):
 		# Get the next image from the dataset
 		
 		sample = self.dataset[self.current_image_index%(len(self.dataset)-1)]
@@ -43,7 +43,7 @@ class DroneEnvironment(gym.Env):
 		self.image = sample['image'].squeeze()
 		self.original_image = sample['original_image']
 
-		self.current_point = torch.Tensor([np.random.rand()])
+		self.current_point = torch.Tensor([np.random.rand()]) if not eval else torch.Tensor([0.5])
 		self.actions_taken = 0
 
 		state = torch.concat((self.image, self.current_point))
