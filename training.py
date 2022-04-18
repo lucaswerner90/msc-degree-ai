@@ -20,7 +20,7 @@ VALUE_LOSS_COEF = 0.8
 GAMMA = 0.95
 
 parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
-parser.add_argument('--experiment-name', type=str, default='softmax-for-state-value', metavar='N',
+parser.add_argument('--experiment-name', type=str, default='ac-discourage', metavar='N',
                     help='epochs (default: 20)')
 parser.add_argument('--epochs', type=int, default=20, metavar='N',
                     help='epochs (default: 20)')
@@ -39,7 +39,7 @@ args = parser.parse_args()
 
 torch.manual_seed(args.seed)
 
-experiment_name = f'{args.experiment_name}_learning_rate_{args.learning_rate}_gamma_{args.gamma}_epochs_{args.epochs}'
+experiment_name = args.experiment_name
 images_testing_dir = f'data/training_images/actor_critic/{experiment_name}/testing'
 images_training_dir = f'data/training_images/actor_critic/{experiment_name}/training'
 

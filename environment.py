@@ -34,7 +34,6 @@ class DroneEnvironment(gym.Env):
 
 	def reset(self, eval:bool = False):
 		# Get the next image from the dataset
-		
 		sample = self.dataset[self.current_image_index%(len(self.dataset)-1)]
 		self.current_image_index+=1
 
