@@ -54,14 +54,16 @@ def run_experiment(experiment_name):
 
 if __name__ == "__main__":
     experiments = [
-        'actor_critic_model_experiment_name_ac-discourage_epoch_',
+        'actor_critic_model_experiment_name_ac-discourage-reward-1_epoch_',
+        'actor_critic_model_experiment_name_ac-discourage-reward-2_epoch_',
     ]
-    epochs = [2,20,50,70,100]
+    epochs = [2,6,10,14,20]
     for experiment in experiments:    
         for epoch in epochs:
             experiment_name = f'{experiment}{epoch}'
             rewards, num_actions = run_experiment(experiment_name)
             print('-------------------------------------------------------')
+            print(f'Experiment: {experiment} epoch: {epoch}')
             print(f'Experiment with epoch: {epoch}')
             print(f'Average reward: {np.mean(rewards)}')
             print(f'Average num actions taken: {np.mean(num_actions)}')

@@ -21,9 +21,9 @@ VALUE_LOSS_COEF = 0.8
 GAMMA = 0.95
 
 parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
-parser.add_argument('--experiment-name', type=str, default='ac-discourage-reward-2', metavar='N',
+parser.add_argument('--experiment-name', type=str, default='ac-discourage-reward-1', metavar='N',
                     help='epochs (default: 20)')
-parser.add_argument('--epochs', type=int, default=100, metavar='N',
+parser.add_argument('--epochs', type=int, default=20, metavar='N',
                     help='epochs (default: 20)')
 parser.add_argument('--gamma', type=float, default=0.99, metavar='G',
                     help='discount factor (default: 0.99)')
@@ -97,7 +97,7 @@ def main():
                 rewards.append(reward)
                 values.append(state_value)
 
-                if done or ACTIONS[action] == 'NONE':
+                if done:
                     break
 
             policy_losses = [] # list to save actor (policy) loss
