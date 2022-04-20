@@ -3,11 +3,11 @@ import torch
 import numpy as np
 import cv2
 from gym import spaces
-from dataloader import DroneImagesDataset
 (WIDTH, HEIGHT, CHANNELS) = (640,360,3)
 
 
 class DroneEnvironment(gym.Env):
+	MAX_REWARD = 2
 	metadata = {'render.modes': ['human']}
 
 	def __init__(self, dataset):
@@ -30,7 +30,7 @@ class DroneEnvironment(gym.Env):
 		num_sections = 32
 		section_width = WIDTH // num_sections
 		num_sections_away = int(abs(predicted.item() - self.real_point.item()) // section_width)
-		return 1 if num_sections_away == 0 else 1 - (num_sections_away / num_sections)
+		return DroneEnvironment.MAX_REWARD if num_sections_away == 0 else 1 - (num_sections_away / num_sections)
 
 	def reset(self, eval:bool = False):
 		# Get the next image from the dataset
@@ -61,7 +61,8 @@ class DroneEnvironment(gym.Env):
 
 		self.current_point = torch.Tensor([point / WIDTH])
 		reward = self.calculate_reward(point)
-		done = reward == 1
+		done = action == 'NONE'
+		# done = reward == DroneEnvironment.MAX_REWARD or action == 'NONE'
 		state = torch.concat((self.image, self.current_point))
 		return state, reward, done, {}
 

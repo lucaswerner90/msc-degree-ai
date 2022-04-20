@@ -58,10 +58,20 @@ class DroneImagesDataset(Dataset):
 
 		return sample
 
-dataframe = pd.read_csv('./data/dataframe.csv')
+df = pd.read_csv('./data/dataframe.csv')
+
+df_right = np.where(df['prediction_x'] >= 360)[0]
+df_left = np.where(df['prediction_x'] <= 280)[0]
+df_center = np.where((df['prediction_x'] > 280) & (df['prediction_x'] < 360))[0]
+
+a = np.random.choice(df_right, size=340)
+b = np.random.choice(df_left, size=340)
+c = np.random.choice(df_center, size=340)
+
+df= pd.concat([df.iloc[a], df.iloc[b], df.iloc[c]], axis = 0).reset_index()
 
 df_train, df_validation = train_test_split(
-    dataframe, 
+    df[:20], 
     test_size=0.1,
     random_state=42,
     shuffle=True

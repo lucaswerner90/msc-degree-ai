@@ -38,7 +38,7 @@ def run_experiment(experiment_name):
             # create a categorical distribution over the list of probabilities of actions
             m = Categorical(probs.squeeze())
             action = m.sample()
-            _, reward, _, _ = env.step(ACTIONS[action])
+            state, reward, _, _ = env.step(ACTIONS[action])
             if ACTIONS[action] != "NONE":
                 num_actions+=1
             else:
@@ -54,10 +54,9 @@ def run_experiment(experiment_name):
 
 if __name__ == "__main__":
     experiments = [
-        'actor_critic_model_experiment_name_ac-discourage-reward-1_epoch_',
-        'actor_critic_model_experiment_name_ac-discourage-reward-2_epoch_',
+        'ac_ac-reduce-reward-by-four_epoch_',
     ]
-    epochs = [2,6,10,14,20]
+    epochs = [6,10,40]
     for experiment in experiments:    
         for epoch in epochs:
             experiment_name = f'{experiment}{epoch}'

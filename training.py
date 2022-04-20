@@ -15,21 +15,21 @@ from model.actor_critic import ActorCritic
 from environment import DroneEnvironment
 from torch.utils.tensorboard import SummaryWriter
 
-ACTIONS = ["LEFT","RIGHT","NONE"]
+ACTIONS = ["RIGHT","LEFT","NONE"]
 (WIDTH, HEIGHT, CHANNELS) = (640,360,3)
 VALUE_LOSS_COEF = 0.8
 GAMMA = 0.95
 
 parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
-parser.add_argument('--experiment-name', type=str, default='ac-discourage-reward-1', metavar='N',
-                    help='epochs (default: 20)')
+parser.add_argument('--experiment-name', type=str, default='ac-reward-2-normalized-dataframe', metavar='N',
+                    help='Whatever name you want')
 parser.add_argument('--epochs', type=int, default=20, metavar='N',
                     help='epochs (default: 20)')
 parser.add_argument('--gamma', type=float, default=0.99, metavar='G',
                     help='discount factor (default: 0.99)')
 parser.add_argument('--seed', type=int, default=42, metavar='N',
                     help='random seed (default: 42)')
-parser.add_argument('--learning-rate', type=float, default=1e-5, metavar='N',
+parser.add_argument('--learning-rate', type=float, default=1e-3, metavar='N',
                     help='learning rate (default: 1e-5)')
 parser.add_argument('--render', action='store_true',
                     help='render the environment')
@@ -41,8 +41,8 @@ args = parser.parse_args()
 torch.manual_seed(args.seed)
 
 experiment_name = args.experiment_name
-images_testing_dir = f'data/training_images/actor_critic/{experiment_name}/testing'
-images_training_dir = f'data/training_images/actor_critic/{experiment_name}/training'
+images_testing_dir = f'data/training_images/ac/{experiment_name}/testing'
+images_training_dir = f'data/training_images/ac/{experiment_name}/training'
 
 if not os.path.exists(images_training_dir):
     os.makedirs(images_training_dir)
@@ -73,6 +73,7 @@ def main():
             log_probs = []
             rewards = []
             values = []
+            actions_taken_on_image = 0
 
             for t in range(50):
 
@@ -92,6 +93,7 @@ def main():
                 state, reward, done, _ = env.step(ACTIONS[action])
 
                 actions_taken[ACTIONS[action]]+=1
+                actions_taken_on_image+=1
 
                 log_probs.append(m.log_prob(action))
                 rewards.append(reward)
@@ -99,6 +101,11 @@ def main():
 
                 if done:
                     break
+            
+            # Attempt to discourage the NONE action at the beginning of the 
+            # episode unless the agent is pretty sure about it
+            if reward != DroneEnvironment.MAX_REWARD and actions_taken_on_image < 3:
+                rewards[-1] /= 2
 
             policy_losses = [] # list to save actor (policy) loss
             value_losses = [] # list to save critic (value) loss
@@ -141,7 +148,7 @@ def main():
             rewards_mean.append(np.mean(rewards))
 
             if i_episode % args.log_interval == 0 and i_episode > 0:
-                print('Epoch {} Episode {} Left:{} \t Right: {}\t None: {}\t'.format(epoch, i_episode, actions_taken['LEFT'], actions_taken['RIGHT'], actions_taken['NONE']))
+                print('{} Epoch {} Episode {} Left:{} \t Right: {}\t None: {}\t'.format(experiment_name, epoch, i_episode, actions_taken['LEFT'], actions_taken['RIGHT'], actions_taken['NONE']))
                 cv2.imwrite(
                     os.path.join(images_training_dir, "image_{}_epoch_{}_reward_{}.png".format(i_episode+1,epoch,reward)),
                     env.get_image()
@@ -152,7 +159,7 @@ def main():
 
         if (epoch+1) % 2 == 0:
             test(epoch)
-            torch.save(model.state_dict(), "checkpoints/actor_critic_model_experiment_name_{}_epoch_{}.pth".format(experiment_name, epoch+1))
+            torch.save(model.state_dict(), "checkpoints/ac_{}_epoch_{}.pth".format(experiment_name, epoch+1))
 
 
 def test(epoch):
@@ -165,19 +172,17 @@ def test(epoch):
         for idx in range(1, num_test_images+1):
 
             state = env.reset(eval=True)
-            done = False
             num_actions = 0
 
-            while not done:
+            while True:
                 probs, state_value = model(state)
                 probs, state_value = probs.squeeze(), state_value.squeeze()
                 m = Categorical(probs)
                 action = m.sample()
-                state, reward, done, _ = env.step(ACTIONS[action])
+                state, reward, _, _ = env.step(ACTIONS[action])
                 num_actions+=1
                 
                 if ACTIONS[action] == 'NONE':
-                    done = True
                     rewards.append(reward)
                     actions_taken.append(num_actions)
                     cv2.imwrite(
