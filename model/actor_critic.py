@@ -12,20 +12,14 @@ class ActorCritic(nn.Module):
         super(ActorCritic, self).__init__()
         self.common_model = nn.Sequential(
             nn.Linear(4096+1, 1024),
-            nn.ReLU(),
-            nn.Linear(1024, 512),
-            nn.ReLU(),
-            nn.Linear(512, 256),
-            nn.ReLU(),
-            nn.Linear(256, 64),
-            nn.ReLU(),
+            nn.Linear(1024, 256),
         )
 
         # actor's layer
-        self.actor = nn.Linear(64, len(ACTIONS))
+        self.actor = nn.Linear(256, len(ACTIONS))
 
         # critic's layer
-        self.critic = nn.Linear(64, 1)
+        self.critic = nn.Linear(256, 1)
 
 
     def forward(self, x):
@@ -33,7 +27,7 @@ class ActorCritic(nn.Module):
 
         # actor: choses action to take from state s_t 
         # by returning probability of each action
-        policy = F.softmax(self.actor(x), dim=-1)
+        policy = self.actor(x)
 
         # critic: evaluates being in the state s_t
         state_value = self.critic(x)

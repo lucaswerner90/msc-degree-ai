@@ -15,26 +15,27 @@ from model.actor_critic import ActorCritic
 from environment import DroneEnvironment
 from torch.utils.tensorboard import SummaryWriter
 
-ACTIONS = ["RIGHT","LEFT","NONE"]
+ACTIONS = ["LEFT","RIGHT","NONE"]
 (WIDTH, HEIGHT, CHANNELS) = (640,360,3)
-VALUE_LOSS_COEF = 0.8
+VALUE_LOSS_COEF = 0.5
+MAX_STEPS = 100
 GAMMA = 0.95
 
 parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
-parser.add_argument('--experiment-name', type=str, default='ac-reward-2-normalized-dataframe', metavar='N',
+parser.add_argument('--experiment-name', type=str, default='ac-reward-2-divide-rewards-lr-e6', metavar='N',
                     help='Whatever name you want')
-parser.add_argument('--epochs', type=int, default=20, metavar='N',
-                    help='epochs (default: 20)')
-parser.add_argument('--gamma', type=float, default=0.99, metavar='G',
-                    help='discount factor (default: 0.99)')
+parser.add_argument('--epochs', type=int, default=10, metavar='N',
+                    help='epochs (default: 10)')
+parser.add_argument('--gamma', type=float, default=GAMMA, metavar='G',
+                    help='discount factor (default: 0.95)')
 parser.add_argument('--seed', type=int, default=42, metavar='N',
                     help='random seed (default: 42)')
-parser.add_argument('--learning-rate', type=float, default=1e-3, metavar='N',
-                    help='learning rate (default: 1e-5)')
+parser.add_argument('--learning-rate', type=float, default=1e-6, metavar='N',
+                    help='learning rate (default: 1e-6)')
 parser.add_argument('--render', action='store_true',
                     help='render the environment')
-parser.add_argument('--log-interval', type=int, default=5, metavar='N',
-                    help='interval between training status logs (default: 5)')
+parser.add_argument('--log-interval', type=int, default=100, metavar='N',
+                    help='interval between training status logs (default: 100)')
 args = parser.parse_args()
 
 
@@ -52,7 +53,7 @@ if not os.path.exists(images_testing_dir):
 writer = SummaryWriter(log_dir=f"runs/Actor-Critic-{experiment_name}", flush_secs=10)
 
 model = ActorCritic()
-optimizer = optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=1e-4, eps=1e-5)
+optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
 eps = np.finfo(np.float32).eps.item()
 
 def main():
@@ -75,92 +76,80 @@ def main():
             values = []
             actions_taken_on_image = 0
 
-            for t in range(50):
+            for t in range(MAX_STEPS):
 
                 if len(state.shape) == 1:
                     state = state.unsqueeze(0)
 
-                probs, state_value = model(state)
-                probs, state_value = probs.squeeze(), state_value.squeeze()
-
+                logits, state_value = model(state)
+                logits, state_value = logits.squeeze(), state_value.squeeze()
+                prob = F.softmax(logits, -1)
                 # create a categorical distribution over the list of probabilities of actions
-                m = Categorical(probs)
-
-                # and sample an action using the distribution
-                action = m.sample()
+                action = prob.multinomial(num_samples=1)
+                log_prob = F.log_softmax(logits, -1)
+                log_prob = log_prob.gather(0, action)
 
                 # take the action
-                state, reward, done, _ = env.step(ACTIONS[action])
+                selected_action = ACTIONS[action.item()]
+                state, reward, done, _ = env.step(selected_action)
 
-                actions_taken[ACTIONS[action]]+=1
+
+                if selected_action == 'NONE' and not done:
+                    reward/=2
+
+                actions_taken[selected_action]+=1
                 actions_taken_on_image+=1
 
-                log_probs.append(m.log_prob(action))
+                log_probs.append(log_prob)
                 rewards.append(reward)
                 values.append(state_value)
 
                 if done:
                     break
             
-            # Attempt to discourage the NONE action at the beginning of the 
-            # episode unless the agent is pretty sure about it
-            if reward != DroneEnvironment.MAX_REWARD and actions_taken_on_image < 3:
-                rewards[-1] /= 2
-
-            policy_losses = [] # list to save actor (policy) loss
-            value_losses = [] # list to save critic (value) loss
-            returns = [] # list to save the true values
+            rewards = torch.tensor(rewards, dtype=torch.float)
 
             # calculate the true value using rewards returned from the environment
             R = 0
-            for r in rewards[::-1]:
-                # calculate the discounted value
-                R = r + args.gamma * R
-                returns.insert(0, R)
-
-            returns = torch.tensor(returns)
-            returns = (returns - returns.mean()) / (returns.std(unbiased=False) + eps)
-
-            for log_prob, value, R in zip(log_probs, values, returns):
-                advantage = R - value.item()
-
-                # calculate actor (policy) loss 
-                policy_losses.append(-log_prob * advantage)
-
-                # calculate critic (value) loss using L1 smooth loss
-                value_losses.append(F.smooth_l1_loss(value, torch.tensor([R])))
+            policy_loss = 0
+            value_loss = 0
+            for i in reversed(range(len(rewards))):
+                R = GAMMA * R + rewards[i]
+                advantage = R - values[i]
+                value_loss = value_loss + 0.5 * advantage.pow(2)
+                policy_loss = policy_loss - (log_probs[i] * Variable(advantage))
 
             # reset gradients
             optimizer.zero_grad()
 
             # sum up all the values of policy_losses and value_losses
-            loss = torch.stack(policy_losses).sum() + torch.stack(value_losses).sum()
+            loss_fn = (policy_loss + VALUE_LOSS_COEF * value_loss)
+            loss_fn.backward(retain_graph=True)
 
-            writer.add_scalar("Train Loss", loss.item(), (epoch*num_training_images) + i_episode)
-            writer.add_scalar("Train Rewards", np.mean(rewards), (epoch*num_training_images) + i_episode)
+            writer.add_scalar("Train Loss", loss_fn.item(), (epoch*num_training_images) + i_episode)
+            writer.add_scalar("Train Rewards", rewards.mean(), (epoch*num_training_images) + i_episode)
             writer.add_scalar("Episodes duration", t+1, (epoch*num_training_images) + i_episode)
 
 
             # perform backprop
-            loss.backward()
             optimizer.step()
+            rewards_mean.append(rewards.mean())
 
-            rewards_mean.append(np.mean(rewards))
-
-            if i_episode % args.log_interval == 0 and i_episode > 0:
-                print('{} Epoch {} Episode {} Left:{} \t Right: {}\t None: {}\t'.format(experiment_name, epoch, i_episode, actions_taken['LEFT'], actions_taken['RIGHT'], actions_taken['NONE']))
-                cv2.imwrite(
-                    os.path.join(images_training_dir, "image_{}_epoch_{}_reward_{}.png".format(i_episode+1,epoch,reward)),
-                    env.get_image()
-                )
-                rewards_mean = []
-                actions_taken = {'LEFT':0, 'RIGHT':0, 'NONE':0}
+        if i_episode % args.log_interval == 0 and i_episode > 0:
+            print('{} Epoch {} Episode {} Left:{} \t Right: {}\t None: {}\t'.format(experiment_name, epoch, i_episode, actions_taken['LEFT'], actions_taken['RIGHT'], actions_taken['NONE']))
+            cv2.imwrite(
+                os.path.join(images_training_dir, "image_{}_epoch_{}_reward_{}.png".format(i_episode+1,epoch,reward)),
+                env.get_image()
+            )
+            rewards_mean = []
+            actions_taken = {'LEFT':0, 'RIGHT':0, 'NONE':0}
 
 
         if (epoch+1) % 2 == 0:
             test(epoch)
             torch.save(model.state_dict(), "checkpoints/ac_{}_epoch_{}.pth".format(experiment_name, epoch+1))
 
+        writer.flush()
 
 def test(epoch):
     num_test_images = len(test_dataset)
@@ -175,20 +164,24 @@ def test(epoch):
             num_actions = 0
 
             while True:
-                probs, state_value = model(state)
-                probs, state_value = probs.squeeze(), state_value.squeeze()
-                m = Categorical(probs)
-                action = m.sample()
+                logits, state_value = model(state)
+                logits, state_value = logits.squeeze(), state_value.squeeze()
+                prob = F.softmax(logits, -1)
+                # create a categorical distribution over the list of probabilities of actions
+                action = prob.multinomial(num_samples=1)
+                log_prob = F.log_softmax(logits, -1)
+                log_prob = log_prob.gather(0, action)
                 state, reward, _, _ = env.step(ACTIONS[action])
                 num_actions+=1
                 
                 if ACTIONS[action] == 'NONE':
                     rewards.append(reward)
+                    print(f'Epoch {epoch} \tTesting: {idx}/{num_test_images} - {num_actions} actions taken - Reward: {reward}')
                     actions_taken.append(num_actions)
-                    cv2.imwrite(
-                        os.path.join(images_testing_dir, "image_{}_epoch_{}_actions_taken_{}_reward_{}.png".format(idx, epoch, num_actions, reward)),
-                        env.get_image()
-                    )
+                    # cv2.imwrite(
+                    #     os.path.join(images_testing_dir, "image_{}_epoch_{}_actions_taken_{}_reward_{}.png".format(idx, epoch, num_actions, reward)),
+                    #     env.get_image()
+                    # )
                     break
 
         writer.add_scalar(

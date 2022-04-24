@@ -13,7 +13,6 @@ class DroneEnvironment(gym.Env):
 	def __init__(self, dataset):
 		self.current_image_index = 0
 		self.current_point = None
-		self.actions_taken = 0
 		self.action_space = spaces.Discrete(3)
 		self.dataset = dataset
 
@@ -43,7 +42,6 @@ class DroneEnvironment(gym.Env):
 		self.original_image = sample['original_image']
 
 		self.current_point = torch.Tensor([np.random.rand()]) if not eval else torch.Tensor([0.5])
-		self.actions_taken = 0
 
 		state = torch.concat((self.image, self.current_point))
 		return state
@@ -61,8 +59,7 @@ class DroneEnvironment(gym.Env):
 
 		self.current_point = torch.Tensor([point / WIDTH])
 		reward = self.calculate_reward(point)
-		done = action == 'NONE'
-		# done = reward == DroneEnvironment.MAX_REWARD or action == 'NONE'
+		done = reward == DroneEnvironment.MAX_REWARD
 		state = torch.concat((self.image, self.current_point))
 		return state, reward, done, {}
 

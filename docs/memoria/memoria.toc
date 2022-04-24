@@ -13,7 +13,6 @@
 \contentsline {chapter}{\numberline {4}Resultados y Discusión}{11}{chapter.4}%
 \contentsline {chapter}{\numberline {5}Conclusiones}{12}{chapter.5}%
 \contentsline {chapter}{\numberline {6}Limitaciones y\\ Perspectivas de Futuro}{13}{chapter.6}%
-\contentsline {chapter}{Lista de Acr\'onimos}{15}{section*.7}%
 \contentsline {chapter}{\numberline {A}Apéndize A}{16}{appendix.Alph1}%
 \contentsline {chapter}{\numberline {B}Apéndize B}{17}{appendix.Alph2}%
-\contentsline {chapter}{Bibliografía}{18}{appendix*.9}%
+\contentsline {chapter}{Bibliografía}{18}{appendix*.7}%

@@ -3,10 +3,10 @@ import torch
 import os
 import cv2
 import numpy as np
+import torch.nn.functional as F
 from model.actor_critic import ActorCritic
 from dataloader import validation_dataset
 from environment import DroneEnvironment
-from torch.distributions import Categorical
 
 torch.manual_seed(42)
 
@@ -34,17 +34,23 @@ def run_experiment(experiment_name):
         state = env.reset(True)
         num_actions = 0
         while True:
-            probs, _ = model(state)
+            logits, state_value = model(state)
+            logits, state_value = logits.squeeze(), state_value.squeeze()
+            prob = F.softmax(logits, -1)
             # create a categorical distribution over the list of probabilities of actions
-            m = Categorical(probs.squeeze())
-            action = m.sample()
-            state, reward, _, _ = env.step(ACTIONS[action])
-            if ACTIONS[action] != "NONE":
+            action = prob.multinomial(num_samples=1)
+            log_prob = F.log_softmax(logits, -1)
+            log_prob = log_prob.gather(0, action)
+
+            # take the action
+            selected_action = ACTIONS[action.item()]
+            state, reward, _, _ = env.step(selected_action)
+            if selected_action != "NONE":
                 num_actions+=1
             else:
                 rewards.append(reward)
                 num_actions_taken.append(num_actions)
-                image_description = "image_{}_actions_taken_{}_reward_{}.png".format(i, num_actions, reward)
+                image_description = "img_{}_ataken_{}_rew_{}.png".format(i, num_actions, reward)
                 image_filename = os.path.join(images_validation_dir, image_description)
                 cv2.imwrite(image_filename, env.get_image())
                 num_actions = 0
@@ -54,9 +60,9 @@ def run_experiment(experiment_name):
 
 if __name__ == "__main__":
     experiments = [
-        'ac_ac-reduce-reward-by-four_epoch_',
+        'ac_ac-reward-2-normalized-dataframe-lr-e7_epoch_',
     ]
-    epochs = [6,10,40]
+    epochs = [4,8,10,20,60,100]
     for experiment in experiments:    
         for epoch in epochs:
             experiment_name = f'{experiment}{epoch}'

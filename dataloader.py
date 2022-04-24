@@ -7,9 +7,6 @@ import torchvision.models as models
 from torch.utils.data import Dataset
 from torchvision import transforms
 
-np.random.seed(42)
-torch.manual_seed(42)
-
 IMAGE_TRANSFORMS = transforms.Compose(
 	[
 		transforms.ToTensor(),
@@ -69,9 +66,10 @@ b = np.random.choice(df_left, size=340)
 c = np.random.choice(df_center, size=340)
 
 df= pd.concat([df.iloc[a], df.iloc[b], df.iloc[c]], axis = 0).reset_index()
+df = df.sample(frac=1, random_state=42).reset_index()
 
 df_train, df_validation = train_test_split(
-    df[:20], 
+    df,
     test_size=0.1,
     random_state=42,
     shuffle=True
