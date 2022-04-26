@@ -1,37 +1,13 @@
-import torch
 import pandas as pd
 import numpy as np
 import cv2
 from sklearn.model_selection import train_test_split
-import torchvision.models as models
 from torch.utils.data import Dataset
-from torchvision import transforms
-
-IMAGE_TRANSFORMS = transforms.Compose(
-	[
-		transforms.ToTensor(),
-		transforms.Resize([224, 224]),
-		transforms.Normalize(
-			mean=[0.485, 0.456, 0.406],
-			std=[0.229, 0.224, 0.225]
-		),
-	]
-)
-
-pretrained_model = models.vgg19(pretrained=True)
-
-pretrained_model.classifier = torch.nn.Sequential(
-	*list(pretrained_model.classifier.children())[:-2]
-)
-for params in pretrained_model.parameters():
-	params.requires_grad = False
 
 class DroneImagesDataset(Dataset):
 
-	def __init__(self, dataframe, transform=IMAGE_TRANSFORMS):
+	def __init__(self, dataframe):
 		self.df = dataframe
-		self.transform = transform
-		self.pretrained_model = pretrained_model
 
 	def __len__(self):
 		return len(self.df)
@@ -43,12 +19,8 @@ class DroneImagesDataset(Dataset):
 			row["prediction_x"],
 			row["prediction_y"],
 		)
-		image = self.transform(original_image)
-		image = self.pretrained_model(image.unsqueeze(0))
-		image = image.squeeze()
 		sample = {
-			"original_image": original_image,
-			"image":image,
+			"image": original_image,
 			"real_x": real_x,
 			"real_y": real_y
 		}

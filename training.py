@@ -7,11 +7,9 @@ import os
 import torch
 import torch.optim as optim
 import torch.nn.functional as F
-from itertools import count
-from torch.distributions import Categorical
 from torch.autograd import Variable
 from dataloader import train_dataset, test_dataset
-from model.actor_critic import ActorCritic
+from model.visual_transformer_actor_critic import VisualEncoderActorCritic
 from environment import DroneEnvironment
 from torch.utils.tensorboard import SummaryWriter
 
@@ -22,19 +20,19 @@ MAX_STEPS = 100
 GAMMA = 0.95
 
 parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
-parser.add_argument('--experiment-name', type=str, default='ac-reward-2-divide-rewards-lr-e6', metavar='N',
+parser.add_argument('--experiment-name', type=str, default='ac-vit-encoder', metavar='N',
                     help='Whatever name you want')
-parser.add_argument('--epochs', type=int, default=10, metavar='N',
+parser.add_argument('--epochs', type=int, default=100, metavar='N',
                     help='epochs (default: 10)')
 parser.add_argument('--gamma', type=float, default=GAMMA, metavar='G',
                     help='discount factor (default: 0.95)')
 parser.add_argument('--seed', type=int, default=42, metavar='N',
                     help='random seed (default: 42)')
-parser.add_argument('--learning-rate', type=float, default=1e-6, metavar='N',
-                    help='learning rate (default: 1e-6)')
+parser.add_argument('--learning-rate', type=float, default=1e-5, metavar='N',
+                    help='learning rate (default: 1e-5)')
 parser.add_argument('--render', action='store_true',
                     help='render the environment')
-parser.add_argument('--log-interval', type=int, default=100, metavar='N',
+parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='interval between training status logs (default: 100)')
 args = parser.parse_args()
 
@@ -52,7 +50,7 @@ if not os.path.exists(images_testing_dir):
 
 writer = SummaryWriter(log_dir=f"runs/Actor-Critic-{experiment_name}", flush_secs=10)
 
-model = ActorCritic()
+model = VisualEncoderActorCritic()
 optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
 eps = np.finfo(np.float32).eps.item()
 
@@ -77,18 +75,10 @@ def main():
             actions_taken_on_image = 0
 
             for t in range(MAX_STEPS):
-
-                if len(state.shape) == 1:
-                    state = state.unsqueeze(0)
-
-                logits, state_value = model(state)
+                image, point = state
+                logits, state_value = model(image,point)
                 logits, state_value = logits.squeeze(), state_value.squeeze()
-                prob = F.softmax(logits, -1)
-                # create a categorical distribution over the list of probabilities of actions
-                action = prob.multinomial(num_samples=1)
-                log_prob = F.log_softmax(logits, -1)
-                log_prob = log_prob.gather(0, action)
-
+                log_prob,action = model.select_action(logits)
                 # take the action
                 selected_action = ACTIONS[action.item()]
                 state, reward, done, _ = env.step(selected_action)
@@ -164,7 +154,8 @@ def test(epoch):
             num_actions = 0
 
             while True:
-                logits, state_value = model(state)
+                image, point = state
+                logits, state_value = model(image,point)
                 logits, state_value = logits.squeeze(), state_value.squeeze()
                 prob = F.softmax(logits, -1)
                 # create a categorical distribution over the list of probabilities of actions

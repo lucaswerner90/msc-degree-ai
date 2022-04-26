@@ -1,10 +1,15 @@
+"""
+OpenAI-inspired Environment created around the drone images.
+"""
+
 import gym
 import torch
 import numpy as np
 import cv2
 from gym import spaces
-(WIDTH, HEIGHT, CHANNELS) = (640,360,3)
+from model.encoder_vit import EncoderViT
 
+(WIDTH, HEIGHT, CHANNELS) = (640,360,3)
 
 class DroneEnvironment(gym.Env):
 	MAX_REWARD = 2
@@ -15,8 +20,8 @@ class DroneEnvironment(gym.Env):
 		self.current_point = None
 		self.action_space = spaces.Discrete(3)
 		self.dataset = dataset
-
 		self.observation_space = spaces.Box(low=-1, high=1, shape=(224, 224, CHANNELS))
+		self.vit_encoder = EncoderViT()
 
 	def calculate_reward(self, predicted):
 		"""
@@ -38,13 +43,17 @@ class DroneEnvironment(gym.Env):
 
 		self.real_point = sample['real_x']
 		self.real_point_y = sample['real_y']
-		self.image = sample['image'].squeeze()
-		self.original_image = sample['original_image']
+		self.image = torch.tensor(sample['image'].squeeze(), dtype=torch.float)
+		self.image = self.vit_encoder(self.image)
+		self.image = self.image.view(self.image.size(0), -1)
+
+		
+		self.original_image = torch.tensor(sample['image'].squeeze(), dtype=torch.float)
 
 		self.current_point = torch.Tensor([np.random.rand()]) if not eval else torch.Tensor([0.5])
 
-		state = torch.concat((self.image, self.current_point))
-		return state
+		return [self.image, self.current_point]
+
 
 	def step(self, action):
 		distance = 20  # distance in pixels
@@ -60,12 +69,13 @@ class DroneEnvironment(gym.Env):
 		self.current_point = torch.Tensor([point / WIDTH])
 		reward = self.calculate_reward(point)
 		done = reward == DroneEnvironment.MAX_REWARD
-		state = torch.concat((self.image, self.current_point))
+		state = [self.image, self.current_point]
 		return state, reward, done, {}
 
 	def get_image(self):
 		current_point = int(self.current_point.item()*WIDTH)
-		image = cv2.circle(self.original_image, (current_point, int(HEIGHT/2)), radius=4, color=(0, 255, 255), thickness=10)
+		original_image = np.copy(self.original_image.numpy())
+		image = cv2.circle(original_image, (current_point, int(HEIGHT/2)), radius=4, color=(0, 255, 255), thickness=10)
 		image = cv2.circle(image, (self.real_point, self.real_point_y), radius=4, color=(0, 0, 255), thickness=10)
 		
 		image = cv2.putText(
