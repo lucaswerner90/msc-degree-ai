@@ -7,12 +7,11 @@ import torch
 import numpy as np
 import cv2
 from gym import spaces
-from model.encoder_vit import EncoderViT
 
 (WIDTH, HEIGHT, CHANNELS) = (640,360,3)
 
 class DroneEnvironment(gym.Env):
-	MAX_REWARD = 2
+	MAX_REWARD = 1
 	metadata = {'render.modes': ['human']}
 
 	def __init__(self, dataset):
@@ -21,20 +20,9 @@ class DroneEnvironment(gym.Env):
 		self.action_space = spaces.Discrete(3)
 		self.dataset = dataset
 		self.observation_space = spaces.Box(low=-1, high=1, shape=(224, 224, CHANNELS))
-		self.vit_encoder = EncoderViT()
 
 	def calculate_reward(self, predicted):
-		"""
-		Divides the images into 32 sections of fixed length and returns
-		1 if the predicted is in the same section as
-		the real_x_coordinate.
-		Otherwise it returns a result directly proportional to the distance
-		between the two sections, the closer to 1, the closer the 2 sections are.
-		"""
-		num_sections = 32
-		section_width = WIDTH // num_sections
-		num_sections_away = int(abs(predicted.item() - self.real_point.item()) // section_width)
-		return DroneEnvironment.MAX_REWARD if num_sections_away == 0 else 1 - (num_sections_away / num_sections)
+		return DroneEnvironment.MAX_REWARD if abs(predicted.item() - self.real_point.item()) <= 40 else 0
 
 	def reset(self, eval:bool = False):
 		# Get the next image from the dataset
@@ -43,12 +31,8 @@ class DroneEnvironment(gym.Env):
 
 		self.real_point = sample['real_x']
 		self.real_point_y = sample['real_y']
-		self.image = torch.tensor(sample['image'].squeeze(), dtype=torch.float)
-		self.image = self.vit_encoder(self.image)
-		self.image = self.image.view(self.image.size(0), -1)
-
-		
-		self.original_image = torch.tensor(sample['image'].squeeze(), dtype=torch.float)
+		self.image = sample['image']
+		self.original_image = sample['original_image']
 
 		self.current_point = torch.Tensor([np.random.rand()]) if not eval else torch.Tensor([0.5])
 
@@ -74,7 +58,7 @@ class DroneEnvironment(gym.Env):
 
 	def get_image(self):
 		current_point = int(self.current_point.item()*WIDTH)
-		original_image = np.copy(self.original_image.numpy())
+		original_image = np.copy(self.original_image)
 		image = cv2.circle(original_image, (current_point, int(HEIGHT/2)), radius=4, color=(0, 255, 255), thickness=10)
 		image = cv2.circle(image, (self.real_point, self.real_point_y), radius=4, color=(0, 0, 255), thickness=10)
 		
