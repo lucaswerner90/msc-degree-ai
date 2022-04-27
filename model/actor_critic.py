@@ -11,7 +11,7 @@ class ActorCritic(nn.Module):
     def __init__(self):
         super(ActorCritic, self).__init__()
         self.common_model = nn.Sequential(
-            nn.Linear(4096+1, 1024),
+            nn.Linear(4096+1, 1024), # 4096 => salida de la ultima capa de la VGG16 + punto de vista
             nn.Linear(1024, 256),
         )
 
