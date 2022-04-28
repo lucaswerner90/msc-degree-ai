@@ -131,4 +131,5 @@ dmypy.json
 
 **/yolov5*.pt
 **/*.pth
-data/training_images/actor_critic
+data/training_images
+data/validation_images
