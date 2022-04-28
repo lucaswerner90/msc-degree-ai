@@ -72,7 +72,7 @@ df= pd.concat([df.iloc[a], df.iloc[b], df.iloc[c]], axis = 0).reset_index()
 df = df.sample(frac=1, random_state=42).reset_index()
 
 df_train, df_validation = train_test_split(
-    df[:20],
+    df,
     test_size=0.1,
     random_state=42,
     shuffle=True

@@ -40,13 +40,8 @@ class DroneEnvironment(gym.Env):
 
 
 	def step(self, action):
-		distance = 20  # distance in pixels
-		point = torch.Tensor([int(self.current_point.item() * WIDTH)])
-
-		if action == "LEFT":
-			point -= distance
-		if action == "RIGHT":
-			point += distance
+		point = self.current_point + action
+		point = torch.tensor([int(point.item()*WIDTH)])
 
 		point = torch.clamp(point, 1, WIDTH-1)
 
