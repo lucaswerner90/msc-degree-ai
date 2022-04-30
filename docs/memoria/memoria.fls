@@ -1905,10 +1905,10 @@ INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/memoria.toc
 INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/memoria.toc
 INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/memoria.toc
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/public/tex-gyre/ec-qhvr-sc.tfm
-OUTPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/memoria.toc
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/public/tex-gyre/ec-qhvr.tfm
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/public/tex-gyre/ec-qhvb.tfm
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/public/tex-gyre/ec-qhvb-sc.tfm
+OUTPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/memoria.toc
 INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/memoria.lof
 INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/memoria.lof
 INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/memoria.lof
@@ -1940,6 +1940,9 @@ INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/public/tex-gyre/ec-qhvb.tfm
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/public/tex-gyre/ec-qhvb.tfm
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/public/tex-gyre/ec-qhvr.tfm
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/public/tex-gyre/ec-qhvb.tfm
+INPUT /usr/local/texlive/2021/texmf-dist/fonts/vf/public/kpfonts/jkpbn8t.vf
+INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/public/kpfonts/jkpbn8r.tfm
+INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/public/kpfonts/jkpbne.tfm
 INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/figuras/fig1.png
 INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/figuras/fig1.png
 INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/figuras/fig1.png
@@ -1950,9 +1953,6 @@ INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/tablas/tabl
 INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/tablas/tabla1.tex
 INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/tablas/tabla1.tex
 INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/tablas/tabla1.tex
-INPUT /usr/local/texlive/2021/texmf-dist/fonts/vf/public/kpfonts/jkpbn8t.vf
-INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/public/kpfonts/jkpbn8r.tfm
-INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/public/kpfonts/jkpbne.tfm
 INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/algoritmos/algoritmo1.tex
 INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/algoritmos/algoritmo1.tex
 INPUT /Users/lucaswerner/Desktop/projects/msc-degree-ai/docs/memoria/algoritmos/algoritmo1.tex
