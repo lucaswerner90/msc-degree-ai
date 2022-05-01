@@ -1,0 +1,18 @@
+\begin{algorithm}[H]
+\label{algrecompensainicial}
+\SetAlgoLined
+\medskip
+\begin{enumerate}
+	\item Dividimos la imagen en secciones longitudinales de tamaño fijo $Secciones_{total}$.
+	\item Establecemos una recompensa máxima del entorno $Recompensa_{max}$.
+	\item Calculamos la sección en la que se encuentra nuestro agente:
+	$Seccion_{agente} = round(Pagente_{pixels} / Ancho_{imagen})$.
+	\item Calculamos la sección en la que se encuentra nuestro punto final:
+	$Seccion_{objetivo} = round(Pobjetivo_{pixels} / Ancho_{imagen})$.
+	\item Si $Seccion_{agente} = Seccion_{objetivo}$ devolvemos $Recompensa_{max}$.
+	
+	Sino devolvemos $1 - (Seccion_{agente}-Seccion_{objetivo}/Secciones_{total}) $
+\end{enumerate}
+	\caption{Algoritmo de recompensa inicial}
+\end{algorithm}
+	

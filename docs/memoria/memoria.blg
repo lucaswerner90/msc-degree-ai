@@ -3,44 +3,44 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: memoria.aux
 The style file: apa.bst
 Database file #1: bibliografia.bib
-You've used 1 entry,
+You've used 2 entries,
             1940 wiz_defined-function locations,
-            479 strings with 3960 characters,
-and the built_in function-call counts, 760 in all, are:
-= -- 72
-> -- 43
-< -- 1
-+ -- 16
-- -- 16
-* -- 63
-:= -- 121
-add.period$ -- 3
-call.type$ -- 1
-change.case$ -- 13
-chr.to.int$ -- 1
-cite$ -- 1
-duplicate$ -- 29
-empty$ -- 46
-format.name$ -- 17
-if$ -- 156
+            486 strings with 4184 characters,
+and the built_in function-call counts, 1413 in all, are:
+= -- 138
+> -- 76
+< -- 2
++ -- 28
+- -- 28
+* -- 117
+:= -- 222
+add.period$ -- 7
+call.type$ -- 2
+change.case$ -- 24
+chr.to.int$ -- 2
+cite$ -- 2
+duplicate$ -- 56
+empty$ -- 88
+format.name$ -- 30
+if$ -- 294
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 1
-newline$ -- 8
-num.names$ -- 3
-pop$ -- 17
+missing$ -- 2
+newline$ -- 13
+num.names$ -- 6
+pop$ -- 31
 preamble$ -- 1
-purify$ -- 13
+purify$ -- 24
 quote$ -- 0
-skip$ -- 25
+skip$ -- 46
 stack$ -- 0
-substring$ -- 52
-swap$ -- 13
-text.length$ -- 1
+substring$ -- 96
+swap$ -- 24
+text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 6
+type$ -- 12
 warning$ -- 0
-while$ -- 5
+while$ -- 10
 width$ -- 0
-write$ -- 15
+write$ -- 29

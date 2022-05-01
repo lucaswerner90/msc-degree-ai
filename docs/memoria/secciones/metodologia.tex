@@ -8,32 +8,120 @@
 \section{Obtención de los datos}
 \label{obtencion-datos}
 
+La toma de datos se hace mediante el análisis de archivos de vídeo tomados desde el propio dispositivo en un entorno controlado. Es importante destacar que la calidad de las imágenes no es alta, sobre todo en entornos en los cuales la iluminación no es favorable, por ejemplo en entornos con iluminación artificial. 
+\medskip
+
+El dispositivo nos proporciona una aplicación móvil para controlar la grabación y el almacenamiento de los videos que luego serán volcados en el ordenador para su posterior procesamiento, del cual hablaremos posteriormente.
+\medskip
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.2]{figuras/dataset/image2.jpg}
+    \includegraphics[scale=0.2]{figuras/dataset/image7.jpg}
+    \includegraphics[scale=0.2]{figuras/dataset/image8.jpg}
+    % \caption[Así aparece el rótulo en el índice]{Así aparece el rótulo en el texto.}
+    \caption[Imágenes de ejemplo del conjunto final de datos]{\textbf{Imágenes de ejemplo del conjunto final de datos.}}
+    \label{fig-dataset-imagenes-ejemplo}
+\end{figure}
+\medskip
+Se ha decidido también utilizar sólo imágenes procedentes del dispositivo y no incluir imágenes de terceras fuentes que podrían haber ayudado a mejorar el tamaño final de nuestro conjunto de datos ya que la idea es acercarse lo máximo posible a un entorno final real.
+\medskip
+
+Debido a las leyes vigentes sobre vuelo de drones, los escenarios en los cuales fueron grabados los videos se redujeron drásticamente a un entorno cerrado, lo cual nos lleva a pensar que más adelante podríamos tener un problema de overfitting en nuestro modelo.
+\medskip
+
+En un escenario ideal contaríamos con diferentes entornos que nos permitiesen descartar la posibilidad de que el agente aprenda que la posición de determinados objetos es condicionante para tomar una decisión y que se centrara solo en las persona de la imagen.
+\medskip
+
 \section{Preprocesamiento de los datos}
 \label{preprocesamiento-datos}
+\input{secciones/preprocesamiento.tex}
 
-\section{Análisis e investigación de soluciones de aprendizaje por refuerzo}
-\label{investigacion-soluciones-aprendizaje-refuerzo}
+\section{Análisis de la solución e implementación}
+\label{analisis-de-la-solucion-e-implementacion}
 
+En la siguiente sección hablaremos de la implementación de cada uno de los elementos que componen nuestro problema, así como de las decisiones iniciales tomadas.
 \subsection{Elección de los algoritmos utilizados por el agente}
 \label{eleccion-de-algoritmos}
 
 \subsection{Definición del agente}
 \label{definicion-del-agente}
 
+El agente es el componente que se encarga de tomar decisiones. En este caso, el agente será el encargado de tomar la decisión de girar la cámara del dron a la izquierda o a la derecha o de permanecer quieto, dado un estado del entorno en particular. El objetivo de nuestro agente será encontrar aquellas acciones que maximicen las recompensas obtenidas.
+
 \subsection{Definición del estado}
 \label{definicion-del-estado}
 
-\subsection{Definición del estado}
+\subsection{Definición de la recompensa}
 \label{definicion-de-recompensa}
+
+El desarrollo de la recompensa fue uno de los puntos críticos en cuanto a la implementación y la definición de nuestro problema. Por un lado, tenemos que intentar que nuestro agente sea capaz de ir aprendiendo los pasos intermedios que lleven a la obtención de la recompensa óptima, en el menor número de pasos posibles y por otro, definir cúanta recompensa en términos absolutos el agente recibirá cuando acaba correctamente el episodio, en contraposición a cuando llega al número máximo de intentos sin haber obtenido la recompensa máxima.
+\medskip
+
+La idea inicial fue crear una zona de recompensa proporcional a la distancia del punto en el que se encontraba el agente y el punto obtenido durante el preprocesamiento de los datos. Esto lo hicimos diviendo la imagen en secciones longitudinales de tamaño fijo. Dado que nuestra imagen era de 640 píxeles de ancho, lo que hicimos fue dividirla en 32 secciones de 20 píxeles cada una. La recompensa final obtenida sería inversamente proporcional a la distancia, medida en número de secciones, en que el agente se encontraba con respecto al punto objetivo. De manera que si el agente se encontraba a 5 secciones de nuestro punto final, obtendría menos recompensa que si se encontrara a 2 secciones, tal y como se puede observar en el algoritmo \ref{algrecompensainicial}:
+\medskip
+
+\input{algoritmos/recompensa-inicial.tex}
+\medskip
+
+Lo que conseguimos con esta recompensa fue obtener un heatmap alrededor del punto objetivo, de manera que el agente podría interpretar si se estaba acercando o alejando. La recompensa máxima fue establecida a 1, de manera que los saltos entre las recompensas parciales y la recompensa final fuese siempre proporcional a la distancia. Más adelante también comprobaremos cómo este valor puede afectar al desarrollo de una solución por parte de nuestro agente.
+\medskip
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.1]{figuras/recompensa/recompensa_maxima.png}
+	\includegraphics[scale=0.1]{figuras/recompensa/recompensa_no_maxima.png}
+	\caption[Heatmap de la recompensa inicial]{\textbf{Heatmap de la recompensa inicial.}}
+	\label{fig-recompensa-inicial}
+\end{figure}
 
 \subsection{Definición del entorno}
 \label{definicion-del-entorno}
 
+Para desarrollar el entorno, lo que se hizo fue implementarlo siguiendo como ejemplo los entornos propuestos por OpenAI Gym. Esto nos facilitó tener una primera estructura y una primera definición de los métodos que deberíamos implementar.
+\medskip
+
+Al inicio de cada episodio, nuestro entorno se encargará de devolver una imagen del conjunto de datos (entrenamiento, test o validación), así como las coordenadas del punto en el que se encuentra la persona, expresados en píxeles. Estos valores se guardan durante toda la ejecución del episodio y se renuevan una vez que se empieza un nuevo episodio.
+\medskip
+
+La ejecución de cada acción sobre el entorno nos devolverá un nuevo estado, la recompensa asociada con ese estado y un valor que nos indicará si el estado es final o no, es decir, si el episodio finaliza en ese estado. 
+\medskip
+
+Durante las fases de entrenamiento, testeo y validación de nuestro agente, cada una de las acciones sobre el entorno involucra el cálculo de la nueva posición del punto en el que se encuentra el agente. Una vez el agente fuese desplegado para controlar el dron, cada ejecución de la acción involucraría la ejecución de esa acción en el dron, ya sea girar a la derecha, a la izquierda, o permanecer quieto.
+\medskip
+
+
 \subsection{Entrenamiento}
 \label{entrenamiento}
+
+En cuanto al proceso de entrenamiento, destacamos el hecho de que cada episodio está compuesto por una sola imagen. Es decir, cuando el agente llegue a la recompensa máxima establecida en cada imagen o cuando se llegue al número máximo de acciones que definimos durante el bucle de ejecución, el episodio acabaría. 
+\medskip
+
+La inclusión de un número máximo de pasos por imagen fue una decisión tomada para que nuestro agente no entrase en un bucle infinito si decidiese por ejemplo, girar siempre hacia la derecha, llegando al extremo de la imagen donde no se encuentra la persona. Esta decisión también nos lleva a experimentar con un parámetro extra en nuestro entrenamiento, ya que un número muy elevado de acciones puede llevarnos a que el agente no aprenda correctamente y por lo tanto la exploración sobre el entorno no tenga ningún efecto, y por otro lado, un número muy pequeño podría llevarnos a que el agente no tuviese el tiempo suficiente para aprender la policy adecuada dado el estado. Por lo general, este valor oscilaba entre 50 y 100 acciones por imagen, aunque también se realizaron pruebas con valores menores y mayores a estos.
+\medskip
+
+Debido al problema de la falta de imágenes en diferentes entornos, tal y como comentamos en la sección 3? Se tomó la decisión de que el punto inicial se inicialice de manera aleatoria, entre un valor de 0 y 1, que luego será multiplicado por el ancho de la imagen para darnos las coordenadas reales y calcular la recompensa en ese punto. La idea detrás de esta decisión es dotar al entrenamiento de un componente aleatorio y por lo tanto evitar que nuestro agente pueda realizar overfitting sobre el conjunto de datos, dado que para una misma imagen , durante el entrenamiento, el punto de partida sea diferente.
+\medskip
+
+Durante el proceso de entrenamiento se realizaron multitud de pruebas, no solo en lo que respecta a los parámetros de nuestro modelo, sino también a los criterios de parada de cada episodio, el número máximo de acciones a tomar o la recompensa obtenida al seleccionar la acción de permanecer quieto. De estas diferentes decisiones hablaremos en cada uno de los experimentos, basándonos en los resultados que vayamos obteniendo.
+\medskip
 
 \subsection{Evaluación}
 \label{evaluacion}
 
-\section{}
-\label{investigacion-soluciones-aprendizaje-refuerzo}
+Para evaluar la calidad de los resultados del agente, comprobaremos sobre cada imágen del conjunto de validación, cuándo el agente decide quedarse quieto y la recompensa que obtiene al hacerlo. Esto se asemeja al comportamiento real que tendría al ser desplegado en el dron.
+\medskip
+
+La evaluación comienza con las coordenadas del punto del agente en las coordenadas centrales de la imagen, de manera que simula el punto central de la cámara del dron. Lo que se hace a continuación es ejecutar el agente sobre ese estado y aplicar las acciones de este hasta encontrarnos con la acción de permanecer quieto, lo cual sería el indicador de que el agente se encuentra en la posición en la que se encuentra la persona. En ese momento, dado que contamos con las coordenadas reales obtenidas durante el procesamiento, calculamos la recompensa.
+\medskip
+
+Esta operación se realiza tanto para el conjunto de test durante el entrenamiento, como para el conjunto de validación después del entrenamiento. En ambos casos, nuestro modelo funciona en modo evaluación y por lo tanto no se propagan cambios a los pesos de este.
+\medskip
+
+Además de la recompensa total, nos interesa en este caso obtener un agente que decida moverse de manera uniforme hacia una dirección en el menor número de acciones posible. Pensemos que cada acción que tome el agente será una acción que el dispositivo tendrá que realizar y por lo tanto es tiempo de ejecución que se pierde. Es decir, un agente que consigue la recompensa máxima en 5 acciones será más valioso que uno que la consiga en 10.
+\medskip
+
+Aunque el hecho de conseguir la recompensa máxima del entorno en nuestro caso no es indicativo de la calidad de nuestro agente, por ejemplo podemos pensar que nuestro agente se acerca al punto en el que se encuentra la persona, sin llegar a estar exactamente en donde debería, pero sin embargo lo hace de manera consistente, en un número de acciones reducido por frame, lo que al final nos permite ser más rápidos en la ejecución final y por lo tanto, a efectos prácticos, nos puede incluso llegar a ser más valioso.
+\medskip
+
+Todos estos factores están sujetos a una evaluación subjetiva que iremos comentando más adelante en los diferentes experimentos que realicemos.

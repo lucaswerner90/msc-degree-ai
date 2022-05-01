@@ -1,8 +1,12 @@
 \babel@toc {spanish}{}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {1.1}{\ignorespaces Tipos de grafos}}{4}{figure.1.1}%
+\contentsline {figure}{\numberline {1.1}{\ignorespaces DJI Tello. Dispositivo utilizado durante el proyecto}}{4}{figure.1.1}%
+\contentsline {figure}{\numberline {1.2}{\ignorespaces Tipos de grafos}}{6}{figure.1.2}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Imágenes de ejemplo del conjunto final de datos}}{11}{figure.3.1}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Pipeline del procesamiento del conjunto de datos}}{12}{figure.3.2}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Heatmap de la recompensa inicial}}{15}{figure.3.3}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
