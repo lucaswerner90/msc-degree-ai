@@ -14,13 +14,13 @@ La toma de datos se hace mediante el análisis de archivos de vídeo tomados des
 El dispositivo nos proporciona una aplicación móvil para controlar la grabación y el almacenamiento de los videos que luego serán volcados en el ordenador para su posterior procesamiento, del cual hablaremos posteriormente.
 \medskip
 
-\begin{figure}[ht!]
+\begin{figure}[H]
     \centering
-    \includegraphics[scale=0.2]{figuras/dataset/image2.jpg}
-    \includegraphics[scale=0.2]{figuras/dataset/image7.jpg}
-    \includegraphics[scale=0.2]{figuras/dataset/image8.jpg}
+    \includegraphics[scale=0.3]{figuras/dataset/image2.jpg}
+    \includegraphics[scale=0.3]{figuras/dataset/image7.jpg}
+    \includegraphics[scale=0.3]{figuras/dataset/image8.jpg}
     % \caption[Así aparece el rótulo en el índice]{Así aparece el rótulo en el texto.}
-    \caption[Imágenes de ejemplo del conjunto final de datos]{\textbf{Imágenes de ejemplo del conjunto final de datos.}}
+    \caption[Imágenes de ejemplo del conjunto final de datos]{Imágenes de ejemplo del conjunto final de datos.}
     \label{fig-dataset-imagenes-ejemplo}
 \end{figure}
 \medskip
@@ -44,13 +44,52 @@ En la siguiente sección hablaremos de la implementación de cada uno de los ele
 \subsection{Elección de los algoritmos utilizados por el agente}
 \label{eleccion-de-algoritmos}
 
-\subsection{Definición del agente}
-\label{definicion-del-agente}
+Para entrenar nuestro agente utilizaremos métodos que optimicen la \textit{policy} del agente, es decir, que optimicen la toma decisiones para maximizar la \textit{reward} del entorno.
+\medskip
 
-El agente es el componente que se encarga de tomar decisiones. En este caso, el agente será el encargado de tomar la decisión de girar la cámara del dron a la izquierda o a la derecha o de permanecer quieto, dado un estado del entorno en particular. El objetivo de nuestro agente será encontrar aquellas acciones que maximicen las recompensas obtenidas.
+Comenzaremos utilizando el algoritmo \textit{REINFORCE Policy Gradient}, el cual se considera de los más sencillos dentro de la familia de \textit{Policy Gradient} y nos servirá como punto de partida para analizar los posibles problemas y limitaciones de nuestro entorno y nuestras definiciones. Con este algoritmo, el agente colecciona ejemplos del episodio utilizando para ello la \textit{policy} actual. La figura \ref{fig-algoritmo-reinforce} muestra dicho algoritmo:
+\medskip
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[scale=0.5]{figuras/reinforce_policy_gradient.png}
+	\caption[Algoritmo REINFORCE Policy Gradient]{Algoritmo REINFORCE Policy Gradient. Obtenida de la \href{http://www.cs.toronto.edu/~tingwuwang/REINFORCE.pdf}{UToronto}}
+	\label{fig-algoritmo-reinforce}
+\end{figure}
+
+Como siguiente paso, escogeremos nuevamente un algoritmo de la familia de \textit{policy gradient} para el entrenamiento del agente. En este caso, el algoritmo \textit{Actor-Critic} \citep{DBLP:journals/corr/abs-1801-01290}. La mayor diferencia entre este algoritmo y el anterior, es que en este caso contamos con 2 componentes separados: el \textit{Actor}, que será el responsable de devolver la distribución de probabilidades de cada una de las acciones del agente y el \textit{Critic}, que será el encargado d estimar el valor del estado en el que se encuentra dicho agente. El algoritmo utilizado puede verse en la figura \ref{fig-algoritmo-actor-critic}.
+\medskip
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[scale=0.5]{figuras/algoritmo_actor_critic.png}
+	\caption[Algoritmo Actor Critic]{Algoritmo Actor Critic. Obtenida de \href{https://preview.redd.it/6dfwcx17zwi21.png?width=971&format=png&auto=webp&s=e1f13781cf1b436425b8e7e802fc24b6a6951e8e}{Reddit}}
+	\label{fig-algoritmo-actor-critic}
+\end{figure}
 
 \subsection{Definición del estado}
 \label{definicion-del-estado}
+
+El estado es la representación del problema que el agente debe resolver. En este caso, el estado será una imagen de la cámara del dron, a la que se le aplicó previamente un procesamiento, tal y como comentamos en la sección \ref{preprocesamiento-datos}, junto con el punto en el que se encuentra el agente, expresado en un número entre 0 y 1, representando el 0 estar en el borde izquierdo de la imagen y 1 estar en el borde derecho de esta.
+\medskip
+
+Es decir, el agente recibirá un vector como entrada, de tamaño 4097. Los primeros 4096 elementos representan la imagen, la cual ha sido procesada por una \acrshort{cnn} preentrenada, que en nuestro caso ha sido VGG16 \citep{vgg16}, la cual recibe como entrada un vector de tamaño 224x224x3, es decir, una imagen en formato RGB de 224x224 píxeles. Si bien la elección de nuestra \acrshort{cnn} no fue basándonos en ningún criterio en particular, la idea era disminuir el tamaño de la entrada de nuestro agente. 
+\medskip
+
+También se tuvieron en cuenta diferentes soluciones para la definición del estado. Entre ellas, la posibilidad de que el estado se formase de varias imágenes al mismo tiempo, debido el componente temporal con el que cuenta nuestro problema. Este estado condicionaría también la arquitectura de la red de nuestro agente, dado que en este caso necesitaríamos tratar con redes recurrentes o en su defecto con redes de tipo Transformers \citep{transformers}, tal y como se explica en el trabajo realizado por \citet{luo2019end} y podemos ver en la figura \ref{fig-arquitectura-red-luo}, donde podemos ver que después del \textit{encoder}, tal y como se cita en el trabajo, se utiliza una red \acrshort{LSTM}.
+\medskip
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.3]{figuras/luo_network_architecture.png}
+    % \caption[Así aparece el rótulo en el índice]{Así aparece el rótulo en el texto.}
+    \caption[Arquitectura de red propuesta por \citet{luo2019end}.]{Arquitectura de red propuesta por \citet{luo2019end}.}
+    \label{fig-arquitectura-red-luo}
+\end{figure}
+
+Para aumentar la velocidad de nuestro entrenamiento, la imagen será preprocesada por la red convolucional al inicio de cada episodio y se mantendrá constante, dado que lo que iremos cambiando con cada acción durante el entrenamiento es el punto en el que se encuentra el agente.
+\medskip
+
+Por último, el estado contiene en su último elemento, el punto en el que se encuentra el agente en un momento dado, de manera que este debería ser capaz de tomar decisiones basándose no solo en la representación de la imagen sino también del valor que este valor tenga en ese instante.
 
 \subsection{Definición de la recompensa}
 \label{definicion-de-recompensa}
@@ -60,35 +99,68 @@ El desarrollo de la recompensa fue uno de los puntos críticos en cuanto a la im
 
 La idea inicial fue crear una zona de recompensa proporcional a la distancia del punto en el que se encontraba el agente y el punto obtenido durante el preprocesamiento de los datos. Esto lo hicimos diviendo la imagen en secciones longitudinales de tamaño fijo. Dado que nuestra imagen era de 640 píxeles de ancho, lo que hicimos fue dividirla en 32 secciones de 20 píxeles cada una. La recompensa final obtenida sería inversamente proporcional a la distancia, medida en número de secciones, en que el agente se encontraba con respecto al punto objetivo. De manera que si el agente se encontraba a 5 secciones de nuestro punto final, obtendría menos recompensa que si se encontrara a 2 secciones, tal y como se puede observar en el algoritmo \ref{algrecompensainicial}:
 \medskip
-
+\vspace{3ex}
 \input{algoritmos/recompensa-inicial.tex}
+\vspace{3ex}
+
+Lo que conseguimos con esta recompensa fue obtener un \textit{heatmap} alrededor del punto objetivo, de manera que el agente podría interpretar si se estaba acercando o alejando. 
 \medskip
 
-Lo que conseguimos con esta recompensa fue obtener un heatmap alrededor del punto objetivo, de manera que el agente podría interpretar si se estaba acercando o alejando. La recompensa máxima fue establecida a 1, de manera que los saltos entre las recompensas parciales y la recompensa final fuese siempre proporcional a la distancia. Más adelante también comprobaremos cómo este valor puede afectar al desarrollo de una solución por parte de nuestro agente.
+La recompensa máxima fue establecida a 1, de manera que los saltos entre las recompensas parciales y la recompensa final fuese siempre proporcional a la distancia. Más adelante también comprobaremos cómo este valor puede afectar al desarrollo de una solución por parte de nuestro agente.
 \medskip
 
-\begin{figure}
+\begin{figure}[ht!]
 	\centering
-	\includegraphics[scale=0.1]{figuras/recompensa/recompensa_maxima.png}
-	\includegraphics[scale=0.1]{figuras/recompensa/recompensa_no_maxima.png}
-	\caption[Heatmap de la recompensa inicial]{\textbf{Heatmap de la recompensa inicial.}}
-	\label{fig-recompensa-inicial}
+	\parbox{5in}{
+		\centering
+		\includegraphics[scale=0.35]{figuras/recompensa/recompensa_maxima.png}
+	}
+	\qquad
+	\begin{minipage}{5in}
+		\centering
+		\includegraphics[scale=0.35]{figuras/recompensa/recompensa_no_maxima.png}
+	\end{minipage}
+	\caption[Comparación de recompensa sobre la misma imagen dados dos puntos de vista distinto.]{La misma imagen, con 2 puntos definidos por el agente a diferente distancia del punto objetivo. La imagen superior obtendría la puntuación máxima mientras que la imagen inferior no.}%
+	\label{fig-recompensa-imagenes}
 \end{figure}
+
+
+En la figura \ref{fig-recompensa-imagenes} podemos observar cómo funciona nuestro sistema de recompensa inicial. En la imagen situada en la parte superior, el punto amarillo, que representa el punto en el que se encuentra el agente, está dentro de la misma sección que el punto objetivo, y por lo tanto la recompensa será máxima. Mientras que en el caso de la imagen inferior, el punto donde se encuentra el agente está a una distancia mayor a una sección (definida por defecto en 20 píxeles), y por lo tanto la recompensa será proporcional al número de secciones que se encuentra hasta llegar al punto objetivo.
 
 \subsection{Definición del entorno}
 \label{definicion-del-entorno}
 
-Para desarrollar el entorno, lo que se hizo fue implementarlo siguiendo como ejemplo los entornos propuestos por OpenAI Gym. Esto nos facilitó tener una primera estructura y una primera definición de los métodos que deberíamos implementar.
+Para desarrollar el entorno, lo que se hizo fue implementarlo siguiendo como ejemplo los entornos propuestos por OpenAI Gym \citep{openaigym}. Esto nos facilitó tener una primera estructura y una primera definición de los métodos que deberíamos implementar.
 \medskip
 
-Al inicio de cada episodio, nuestro entorno se encargará de devolver una imagen del conjunto de datos (entrenamiento, test o validación), así como las coordenadas del punto en el que se encuentra la persona, expresados en píxeles. Estos valores se guardan durante toda la ejecución del episodio y se renuevan una vez que se empieza un nuevo episodio.
+Al inicio de cada episodio, nuestro entorno se encargará de devolver una imagen del conjunto de datos (entrenamiento, test o validación), así como las coordenadas del punto en el que se encuentra la persona, expresados en píxeles, que es lo que compone nuestro estado tal y como describimos en la sección \ref{definicion-del-estado}. Estos valores se guardan durante toda la ejecución del episodio y se renuevan una vez que se empieza uno nuevo.
 \medskip
+
 
 La ejecución de cada acción sobre el entorno nos devolverá un nuevo estado, la recompensa asociada con ese estado y un valor que nos indicará si el estado es final o no, es decir, si el episodio finaliza en ese estado. 
 \medskip
 
-Durante las fases de entrenamiento, testeo y validación de nuestro agente, cada una de las acciones sobre el entorno involucra el cálculo de la nueva posición del punto en el que se encuentra el agente. Una vez el agente fuese desplegado para controlar el dron, cada ejecución de la acción involucraría la ejecución de esa acción en el dron, ya sea girar a la derecha, a la izquierda, o permanecer quieto.
+El algoritmo \ref{environment-step-action} detalla el pseudocódigo utilizado tras recibir una acción por parte del agente. Podemos observar que este algoritmo mueve el punto del agente basándose en la acción que este toma, siempre en una cantidad fija de píxeles, que corresponde con el tamaño de cada una de las secciones en las que fue dividida la imagen tal y como se explica en el apartado \ref{definicion-de-recompensa}. Esto se hizo de tal forma que el agente se moviese siempre a una sección diferente y por lo tanto la recompensa obtenida también sea diferente.
 \medskip
+
+\input{algoritmos/environment-step-action.tex}
+
+Podemos observar también que la acción de permanecer quieto no tiene ninguna consecuencia en el estado del agente y la utilizaremos como posible acción para finalizar el episodio por parte del agente.
+\medskip
+
+Durante las fases de entrenamiento, testeo y validación de nuestro agente, cada una de las acciones sobre el entorno involucra el cálculo de la nueva posición del punto en el que se encuentra el agente. Una vez el agente fuese desplegado para controlar el dron, cada ejecución de la acción involucraría la ejecución de esa acción en el dron, ya sea girar a la derecha, a la izquierda, o permanecer quieto y obtener una nueva imagen. En este caso, el punto de vista del dron siempre sería el centro de la imagen.
+\medskip
+
+\subsection{Definición del agente}
+\label{definicion-del-agente}
+
+El agente es el componente que se encarga de tomar decisiones. En este caso, el agente será el encargado de tomar la decisión de girar la cámara del dron a la izquierda, a la derecha o de permanecer quieto, dado un estado del entorno, el cual está definido como se detalla en la sección \ref{definicion-del-estado}.
+\medskip
+
+El objetivo de nuestro agente será encontrar aquellas acciones que maximicen las recompensas obtenidas. Este objetivo será alcanzado dependiendo del algoritmo que utilicemos para ello, pero independientemente de esto, las recompensas obtenidas y el conjunto de acciones será el mismo.
+\medskip
+
+En cuanto a la implementación, el agente será una red neuronal cuya arquitectura iremos variando según los diferentes experimentos, que extenderá de la clase nn.Module de PyTorch y a la cual le añadiremos métodos propios para facilitar la lectura del código.
 
 
 \subsection{Entrenamiento}
@@ -100,10 +172,10 @@ En cuanto al proceso de entrenamiento, destacamos el hecho de que cada episodio 
 La inclusión de un número máximo de pasos por imagen fue una decisión tomada para que nuestro agente no entrase en un bucle infinito si decidiese por ejemplo, girar siempre hacia la derecha, llegando al extremo de la imagen donde no se encuentra la persona. Esta decisión también nos lleva a experimentar con un parámetro extra en nuestro entrenamiento, ya que un número muy elevado de acciones puede llevarnos a que el agente no aprenda correctamente y por lo tanto la exploración sobre el entorno no tenga ningún efecto, y por otro lado, un número muy pequeño podría llevarnos a que el agente no tuviese el tiempo suficiente para aprender la policy adecuada dado el estado. Por lo general, este valor oscilaba entre 50 y 100 acciones por imagen, aunque también se realizaron pruebas con valores menores y mayores a estos.
 \medskip
 
-Debido al problema de la falta de imágenes en diferentes entornos, tal y como comentamos en la sección 3? Se tomó la decisión de que el punto inicial se inicialice de manera aleatoria, entre un valor de 0 y 1, que luego será multiplicado por el ancho de la imagen para darnos las coordenadas reales y calcular la recompensa en ese punto. La idea detrás de esta decisión es dotar al entrenamiento de un componente aleatorio y por lo tanto evitar que nuestro agente pueda realizar overfitting sobre el conjunto de datos, dado que para una misma imagen , durante el entrenamiento, el punto de partida sea diferente.
+Debido al problema de la falta de imágenes en diferentes entornos, tal y como comentamos en la sección \ref{preprocesamiento-datos}. Se tomó la decisión de que el punto inicial se inicialice de manera aleatoria, entre un valor de 0 y 1, que luego será multiplicado por el ancho de la imagen para darnos las coordenadas reales y calcular la recompensa en ese punto. La idea detrás de esta decisión es dotar al entrenamiento de un componente aleatorio y por lo tanto evitar que nuestro agente pueda realizar overfitting sobre el conjunto de datos, dado que para una misma imagen , durante el entrenamiento, el punto de partida sea diferente.
 \medskip
 
-Durante el proceso de entrenamiento se realizaron multitud de pruebas, no solo en lo que respecta a los parámetros de nuestro modelo, sino también a los criterios de parada de cada episodio, el número máximo de acciones a tomar o la recompensa obtenida al seleccionar la acción de permanecer quieto. De estas diferentes decisiones hablaremos en cada uno de los experimentos, basándonos en los resultados que vayamos obteniendo.
+Durante el proceso de entrenamiento se realizaron multitud de pruebas, no solo en lo que respecta a los parámetros de nuestro modelo, sino también a los criterios de parada de cada episodio, el número máximo de acciones a tomar o la recompensa obtenida al seleccionar la acción de permanecer quieto. De estas diferentes decisiones hablaremos en cada uno de los experimentos.
 \medskip
 
 \subsection{Evaluación}
@@ -124,4 +196,16 @@ Además de la recompensa total, nos interesa en este caso obtener un agente que 
 Aunque el hecho de conseguir la recompensa máxima del entorno en nuestro caso no es indicativo de la calidad de nuestro agente, por ejemplo podemos pensar que nuestro agente se acerca al punto en el que se encuentra la persona, sin llegar a estar exactamente en donde debería, pero sin embargo lo hace de manera consistente, en un número de acciones reducido por frame, lo que al final nos permite ser más rápidos en la ejecución final y por lo tanto, a efectos prácticos, nos puede incluso llegar a ser más valioso.
 \medskip
 
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[scale=0.3]{figuras/recompensa/comparacion_2_acciones_tomadas.jpg}
+	\includegraphics[scale=0.3]{figuras/recompensa/comparacion_6_acciones_tomadas.jpg}
+	\caption[Imagen ejecutada en dos experimentos distintos, a la misma distancia del punto objetivo, con diferente número de acciones.]{Imagen ejecutada en dos experimentos distintos, cuyo punto predicho se encuentra a la misma distancia del punto objetivo, con diferente número de acciones.}%
+	\label{fig-comparacion-numero de acciones}
+\end{figure}
+
+Un ejemplo de este comportamiento lo vemos en la figura \ref{fig-comparacion-numero de acciones}, en el que se puede ver que sobre la misma imagen, ejecutada en 2 experimentos diferentes, tenemos 2 puntos de vista por parte del agente a prácticamente la misma distancia. La imagen de la izquierda requirió de solamente 2 acciones, mientras que la imagen de la derecha de 6 acciones. Por lo tanto, para esta imagen nos interesaría el agente que produjo la imagen de la izquierda.
+\medskip
+
+Debido a la alta latencia que se producia al conectar el dron con nuestro ordenador, la ejecución en el dispositivo real no fue posible. Lo que se hizo en su lugar fue analizar frame por frame una serie de videos grabados desde el dispositivo, ejecutabdi una acción en cada uno de ellos para que simulara la acción a tiempo real que tomaría el agente.
 Todos estos factores están sujetos a una evaluación subjetiva que iremos comentando más adelante en los diferentes experimentos que realicemos.

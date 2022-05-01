@@ -1,17 +1,48 @@
 \begin{thebibliography}{}
 
+\bibitem[\protect\astroncite{Brockman et~al.}{2016}]{openaigym}
+Brockman, G., Cheung, V., Pettersson, L., Schneider, J., Schulman, J., Tang,
+  J., y Zaremba, W. (2016).
+\newblock Openai gym.
+\newblock {\em arXiv preprint arXiv:1606.01540}.
+
 \bibitem[\protect\astroncite{Deng et~al.}{2009}]{imagenet}
 Deng, J., Dong, W., Socher, R., Li, L.-J., Li, K., y Fei-Fei, L. (2009).
 \newblock Imagenet: A large-scale hierarchical image database.
 \newblock In {\em 2009 IEEE conference on computer vision and pattern
   recognition}, pages 248--255. Ieee.
 
-\bibitem[\protect\astroncite{Goodfellow
-  et~al.}{2014}]{goodfellow2014generative}
-Goodfellow, I., Pouget-Abadie, J., Mirza, M., Xu, B., Warde-Farley, D., Ozair,
-  S., Courville, A., y Bengio, Y. (2014).
-\newblock Generative adversarial nets.
-\newblock In {\em Advances in neural information processing systems}, pages
-  2672--2680.
+\bibitem[\protect\astroncite{Dosovitskiy et~al.}{2020}]{visiontransformers}
+Dosovitskiy, A., Beyer, L., Kolesnikov, A., Weissenborn, D., Zhai, X.,
+  Unterthiner, T., Dehghani, M., Minderer, M., Heigold, G., Gelly, S., et~al.
+  (2020).
+\newblock An image is worth 16x16 words: Transformers for image recognition at
+  scale.
+\newblock {\em arXiv preprint arXiv:2010.11929}.
+
+\bibitem[\protect\astroncite{Haarnoja
+  et~al.}{2018}]{DBLP:journals/corr/abs-1801-01290}
+Haarnoja, T., Zhou, A., Abbeel, P., y Levine, S. (2018).
+\newblock Soft actor-critic: Off-policy maximum entropy deep reinforcement
+  learning with a stochastic actor.
+\newblock {\em CoRR}, abs/1801.01290.
+
+\bibitem[\protect\astroncite{Luo et~al.}{2019}]{luo2019end}
+Luo, W., Sun, P., Zhong, F., Liu, W., Zhang, T., y Wang, Y. (2019).
+\newblock End-to-end active object tracking and its real-world deployment via
+  reinforcement learning.
+\newblock {\em IEEE transactions on pattern analysis and machine intelligence},
+  42(6):1317--1332.
+
+\bibitem[\protect\astroncite{Simonyan y Zisserman}{2014}]{vgg16}
+Simonyan, K. y Zisserman, A. (2014).
+\newblock Very deep convolutional networks for large-scale image recognition.
+\newblock {\em arXiv preprint arXiv:1409.1556}.
+
+\bibitem[\protect\astroncite{Vaswani et~al.}{2017}]{transformers}
+Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.~N.,
+  Kaiser, {\L}., y Polosukhin, I. (2017).
+\newblock Attention is all you need.
+\newblock {\em Advances in neural information processing systems}, 30.
 
 \end{thebibliography}

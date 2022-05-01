@@ -1,0 +1,25 @@
+\vspace{3ex}
+\begin{algorithm}[H]
+	\label{environment-step-action}
+	\SetAlgoLined
+	\medskip
+	$width \gets 640$
+
+	$distance \gets 20$
+
+	\If{accion == 'LEFT'}{
+		$point \gets point - distance$
+	}
+	\If{action == 'RIGHT'}{	
+		$point \gets point + distance$
+	}
+	$point \gets torch.clamp(point, 1, width-1)$
+
+	$reward \gets calculateReward(point)$
+
+	$done = EnvironmentMaxReward == reward$
+
+	\Return{reward, point, done}
+	\caption{Ejecutar acción en el entorno}
+\end{algorithm}
+\vspace{3ex}

@@ -9,14 +9,21 @@
 \label{resultados-introduccion}
 
 A continuación haremos un repaso de los resultados obtenidos en el subconjunto de experimentos más representativo, realizados con los diferentes algoritmos propuestos.
+\medskip
 
 Detallaremos también las conclusiones parciales que obtenemos en cada experimento, así como posibles soluciones a los problemas que se nos plantean en cada uno.
+\medskip
 
 Cabe mencionar que debido al coste computacional de ejecutar cada experimento sobre el conjunto de datos total, cada experimento se compone de subexperimentos previos, en los cuales intentábamos probar nuestras soluciones con un conjunto de datos menor al original, alrededor de unas 20 imágenes. 
+\medskip
 
 La idea detrás de esta subexperimentación era conseguir un modelo de agente que sea capaz de realizar overfitting sobre el conjunto de datos de manera relativamente rápida y que obtuviese una convergencia tanto en la recompensa obtenida tanto en las imágenes del conjunto de entrenamiento como en el conjunto de test como en el número de pasos que realizaba sobre cada una de las imágenes. Esto nos permitió también acortar el tiempo entre las diferentes pruebas, lo que provocó que pudiesemos experimentar con diferentes definiciones tanto de nuestra recompensa como de nuestro entorno, así como hacer fine tunning de nuestros hiperparámetros.
+\medskip
 
-El total de los experimentos está disponible en el repositorio de GitHub para un análisis más extenso y se adjunta el título de cada uno de ellos en el Apéndize A. La herramienta utilizada para monitorear el progreso de las diferentes métricas durante los diferentes entrenamientos es Tensorboard, ya que además de su facil integración con PyTorch nos permitía comparar dichas métricas entre los diferentes experimentos.
+El total de los experimentos está disponible en el repositorio de \href{https://github.com/lucaswerner90/msc-degree-ai}{GitHub} para un análisis más extenso y se adjunta el título de cada uno de ellos en el Apéndize \ref{apendize-a}. 
+\medskip
+
+La herramienta utilizada para monitorear el progreso de las diferentes métricas durante los diferentes entrenamientos es \href{https://www.tensorflow.org/tensorboard?hl=es-419}{Tensorboard}, ya que además de su facil integración con \href{https://pytorch.org/}{PyTorch} nos permitía comparar dichas métricas entre los diferentes experimentos.
 
 
 \section{Policy Gradient}

@@ -1,9 +1,8 @@
 \addvspace {10\p@ }
-\contentsline {algocf}{\numberline {1}{\ignorespaces Algoritmo \textit {Hill-Climbing} (HC)}}{7}{algocf.1}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {algocf}{\numberline {2}{\ignorespaces Algoritmo de recompensa inicial}}{15}{algocf.2}%
-\addvspace {10\p@ }
+\contentsline {algocf}{\numberline {1}{\ignorespaces Algoritmo de recompensa inicial}}{15}{algocf.1}%
+\contentsline {algocf}{\numberline {2}{\ignorespaces Ejecutar acción en el entorno}}{16}{algocf.2}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }

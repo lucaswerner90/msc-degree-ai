@@ -1,2 +1,3 @@
-(indexentry :tkey (("GAN" "\\glossentry{gan}") ) :locref "{}{5}" :attr "pageglsnumberformat" ) 
-(indexentry :tkey (("GAN" "\\glossentry{gan}") ) :locref "{}{5}" :attr "pageglsnumberformat" ) 
+(indexentry :tkey (("CNN" "\\glossentry{cnn}") ) :locref "{}{13}" :attr "pageglsnumberformat" ) 
+(indexentry :tkey (("CNN" "\\glossentry{cnn}") ) :locref "{}{13}" :attr "pageglsnumberformat" ) 
+(indexentry :tkey (("LSTM" "\\glossentry{LSTM}") ) :locref "{}{13}" :attr "pageglsnumberformat" ) 
