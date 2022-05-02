@@ -98,8 +98,28 @@ Por último comentaremos los \textit{Transformers}\citep{transformers} y en espe
 \subsection{Algoritmo Policy Gradient}
 \label{algoritmo-policy-gradient}
 
-\subsection{Algoritmo Actor Critic}
+\subsection{Algoritmo Actor-Critic}
 \label{algoritmo-actor-critic}
 
-\subsection{Vision Transformers}
+\subsection{Transformers y Vision Transformers}
 \label{vision-transformers}
+
+Sin entrar en muchos detalles en cuanto a cómo funcionan los \textit{Transformers} y los \textit{Vision Transformers}, haremos un breve repaso de las características unicas de estas redes, ya que uno de los experimentos nombrados en la sección \ref{resultados-vision-transformers} será el de un agente con una red de tipo \textit{Vision Transformer} \citep{visiontransformers}, que se encargará de realizar la transformación de la imagen de entrada.
+\medskip
+
+\begin{figure}[H]
+  \centering
+  \subfloat[Arquitectura \textit{Transformer} original]{\includegraphics[scale = 0.3]{figuras/transformer_architecture.png}}
+  \subfloat[Arquitectura propuesta para \textit{Vision Transformers}]{\includegraphics[scale = 0.3]{figuras/vision_transformers.png}} 
+  % \caption[Así aparece el rótulo en el índice]{Así aparece el rótulo en el texto.}
+  \caption[Comparativa arquitectura (a) Transformer y (b) Vision Transformer]{Comparativa arquitectura (a) Transformer y (b) Vision Transformer}
+  \label{fig-vision-transformer}
+\end{figure}
+
+Las redes basadas en \textit{Attention}, en particular las redes \textit{Transformers}, desarrolladas inicialmente por Google, se han convertido en la elección por defecto en problemas de lenguaje natural o NLP, ya que gracias a su eficiencia computacional y su escalabilidad, es posible entrenar modelos de más de 100 billones de parámetros. La idea detrás de estas redes es solucionar los problemas que presentan las redes neuronales recurrentes o RNN, tales como las redes LSTM o GRU, las cuales no son capaces de captar dependencias a largo plazo, tal y como podemos encontrarnos en un texto de una novela.
+\medskip
+
+Aunque los \textit{Transformers} son ampliamente utilizados en procesamiento de lenguaje natural, las arquitecturas de redes convolucionales o \glossary{CNN} seguian siendo el tipo de red dominante en el campo de la visión por computador. Es por ello que, inspirados en la arquitectura original de Transformer y en el éxito que estas contaban (y aún cuentan), se buscó aplicar los mismos principios en la visión por computador. Esto es lo que dio lugar a los Vision Transformer, cuya idea principal es la de partir una imagen en segmentos o \textit{patches} y ser capaces de aplicar capas de Attention a cada uno de ellos. 
+\medskip
+
+A día de hoy nos encontramos muchas versiones disponibles y preentrenadas. Durante la ejecución de nuestro experimento utilizaremos un modelo disponible en la web \href{https://huggingface.co/docs/transformers/model_doc/vit#transformers.ViTModel}{HuggingFace}. En concreto utilizamos un modelo entrenado por Google, cuya entrada es una imagen de 224x224 píxeles, que será luego dividida en 16 parches de 14x14 píxeles y que fue entrenada en el conjunto de datos \textit{ImageNet21k} \citep{imagenet21k}. La salida de este modelo, es decir, la entrada a nuestro agente será un vector de tamaño 197x512, donde la primera dimensión representa el tamaño de la secuencia en la cual nuestra imagen ha sido partida tras el paso por el \textit{Vision Transformer}, y cada elemento de esa secuencia consta de un total de 512 características.

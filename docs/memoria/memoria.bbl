@@ -34,6 +34,11 @@ Luo, W., Sun, P., Zhong, F., Liu, W., Zhang, T., y Wang, Y. (2019).
 \newblock {\em IEEE transactions on pattern analysis and machine intelligence},
   42(6):1317--1332.
 
+\bibitem[\protect\astroncite{Ridnik et~al.}{2021}]{imagenet21k}
+Ridnik, T., Ben-Baruch, E., Noy, A., y Zelnik-Manor, L. (2021).
+\newblock Imagenet-21k pretraining for the masses.
+\newblock {\em arXiv preprint arXiv:2104.10972}.
+
 \bibitem[\protect\astroncite{Simonyan y Zisserman}{2014}]{vgg16}
 Simonyan, K. y Zisserman, A. (2014).
 \newblock Very deep convolutional networks for large-scale image recognition.

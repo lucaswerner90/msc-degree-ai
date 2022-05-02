@@ -1,7 +1,7 @@
 \babel@toc {spanish}{}
 \contentsline {chapter}{Índice de figuras}{\es@scroman {iii}}{chapter*.2}%
-\contentsline {chapter}{Índice de tablas}{\es@scroman {iv}}{chapter*.3}%
-\contentsline {chapter}{Índice de algoritmos}{\es@scroman {v}}{chapter*.4}%
+\contentsline {chapter}{Índice de tablas}{\es@scroman {v}}{chapter*.3}%
+\contentsline {chapter}{Índice de algoritmos}{\es@scroman {vi}}{chapter*.4}%
 \contentsline {chapter}{Resumen}{1}{chapter*.5}%
 \contentsline {chapter}{\numberline {1}Introducción}{3}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Acotación del problema}{4}{section.1.1}%
@@ -9,26 +9,31 @@
 \contentsline {section}{\numberline {1.3}Marco teórico}{5}{section.1.3}%
 \contentsline {subsection}{\numberline {1.3.1}Aprendizaje por refuerzo}{6}{subsection.1.3.1}%
 \contentsline {subsection}{\numberline {1.3.2}Algoritmo Policy Gradient}{6}{subsection.1.3.2}%
-\contentsline {subsection}{\numberline {1.3.3}Algoritmo Actor Critic}{6}{subsection.1.3.3}%
-\contentsline {subsection}{\numberline {1.3.4}Vision Transformers}{6}{subsection.1.3.4}%
-\contentsline {chapter}{\numberline {2}Objetivos}{7}{chapter.2}%
-\contentsline {chapter}{\numberline {3}Metodología}{9}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Obtención de los datos}{9}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Preprocesamiento de los datos}{10}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Análisis de la solución e implementación}{12}{section.3.3}%
-\contentsline {subsection}{\numberline {3.3.1}Elección de los algoritmos utilizados por el agente}{12}{subsection.3.3.1}%
-\contentsline {subsection}{\numberline {3.3.2}Definición del estado}{13}{subsection.3.3.2}%
-\contentsline {subsection}{\numberline {3.3.3}Definición de la recompensa}{14}{subsection.3.3.3}%
-\contentsline {subsection}{\numberline {3.3.4}Definición del entorno}{16}{subsection.3.3.4}%
-\contentsline {subsection}{\numberline {3.3.5}Definición del agente}{17}{subsection.3.3.5}%
-\contentsline {subsection}{\numberline {3.3.6}Entrenamiento}{17}{subsection.3.3.6}%
-\contentsline {subsection}{\numberline {3.3.7}Evaluación}{18}{subsection.3.3.7}%
-\contentsline {chapter}{\numberline {4}Resultados y Discusión}{21}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Introducción}{21}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Policy Gradient}{21}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Actor Critic}{21}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Vision Transformers}{21}{section.4.4}%
-\contentsline {chapter}{\numberline {5}Conclusiones}{22}{chapter.5}%
-\contentsline {chapter}{\numberline {6}Limitaciones y\\ Perspectivas de Futuro}{23}{chapter.6}%
-\contentsline {chapter}{\numberline {A}Apéndize A}{26}{appendix.Alph1}%
-\contentsline {chapter}{Bibliografía}{28}{appendix*.7}%
+\contentsline {subsection}{\numberline {1.3.3}Algoritmo Actor-Critic}{6}{subsection.1.3.3}%
+\contentsline {subsection}{\numberline {1.3.4}Transformers y Vision Transformers}{6}{subsection.1.3.4}%
+\contentsline {chapter}{\numberline {2}Objetivos}{9}{chapter.2}%
+\contentsline {chapter}{\numberline {3}Metodología}{11}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Obtención de los datos}{11}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Preprocesamiento de los datos}{12}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Análisis de la solución e implementación}{14}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Elección de los algoritmos utilizados por el agente}{14}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Definición del estado}{15}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Definición de la recompensa}{16}{subsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.3.4}Definición del entorno}{18}{subsection.3.3.4}%
+\contentsline {subsection}{\numberline {3.3.5}Definición del agente}{19}{subsection.3.3.5}%
+\contentsline {subsection}{\numberline {3.3.6}Entrenamiento}{19}{subsection.3.3.6}%
+\contentsline {subsection}{\numberline {3.3.7}Evaluación}{20}{subsection.3.3.7}%
+\contentsline {chapter}{\numberline {4}Resultados y Discusión}{23}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Introducción}{23}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Policy Gradient}{23}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Experimento 1}{24}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Experimento 2}{24}{subsection.4.2.2}%
+\contentsline {section}{\numberline {4.3}Actor-Critic}{25}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Experimento 1}{26}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Experimento 2}{27}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Experimento 3}{28}{subsection.4.3.3}%
+\contentsline {section}{\numberline {4.4}Vision Transformers}{29}{section.4.4}%
+\contentsline {chapter}{\numberline {5}Conclusiones}{31}{chapter.5}%
+\contentsline {chapter}{\numberline {6}Limitaciones y\\ Perspectivas de Futuro}{33}{chapter.6}%
+\contentsline {chapter}{\numberline {A}Apéndize A}{36}{appendix.Alph1}%
+\contentsline {chapter}{Bibliografía}{38}{appendix*.36}%

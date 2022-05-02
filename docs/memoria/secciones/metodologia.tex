@@ -16,9 +16,13 @@ El dispositivo nos proporciona una aplicación móvil para controlar la grabaci�
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.3]{figuras/dataset/image2.jpg}
-    \includegraphics[scale=0.3]{figuras/dataset/image7.jpg}
-    \includegraphics[scale=0.3]{figuras/dataset/image8.jpg}
+	\subfloat[]{\includegraphics[width = 0.4\linewidth]{figuras/dataset/image2.jpg}}
+	\hspace{0.05\linewidth}
+	\subfloat[]{\includegraphics[width = 0.4\linewidth]{figuras/dataset/image7.jpg}}
+	\hspace{0.05\linewidth}
+	\subfloat[]{\includegraphics[width = 0.4\linewidth]{figuras/dataset/image8.jpg}}
+	\hspace{0.05\linewidth}
+	\subfloat[]{\includegraphics[width = 0.4\linewidth]{figuras/dataset/image1.jpg}}
     % \caption[Así aparece el rótulo en el índice]{Así aparece el rótulo en el texto.}
     \caption[Imágenes de ejemplo del conjunto final de datos]{Imágenes de ejemplo del conjunto final de datos.}
     \label{fig-dataset-imagenes-ejemplo}
@@ -61,8 +65,8 @@ Como siguiente paso, escogeremos nuevamente un algoritmo de la familia de \texti
 
 \begin{figure}[ht!]
 	\centering
-	\includegraphics[scale=0.5]{figuras/algoritmo_actor_critic.png}
-	\caption[Algoritmo Actor Critic]{Algoritmo Actor Critic. Obtenida de \href{https://preview.redd.it/6dfwcx17zwi21.png?width=971&format=png&auto=webp&s=e1f13781cf1b436425b8e7e802fc24b6a6951e8e}{Reddit}}
+	\includegraphics[width=1\linewidth]{figuras/algoritmo_actor_critic.png}
+	\caption[Algoritmo \textit{Actor-Critic}]{Algoritmo \textit{Actor-Critic}. Obtenida de \href{https://preview.redd.it/6dfwcx17zwi21.png?width=971&format=png&auto=webp&s=e1f13781cf1b436425b8e7e802fc24b6a6951e8e}{Reddit}}
 	\label{fig-algoritmo-actor-critic}
 \end{figure}
 
@@ -109,7 +113,7 @@ Lo que conseguimos con esta recompensa fue obtener un \textit{heatmap} alrededor
 La recompensa máxima fue establecida a 1, de manera que los saltos entre las recompensas parciales y la recompensa final fuese siempre proporcional a la distancia. Más adelante también comprobaremos cómo este valor puede afectar al desarrollo de una solución por parte de nuestro agente.
 \medskip
 
-\begin{figure}[ht!]
+\begin{figure}[H]
 	\centering
 	\parbox{5in}{
 		\centering
@@ -120,7 +124,7 @@ La recompensa máxima fue establecida a 1, de manera que los saltos entre las re
 		\centering
 		\includegraphics[scale=0.35]{figuras/recompensa/recompensa_no_maxima.png}
 	\end{minipage}
-	\caption[Comparación de recompensa sobre la misma imagen dados dos puntos de vista distinto.]{La misma imagen, con 2 puntos definidos por el agente a diferente distancia del punto objetivo. La imagen superior obtendría la puntuación máxima mientras que la imagen inferior no.}%
+	\caption[Comparación de recompensa sobre la misma imagen dados dos puntos de vista distinto.]{La misma imagen, con 2 puntos definidos por el agente a diferente distancia del punto objetivo. La imagen superior obtendría la puntuación máxima mientras que la imagen inferior solo obtendría una recompensa relativa a la distancia del punto objetivo.}%
 	\label{fig-recompensa-imagenes}
 \end{figure}
 
@@ -198,13 +202,15 @@ Aunque el hecho de conseguir la recompensa máxima del entorno en nuestro caso n
 
 \begin{figure}[ht!]
 	\centering
-	\includegraphics[scale=0.3]{figuras/recompensa/comparacion_2_acciones_tomadas.jpg}
-	\includegraphics[scale=0.3]{figuras/recompensa/comparacion_6_acciones_tomadas.jpg}
+	\subfloat[Ubicación del agente tras 2 acciones]{\includegraphics[width = 0.47\linewidth]{figuras/recompensa/comparacion_2_acciones_tomadas.jpg}}
+	\hspace{0.05\textwidth}
+	\subfloat[Ubicación del agente tras 6 acciones]{\includegraphics[width = 0.47\linewidth]{figuras/recompensa/comparacion_6_acciones_tomadas.jpg}} 
 	\caption[Imagen ejecutada en dos experimentos distintos, a la misma distancia del punto objetivo, con diferente número de acciones.]{Imagen ejecutada en dos experimentos distintos, cuyo punto predicho se encuentra a la misma distancia del punto objetivo, con diferente número de acciones.}%
-	\label{fig-comparacion-numero de acciones}
-\end{figure}
+	\label{fig-comparacion-numero-de-acciones}
+  \end{figure}
+\medskip
 
-Un ejemplo de este comportamiento lo vemos en la figura \ref{fig-comparacion-numero de acciones}, en el que se puede ver que sobre la misma imagen, ejecutada en 2 experimentos diferentes, tenemos 2 puntos de vista por parte del agente a prácticamente la misma distancia. La imagen de la izquierda requirió de solamente 2 acciones, mientras que la imagen de la derecha de 6 acciones. Por lo tanto, para esta imagen nos interesaría el agente que produjo la imagen de la izquierda.
+Un ejemplo de este comportamiento lo vemos en la figura \ref{fig-comparacion-numero-de-acciones}, en el que se puede ver que sobre la misma imagen, ejecutada en 2 experimentos diferentes, tenemos 2 puntos de vista por parte del agente a prácticamente la misma distancia. La imagen de la izquierda requirió de solamente 2 acciones, mientras que la imagen de la derecha de 6 acciones. Por lo tanto, para esta imagen nos interesaría el agente que produjo la imagen de la izquierda.
 \medskip
 
 Debido a la alta latencia que se producia al conectar el dron con nuestro ordenador, la ejecución en el dispositivo real no fue posible. Lo que se hizo en su lugar fue analizar frame por frame una serie de videos grabados desde el dispositivo, ejecutabdi una acción en cada uno de ellos para que simulara la acción a tiempo real que tomaría el agente.
