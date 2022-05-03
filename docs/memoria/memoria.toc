@@ -25,15 +25,15 @@
 \contentsline {subsection}{\numberline {3.3.7}Evaluación}{20}{subsection.3.3.7}%
 \contentsline {chapter}{\numberline {4}Resultados y Discusión}{23}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Introducción}{23}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Policy Gradient}{23}{section.4.2}%
+\contentsline {section}{\numberline {4.2}Policy Gradient}{24}{section.4.2}%
 \contentsline {subsection}{\numberline {4.2.1}Experimento 1}{24}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}Experimento 2}{24}{subsection.4.2.2}%
-\contentsline {section}{\numberline {4.3}Actor-Critic}{25}{section.4.3}%
-\contentsline {subsection}{\numberline {4.3.1}Experimento 1}{26}{subsection.4.3.1}%
-\contentsline {subsection}{\numberline {4.3.2}Experimento 2}{27}{subsection.4.3.2}%
-\contentsline {subsection}{\numberline {4.3.3}Experimento 3}{28}{subsection.4.3.3}%
-\contentsline {section}{\numberline {4.4}Vision Transformers}{29}{section.4.4}%
-\contentsline {chapter}{\numberline {5}Conclusiones}{31}{chapter.5}%
+\contentsline {subsection}{\numberline {4.2.2}Experimento 2}{25}{subsection.4.2.2}%
+\contentsline {section}{\numberline {4.3}Actor-Critic}{26}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Experimento 1}{27}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Experimento 2}{28}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Experimento 3}{29}{subsection.4.3.3}%
+\contentsline {section}{\numberline {4.4}Vision Transformers}{30}{section.4.4}%
+\contentsline {chapter}{\numberline {5}Conclusiones}{32}{chapter.5}%
 \contentsline {chapter}{\numberline {6}Limitaciones y\\ Perspectivas de Futuro}{33}{chapter.6}%
 \contentsline {chapter}{\numberline {A}Apéndize A}{36}{appendix.Alph1}%
 \contentsline {chapter}{Bibliografía}{38}{appendix*.36}%

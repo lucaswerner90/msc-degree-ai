@@ -11,29 +11,38 @@
 A continuación haremos un repaso de los resultados obtenidos en el subconjunto de experimentos más representativo, realizados con los diferentes algoritmos propuestos.
 \medskip
 
-Detallaremos también las conclusiones parciales que obtenemos en cada experimento, así como posibles soluciones a los problemas que se nos plantean en cada uno.
+Detallaremos brevemente también las conclusiones parciales que obtenemos en cada experimento, así como posibles soluciones a los problemas que se nos plantean en cada uno.
 \medskip
 
 Cabe mencionar que debido al coste computacional de ejecutar cada experimento sobre el conjunto de datos total, cada experimento se compone de subexperimentos previos, en los cuales intentábamos probar nuestras soluciones con un conjunto de datos menor al original, alrededor de unas 20 imágenes. 
 \medskip
 
-La idea detrás de esta subexperimentación era conseguir un modelo de agente que sea capaz de realizar overfitting sobre el conjunto de datos de manera relativamente rápida y que obtuviese una convergencia tanto en la recompensa obtenida tanto en las imágenes del conjunto de entrenamiento como en el conjunto de test como en el número de pasos que realizaba sobre cada una de las imágenes. Esto nos permitió también acortar el tiempo entre las diferentes pruebas, lo que provocó que pudiesemos experimentar con diferentes definiciones tanto de nuestra recompensa como de nuestro entorno, así como hacer fine tunning de nuestros hiperparámetros.
+La idea detrás de esta subexperimentación era conseguir un modelo de agente que sea capaz de realizar \textit{overfitting} sobre el conjunto de datos de manera relativamente rápida y que obtuviese una convergencia tanto en la recompensa obtenida tanto en las imágenes del conjunto de entrenamiento como en el conjunto de test como en el número de pasos que realizaba sobre cada una de las imágenes. Esto nos permitió también acortar el tiempo entre las diferentes pruebas, ya que el conseguir este overfitting nos aseguraba que el agente seguiría en un principio las ideas que queríamos implementar y además provocó que pudiesemos experimentar con diferentes definiciones tanto de nuestra recompensa como de nuestro entorno, así como hacer \textit{fine tunning} de nuestros hiperparámetros.
+\medskip
+
+Durante los experimentos podremos comprobar que en alguno de ellos el número de métricas que mostraremos es más alto que en otros, esto no es solo debido a que queramos destacar una cualidad específica del experimento, sino que tambien formó parte de la experimentación y el descubrimiento de algunos de los problemas que nos fuimos encontrando, que nos llevó a tener que realizar el seguimiento de algunos aspectos del entrenamiento que no estaban contemplados en experimentos anteriores. Estos problemas estuvieron relacionados principalmente con la convergencia en la toma de decisiones del agente tal y como se discutirá más adelante.
+\medskip
+
+Por último también mostraremos algunos resultados de las imágenes que fuimos obteniendo en cada caso. Cabe recordar que la ejecución del agente durante el test se detiene cuando decide ejecutar la acción de permanecer quieto, y que tanto esta recompensa como el número de acciones hasta llegar a ella se tienen en cuenta como medidas subjetivas de la eficacia del agente, tal y como comentamos en la sección \ref{evaluacion}.
 \medskip
 
 El total de los experimentos está disponible en el repositorio de \href{https://github.com/lucaswerner90/msc-degree-ai}{GitHub} para un análisis más extenso y se adjunta el título de cada uno de ellos en el Apéndize \ref{apendize-a}. 
 \medskip
 
 La herramienta utilizada para monitorear el progreso de las diferentes métricas durante los diferentes entrenamientos es \href{https://www.tensorflow.org/tensorboard?hl=es-419}{Tensorboard}, ya que además de su facil integración con \href{https://pytorch.org/}{PyTorch} nos permitía comparar dichas métricas entre los diferentes experimentos.
-
+\medskip
 
 \section{Policy Gradient}
 \label{resultados-policy-gradient}
 
-Lorem ipsum 
+El algoritmo \textit{Policy Gradient} fue nuestra primera opción a la hora de implementar nuestro agente. Se buscaba obtener una primera aproximación a nuestro problema y buscábamos sobre todo tener un modelo que sirviese como \textit{baseline}, así como definir la estructura general de nuestro programa.
 \medskip
 
 \subsection{Experimento 1}
 \label{resultados-policy-gradient-experimento-1}
+
+En este primer experimento utilizamos como criterio de finalización del episodio que el agente realizase un máximo de 50 acciones o que obtuviese la máxima recompensa del entorno, en este caso se mantuvo la recompensa proporcional con la distancia al punto objetivo y no se hizo ninguna recompensa extra por llegar al final del episodio correctamente.
+\medskip
 
 \begin{figure}[H]
 	\centering
@@ -55,10 +64,13 @@ Lorem ipsum
 	\label{fig-experimento-policy-gradient-1-episodes-duration}
 \end{figure}
 
+Lo que se puede apreciar es que existe una tendencia a la baja de nuestro algoritmo en cuanto al número de acciones en el conjunto de entrenamiento. Por otra parte, se aprecia que la recompensa en el conjunto de test comienza a subir a partir de la época 10, lo cual marca un punto importante de inflexión en esta. 
+
 \subsection{Experimento 2}
 \label{resultados-policy-gradient-experimento-2}
 
-Los resultados de este experimento son similares al anterior, pero en este caso el entrenamiento se ejecuta durante unas 50 épocas, unas 30 más que el experimento \ref{resultados-policy-gradient-experimento-1}.
+Los parámetros utilizados en este experimento son similares al anterior, pero en este caso el entrenamiento se ejecuta durante unas 50 épocas, unas 30 más que el experimento \ref{resultados-policy-gradient-experimento-1}.
+\medskip
 
 \begin{figure}[H]
 	\centering
@@ -78,6 +90,9 @@ Los resultados de este experimento son similares al anterior, pero en este caso 
 	\caption[Experimento Policy Gradient 2 - Episodes duration]{Experimento Policy Gradient 2 - Episodes duration}
 	\label{fig-experimento-policy-gradient-2-episodes-duration}
 \end{figure}
+
+Vemos que en este experimento la tendencia que vimos en el experimento anterior se confirma: el número de acciones por imagen en el conjunto de entrenamiento parece seguir una tendencia a la baja y tanto la recompensa en el conjunto de test como en el entrenamiento aumentan según van avanzando las épocas.
+\medskip
 
 \section{Actor-Critic}
 \label{resultados-actor-critic}
