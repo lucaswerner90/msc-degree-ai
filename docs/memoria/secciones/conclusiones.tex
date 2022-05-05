@@ -3,11 +3,26 @@
 \chapter{Conclusiones}
 \label{conclusiones}
 
+Tras haber analizado los diferentes experimentos, haremos un breve repaso de las conclusiones principales que obtuvimos.
+
 \begin{enumerate}[label=\destacado{\arabic*.}]
   \setlength\itemsep{1em}
-  \item Conclusión 1.
+  \item La recompensa juega un papel importante.
+  \medskip
 
-  \item Conclusión 2.
+  Como vimos durante los diferentes experimentos, y aunque solo hayamos comentado un subconjunto de los totales realizados, la función de recompensa jugó sin duda un papel clave en todo el trabajo. Las diferentes decisiones sobre esta intentaban apaciguar los diferentes problemas que iban surgiendo tras analizar que los resultados obtenidos no se asemejaban a nuestro idea inicial.
+  \medskip
 
-  \item Conclusión 3.
+  \item Los hiperparámetros no fueron decisivos.
+  \medskip
+
+  Generalmente asociamos que la convergencia de nuestras redes neuronales está asociada con la elección de buenos hiperparámetros en el entrenamiento, tal y como aprendimos a lo largo del master. Sin embargo, en nuestro caso esto no fue un problema puesto que, si bien el agente podía llegar a un punto de recompensa media antes o después, esto no determinaba el resultado final. Hicimos pruebas con diferentes técnicas de inicialización de pesos, diferentes tasas de aprendizaje e incluímos técnicas conocidas como \textit{Dropout}, sin embargo el resultado no variaba de manera significativa.
+  \medskip
+
+  \item Definir correctamente el problema y sus componentes.
+  
+  \medskip
+  Esta es la conclusión que finalmente podríamos destacar. Bajo nuestra experiencia a lo largo del desarrollo de este proyecto pudimos observar una mejoría y un empeoramiento del resultado de nuestro agente modificando levemente en algunos casos las definiciones de nuestro entorno, ya sea a través de un cambio en la función de recompensa o en el criterio de parada del entrenamiento. Lo cual nos indica la dificultad que tiene el aplicar algoritmos de aprendizaje por refuerzo a escenarios reales (recordando incluso que el problema que afrontamos contaba con limitaciones con las cuales un producto industrial real tendría que lidiar ).
+  \medskip
+
 \end{enumerate}

@@ -7,7 +7,7 @@
   organization={Ieee}
 }
 
-@article{vgg16,
+@article{vgg19,
   title={Very deep convolutional networks for large-scale image recognition},
   author={Simonyan, Karen and Zisserman, Andrew},
   journal={arXiv preprint arXiv:1409.1556},
@@ -69,4 +69,36 @@
   author={Ridnik, Tal and Ben-Baruch, Emanuel and Noy, Asaf and Zelnik-Manor, Lihi},
   journal={arXiv preprint arXiv:2104.10972},
   year={2021}
+}
+
+
+@article{activetracking,
+	abstract = {Active tracking control is essential for UAVs to perform autonomous operations in GPS-denied environments. In the active tracking task, UAVs take high-dimensional raw images as input and execute motor actions to actively follow the dynamic target. Most research focuses on three-stage methods, which entail perception first, followed by high-level decision-making based on extracted spatial information of the dynamic target, and then UAV movement control, using a low-level dynamic controller. Perception methods based on deep neural networks are powerful but require considerable effort for manual ground truth labeling. Instead, we unify the perception and decision-making stages using a high-level controller and then leverage deep reinforcement learning to learn the mapping from raw images to the high-level action commands in the V-REP-based environment, where simulation data are infinite and inexpensive. This end-to-end method also has the advantages of a small parameter size and reduced effort requirements for parameter turning in the decision-making stage. The high-level controller, which has a novel architecture, explicitly encodes the spatial and temporal features of the dynamic target. Auxiliary segmentation and motion-in-depth losses are introduced to generate denser training signals for the high-level controller's fast and stable training. The high-level controller and a conventional low-level PID controller constitute our hierarchical active tracking control framework for the UAVs' active tracking task. Simulation experiments show that our controller trained with several augmentation techniques sufficiently generalizes dynamic targets with random appearances and velocities, and achieves significantly better performance, compared with three-stage methods.},
+	article-number = {10595},
+	author = {Zhao, Wenlong and Meng, Zhijun and Wang, Kaipeng and Zhang, Jiahui and Lu, Shaoze},
+	doi = {10.3390/app112210595},
+	issn = {2076-3417},
+	journal = {Applied Sciences},
+	number = {22},
+	title = {Hierarchical Active Tracking Control for UAVs via Deep Reinforcement Learning},
+	url = {https://www.mdpi.com/2076-3417/11/22/10595},
+	volume = {11},
+	year = {2021},
+	Bdsk-Url-1 = {https://www.mdpi.com/2076-3417/11/22/10595},
+	Bdsk-Url-2 = {https://doi.org/10.3390/app112210595}
+}
+
+@article{zhou2021space,
+  title={Space Non-cooperative Object Active Tracking with Deep Reinforcement Learning},
+  author={Zhou, Dong and Sun, Guanghui and Lei, Wenxiao},
+  journal={arXiv preprint arXiv:2112.09854},
+  year={2021}
+}
+
+@inproceedings{youonlylookonce,
+  title={You only look once: Unified, real-time object detection},
+  author={Redmon, Joseph and Divvala, Santosh and Girshick, Ross and Farhadi, Ali},
+  booktitle={Proceedings of the IEEE conference on computer vision and pattern recognition},
+  pages={779--788},
+  year={2016}
 }

@@ -5,6 +5,12 @@
 \chapter{Metodología}
 \label{metodologia}
 
+En este capítulo entraremos más en profundidad en los detalles técnicos y en las diferentes decisiones tomadas a lo largo del proyecto en cuanto a la descomposición del problema para adecuarlo al paradigma del aprendizaje por refuerzo.
+\medskip
+
+Comenzaremos hablando de los datos, cómo se obtuvieron y cómo los utilizaremos en nuestro proyecto y hablaremos de las diferentes piezas de este y los algoritmos escogidos para llevar a cabo los experimentos.
+\medskip
+
 \section{Obtención de los datos}
 \label{obtencion-datos}
 
@@ -76,7 +82,7 @@ Como siguiente paso, escogeremos nuevamente un algoritmo de la familia de \texti
 El estado es la representación del problema que el agente debe resolver. En este caso, el estado será una imagen de la cámara del dron, a la que se le aplicó previamente un procesamiento, tal y como comentamos en la sección \ref{preprocesamiento-datos}, junto con el punto en el que se encuentra el agente, expresado en un número entre 0 y 1, representando el 0 estar en el borde izquierdo de la imagen y 1 estar en el borde derecho de esta.
 \medskip
 
-Es decir, el agente recibirá un vector como entrada, de tamaño 4097. Los primeros 4096 elementos representan la imagen, la cual ha sido procesada por una \acrshort{cnn} preentrenada, que en nuestro caso ha sido VGG16 \citep{vgg16}, la cual recibe como entrada un vector de tamaño 224x224x3, es decir, una imagen en formato RGB de 224x224 píxeles. Si bien la elección de nuestra \acrshort{cnn} no fue basándonos en ningún criterio en particular, la idea era disminuir el tamaño de la entrada de nuestro agente. 
+Es decir, el agente recibirá un vector como entrada, de tamaño 4097. Los primeros 4096 elementos representan la imagen, la cual ha sido procesada por una \acrshort{cnn} preentrenada, que en nuestro caso ha sido VGG19 \citep{vgg19}, la cual recibe como entrada un vector de tamaño 224x224x3, es decir, una imagen en formato RGB de 224x224 píxeles. Si bien la elección de nuestra \acrshort{cnn} no fue basándonos en ningún criterio en particular, la idea era disminuir el tamaño de la entrada de nuestro agente. 
 \medskip
 
 También se tuvieron en cuenta diferentes soluciones para la definición del estado. Entre ellas, la posibilidad de que el estado se formase de varias imágenes al mismo tiempo, debido el componente temporal con el que cuenta nuestro problema. Este estado condicionaría también la arquitectura de la red de nuestro agente, dado que en este caso necesitaríamos tratar con redes recurrentes o en su defecto con redes de tipo Transformers \citep{transformers}, tal y como se explica en el trabajo realizado por \citet{luo2019end} y podemos ver en la figura \ref{fig-arquitectura-red-luo}, donde podemos ver que después del \textit{encoder}, tal y como se cita en el trabajo, se utiliza una red \acrshort{LSTM}.

@@ -8,7 +8,7 @@
 El objetivo es poder realizar el seguimiento a tiempo real de una persona a través de la cámara del dispositivo utilizando para ello visión por computador y técnicas de aprendizaje por refuerzo para controlar las acciones a tomar en cada momento. Lo que se conoce como active tracking. 
 \medskip
 
-Los actuales algoritmos se centran fundamentalmente en el reconocimiento del objeto y en la posición de éste con respecto a las coordenadas X e Y en relación al centro de la imagen a través de la cámara incorporada para guiar las acciones del dispositivo. Es lo que se conoce como \textit{passive tracking}. Este tipo de algoritmos han ganado más atención debido a la simplicidad del problema y los avances en reconocimiento de objetos.
+Los recientes algoritmos y estudios alrededor del \textit{active tracking}, entre ellos \citet{activetracking} o \citet{zhou2021space}, se centran fundamentalmente en el reconocimiento del objeto y en la posición de éste con respecto a las coordenadas X e Y en relación al centro de la imagen a través de la cámara incorporada para guiar las acciones del dispositivo. Es lo que se conoce como \textit{passive tracking}. Este tipo de algoritmos han ganado más atención debido a la simplicidad del problema y los avances en reconocimiento de objetos.
 \medskip
 
 Otros intentos de realizar \textit{object tracking} con aprendizaje supervisado se realizan utilizando modelos en simuladores tanto del dron como de las personas. Sin embargo, la idea del presente trabajo es la aplicación de diferentes técnicas de inteligencia artificial para lograr un agente que sea capaz de realizar el seguimiento utilizando simplemente imágenes que provengan del propio dispositivo en el cual se desplegará el agente.
@@ -61,7 +61,7 @@ Por lo tanto, quedándonos con una parte simplificada del problema, podemos cent
 \section{Dispositivo utilizado}
 \label{dispositivo-utilizado}
 
-Para el desarrollo del proyecto se utilizará el dispositivo DJI Tello, ya que nos proporciona una interfaz de programación compatible con nuestras necesidades: control del dispositivo y transmisión de datos a través de una API en lenguaje Python.
+Para el desarrollo del proyecto se utilizará el dispositivo \href{https://store.dji.com/de/shop/tello-series}{DJI Tello}, ya que nos proporciona una interfaz de programación compatible con nuestras necesidades: control del dispositivo y transmisión de datos a través de una API en lenguaje Python.
 \medskip
 
 
@@ -109,7 +109,7 @@ Sin entrar en muchos detalles en cuanto a cómo funcionan los \textit{Transforme
 
 \begin{figure}[H]
   \centering
-  \subfloat[Arquitectura \textit{Transformer} original]{\includegraphics[scale = 0.3]{figuras/transformer_architecture.png}}
+  \subfloat[Arquitectura \textit{Transformer} original]{\includegraphics[scale = 0.2]{figuras/transformer_architecture.png}}
   \subfloat[Arquitectura propuesta para \textit{Vision Transformers}]{\includegraphics[scale = 0.3]{figuras/vision_transformers.png}} 
   % \caption[Así aparece el rótulo en el índice]{Así aparece el rótulo en el texto.}
   \caption[Comparativa arquitectura (a) Transformer y (b) Vision Transformer]{Comparativa arquitectura (a) Transformer y (b) Vision Transformer}

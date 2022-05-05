@@ -106,20 +106,6 @@ Los resultados obtenidos por este primer algoritmo fueron destacables en cuanto 
 En este sentido, un problema dificil de detectar al principio y que se repitió también a lo largo de los demás experimentos, fue el hecho de que el agente decidiese moverse, es decir, a medida que el entrenamiento avanzaba, se podía comprobar no solo que era facil que el agente realizase overfitting sino que también decidiese que la mejor acción a tomar fuese la de permanecer quieto. Recordemos que la recompensa en estos casos era inversamente proporcional a la distancia en la que se encontraba nuestro punto objetivo comparado con el punto de nuestro agente.
 \medskip
 
-\begin{figure}[H]
-    \centering
-	\subfloat[4 acciones tomadas]{\includegraphics[width = 0.4\linewidth]{figuras/experiments/policy_gradient/test_images/33_real_274_predicted_280_actions_taken_4_pg_50epochs.jpg}}
-	\hspace{0.05\linewidth}
-	\subfloat[9 acciones tomadas]{\includegraphics[width = 0.4\linewidth]{figuras/experiments/policy_gradient/test_images/34_real_490_predicted_340_actions_taken_9_pg_50epochs.jpg}}
-	\hspace{0.05\linewidth}
-	\subfloat[5 acciones tomadas]{\includegraphics[width = 0.4\linewidth]{figuras/experiments/policy_gradient/test_images/53_real_72_predicted_340_actions_taken_5_pg_50epochs.jpg}}
-	\hspace{0.05\linewidth}
-	\subfloat[7 acciones tomadas]{\includegraphics[width = 0.4\linewidth]{figuras/experiments/policy_gradient/test_images/87_real_295_predicted_300_actions_taken_7_pg_50epochs.jpg}}
-    % \caption[Así aparece el rótulo en el índice]{Así aparece el rótulo en el texto.}
-    \caption[Imágenes obtenidas en los experimentos usando \textit{Policy Gradient}]{Imágenes obtenidas en los experimentos usando \textit{Policy Gradient} sobre el conjunto de test}
-    \label{fig-resultados-experimentos-policy-gradient}
-\end{figure}
-
 Por concluir, podemos decir que este primer conjunto de experimentos nos permitió entender la importancia de nuestra política de recompensa y resaltó problemas que no habíamos tenido en cuenta previamente en relación con las decisiones del agente.
 \medskip
 
@@ -326,6 +312,17 @@ Debido a la carga computacional de este modelo y las restricciones en cuanto a t
 	\label{fig-experimento-vision-transformer-1-episodes-duration}
 \end{figure}
 
+Lo que se puede apreciar en las gráficas del entrenamiento anteriores es que no obtuvimos ninguna ventaja significativa con el uso de \textit{Vision Transformers}, y aunque esto puede deberse a múltiples factores distintos, descartamos la posibilidad de seguir realizando experimentos con esta arquitectura dado el tiempo de entrenamiento que conllevaba y que no veíamos con claridad que fuesemos a obtener una convergencia o un mejor resultado que usando la red \textit{VGG19} preentrenada.
+\medskip
+
+Al igual que con los experimentos anteriores, vemos en la figura \ref{fig-experimento-vision-transformer-1-testing-reward-mean} que la recompensa sobre el conjunto de test disminuye con el paso del entrenamiento, lo cual nos indicaria que nuestro problema no se encuentra en un principio en la capacidad de abstracción de características de la imagen, sino que podría deberse a una falta de datos en general o incluso a que este tipo de redes necesitan un mayor tiempo de entrenamiento hasta conseguir buenos resultados. Sin embargo, y dado que esto es solamente el paso previo a nuestro agente, podríamos afirmar que la inestabilidad del entrenamiento y el no avance en la recompensa en el conjunto de entrenamiento (figura \ref{fig-experimento-vision-transformer-1-training-reward-mean}), se debe a una falta de capacidad en la red de nuestro agente.
+\medskip
 
 \subsection{Conclusiones}
 \label{resultados-conclusiones-actor-critic-experimentos}
+
+Tras analizar los diferentes experimentos utilizando el algoritmo \textit{Actor Critic} concluimos que, por un lado, se trata de un algoritmo más potente en cuanto a la capacidad de aprendizaje, lo cual es apreciable en la velocidad con la cual la función de perdida disminuye al principio del entrenamiento.
+\medskip
+
+Por otro lado y para finalizar, vemos que aunque esa convergencia hacia una solución es muy fuerte, solo sucede al principio del entrenamiento, lo cual nos indica que nuestro límite podría no estar en el propio algoritmo sino en las diferentes decisiones que tomamos a la hora de definir nuestro entorno y sobre todo nuestro sistema de recompensa.
+\medskip

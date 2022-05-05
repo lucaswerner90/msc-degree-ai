@@ -34,12 +34,18 @@ Luo, W., Sun, P., Zhong, F., Liu, W., Zhang, T., y Wang, Y. (2019).
 \newblock {\em IEEE transactions on pattern analysis and machine intelligence},
   42(6):1317--1332.
 
+\bibitem[\protect\astroncite{Redmon et~al.}{2016}]{youonlylookonce}
+Redmon, J., Divvala, S., Girshick, R., y Farhadi, A. (2016).
+\newblock You only look once: Unified, real-time object detection.
+\newblock In {\em Proceedings of the IEEE conference on computer vision and
+  pattern recognition}, pages 779--788.
+
 \bibitem[\protect\astroncite{Ridnik et~al.}{2021}]{imagenet21k}
 Ridnik, T., Ben-Baruch, E., Noy, A., y Zelnik-Manor, L. (2021).
 \newblock Imagenet-21k pretraining for the masses.
 \newblock {\em arXiv preprint arXiv:2104.10972}.
 
-\bibitem[\protect\astroncite{Simonyan y Zisserman}{2014}]{vgg16}
+\bibitem[\protect\astroncite{Simonyan y Zisserman}{2014}]{vgg19}
 Simonyan, K. y Zisserman, A. (2014).
 \newblock Very deep convolutional networks for large-scale image recognition.
 \newblock {\em arXiv preprint arXiv:1409.1556}.
@@ -49,5 +55,17 @@ Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.~N.,
   Kaiser, {\L}., y Polosukhin, I. (2017).
 \newblock Attention is all you need.
 \newblock {\em Advances in neural information processing systems}, 30.
+
+\bibitem[\protect\astroncite{Zhao et~al.}{2021}]{activetracking}
+Zhao, W., Meng, Z., Wang, K., Zhang, J., y Lu, S. (2021).
+\newblock Hierarchical active tracking control for uavs via deep reinforcement
+  learning.
+\newblock {\em Applied Sciences}, 11(22).
+
+\bibitem[\protect\astroncite{Zhou et~al.}{2021}]{zhou2021space}
+Zhou, D., Sun, G., y Lei, W. (2021).
+\newblock Space non-cooperative object active tracking with deep reinforcement
+  learning.
+\newblock {\em arXiv preprint arXiv:2112.09854}.
 
 \end{thebibliography}
