@@ -9,8 +9,10 @@ class ActorCritic(GenericActorCriticAgent):
         self.common_model= nn.Sequential(
             nn.Linear(4096+1, 1024), # 4096 => salida de la ultima capa de la VGG16 + punto de vista
             nn.ReLU(),
+            nn.Dropout(),
             nn.Linear(1024, 512), # 4096 => salida de la ultima capa de la VGG16 + punto de vista
             nn.ReLU(),
+            nn.Dropout(),
             nn.Linear(512, 256),
         )
         self.actor = nn.Linear(256, len(self.actions))

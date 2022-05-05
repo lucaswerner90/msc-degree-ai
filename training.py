@@ -20,9 +20,9 @@ MAX_STEPS = 50
 GAMMA = 0.99
 
 parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
-parser.add_argument('--experiment-name', type=str, default='ac-no-rewards-till-complete-divided', metavar='N',
+parser.add_argument('--experiment-name', type=str, default='ac-dropout', metavar='N',
                     help='Whatever name you want')
-parser.add_argument('--epochs', type=int, default=100, metavar='N',
+parser.add_argument('--epochs', type=int, default=20, metavar='N',
                     help='epochs (default: 100)')
 parser.add_argument('--gamma', type=float, default=GAMMA, metavar='G',
                     help='discount factor (default: 0.95)')
