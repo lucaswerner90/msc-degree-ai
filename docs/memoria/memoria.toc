@@ -16,13 +16,13 @@
 \contentsline {section}{\numberline {3.1}Obtención de los datos}{11}{section.3.1}%
 \contentsline {section}{\numberline {3.2}Preprocesamiento de los datos}{12}{section.3.2}%
 \contentsline {section}{\numberline {3.3}Análisis de la solución e implementación}{14}{section.3.3}%
-\contentsline {subsection}{\numberline {3.3.1}Elección de los algoritmos utilizados por el agente}{14}{subsection.3.3.1}%
-\contentsline {subsection}{\numberline {3.3.2}Definición del estado}{16}{subsection.3.3.2}%
-\contentsline {subsection}{\numberline {3.3.3}Definición de la recompensa}{16}{subsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Elección de los algoritmos utilizados por el agente}{15}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Definición del estado}{15}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Definición de la recompensa}{17}{subsection.3.3.3}%
 \contentsline {subsection}{\numberline {3.3.4}Definición del entorno}{18}{subsection.3.3.4}%
 \contentsline {subsection}{\numberline {3.3.5}Definición del agente}{19}{subsection.3.3.5}%
 \contentsline {subsection}{\numberline {3.3.6}Entrenamiento}{20}{subsection.3.3.6}%
-\contentsline {subsection}{\numberline {3.3.7}Evaluación}{20}{subsection.3.3.7}%
+\contentsline {subsection}{\numberline {3.3.7}Evaluación}{21}{subsection.3.3.7}%
 \contentsline {chapter}{\numberline {4}Experimentación}{23}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Introducción}{23}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Policy Gradient}{24}{section.4.2}%
@@ -39,4 +39,4 @@
 \contentsline {chapter}{\numberline {6}Conclusiones}{41}{chapter.6}%
 \contentsline {chapter}{\numberline {7}Limitaciones y\\ Perspectivas de Futuro}{43}{chapter.7}%
 \contentsline {chapter}{\numberline {A}Apéndize A}{46}{appendix.Alph1}%
-\contentsline {chapter}{Bibliografía}{48}{appendix*.45}%
+\contentsline {chapter}{Bibliografía}{48}{appendix*.46}%

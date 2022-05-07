@@ -1,8 +1,10 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {algocf}{\numberline {1}{\ignorespaces Algoritmo de recompensa inicial\relax }}{17}{algocf.1}%
-\contentsline {algocf}{\numberline {2}{\ignorespaces Ejecutar acción en el entorno\relax }}{19}{algocf.2}%
+\contentsline {algocf}{\numberline {1}{\ignorespaces Algoritmo REINFORCE \textit {Policy Gradient}\relax }}{15}{algocf.1}%
+\contentsline {algocf}{\numberline {2}{\ignorespaces Algoritmo \textit {Actor Critic}\relax }}{16}{algocf.2}%
+\contentsline {algocf}{\numberline {3}{\ignorespaces Algoritmo de recompensa inicial\relax }}{17}{algocf.3}%
+\contentsline {algocf}{\numberline {4}{\ignorespaces Ejecutar acción en el entorno\relax }}{19}{algocf.4}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }

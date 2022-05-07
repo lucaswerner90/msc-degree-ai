@@ -2,60 +2,60 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {1.1}{\ignorespaces A la izquierda, el pipeline utilizado durante active tracking. A la derecha, el pipeline utilizado en passive tracking.}}{3}{figure.caption.6}%
 \contentsline {figure}{\numberline {1.2}{\ignorespaces DJI Tello. Dispositivo utilizado durante el proyecto}}{5}{figure.caption.7}%
-\contentsline {figure}{\numberline {1.3}{\ignorespaces Comparativa arquitectura (a) Transformer y (b) Vision Transformer}}{6}{figure.caption.8}%
+\contentsline {figure}{\numberline {1.3}{\ignorespaces Imágenes de las arquitecturas (a) \textit {Transformer} y (b) \textit {Vision Transformer}}}{6}{figure.caption.8}%
 \contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Arquitectura \textit {Transformer} original}}}{6}{subfigure.3.1}%
 \contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Arquitectura propuesta para \textit {Vision Transformers}}}}{6}{subfigure.3.2}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Imágenes de ejemplo del conjunto final de datos}}{12}{figure.caption.9}%
-\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{12}{subfigure.1.1}%
-\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{12}{subfigure.1.2}%
-\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{12}{subfigure.1.3}%
-\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {}}}{12}{subfigure.1.4}%
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Pipeline del procesamiento del conjunto de datos}}{13}{figure.caption.10}%
-\contentsline {figure}{\numberline {3.3}{\ignorespaces Algoritmo REINFORCE Policy Gradient}}{15}{figure.caption.11}%
-\contentsline {figure}{\numberline {3.4}{\ignorespaces Algoritmo \textit {Actor-Critic}}}{15}{figure.caption.12}%
-\contentsline {figure}{\numberline {3.5}{\ignorespaces Arquitectura de red propuesta por \citet {luo2019end}.}}{16}{figure.caption.13}%
-\contentsline {figure}{\numberline {3.6}{\ignorespaces Comparación de recompensa sobre la misma imagen dados dos puntos de vista distinto.}}{18}{figure.caption.14}%
-\contentsline {figure}{\numberline {3.7}{\ignorespaces Imagen ejecutada en dos experimentos distintos, a la misma distancia del punto objetivo, con diferente número de acciones.}}{21}{figure.caption.15}%
-\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Ubicación del agente tras 2 acciones}}}{21}{subfigure.7.1}%
-\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Ubicación del agente tras 6 acciones}}}{21}{subfigure.7.2}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Imágenes de ejemplo del conjunto final de datos}}{11}{figure.caption.9}%
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{11}{subfigure.1.1}%
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{11}{subfigure.1.2}%
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{11}{subfigure.1.3}%
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {}}}{11}{subfigure.1.4}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Pipeline del procesamiento del conjunto de datos}}{12}{figure.caption.10}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Visualización de la salida de la red YOLO}}{13}{figure.caption.11}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Arquitectura de red propuesta por \citet {luo2019end}.}}{16}{figure.caption.13}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Comparación de recompensa sobre la misma imagen dados dos puntos de vista distinto.}}{18}{figure.caption.14}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Interacción agente-entorno.}}{20}{figure.caption.15}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Imagen ejecutada en dos experimentos distintos, a la misma distancia del punto objetivo, con diferente número de acciones.}}{22}{figure.caption.16}%
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Ubicación del agente tras 2 acciones}}}{22}{subfigure.7.1}%
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Ubicación del agente tras 6 acciones}}}{22}{subfigure.7.2}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Experimento Policy Gradient 1 - Recompensa media en el conjunto de entrenamiento}}{24}{figure.caption.16}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Experimento Policy Gradient 1 - Testing reward mean}}{25}{figure.caption.17}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Experimento Policy Gradient 1 - Duración de los episodios}}{25}{figure.caption.18}%
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Experimento Policy Gradient 2 - Recompensa media en el conjunto de entrenamiento}}{25}{figure.caption.19}%
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Experimento Policy Gradient 2 - Testing reward mean}}{26}{figure.caption.20}%
-\contentsline {figure}{\numberline {4.6}{\ignorespaces Experimento Policy Gradient 2 - Duración de los episodios}}{26}{figure.caption.21}%
-\contentsline {figure}{\numberline {4.7}{\ignorespaces Experimento Actor Critic 1 - Recompensa media en el conjunto de entrenamiento}}{27}{figure.caption.22}%
-\contentsline {figure}{\numberline {4.8}{\ignorespaces Experimento Actor Critic 1 - Testing reward mean}}{28}{figure.caption.23}%
-\contentsline {figure}{\numberline {4.9}{\ignorespaces Experimento Actor Critic 1 - Duración de los episodios}}{28}{figure.caption.24}%
-\contentsline {figure}{\numberline {4.10}{\ignorespaces Experimento Actor Critic 1 - Train loss}}{28}{figure.caption.25}%
-\contentsline {figure}{\numberline {4.11}{\ignorespaces Experimento Actor Critic 2 - Recompensa media en el conjunto de entrenamiento}}{29}{figure.caption.26}%
-\contentsline {figure}{\numberline {4.12}{\ignorespaces Experimento Actor Critic 2 - Testing reward mean}}{29}{figure.caption.27}%
-\contentsline {figure}{\numberline {4.13}{\ignorespaces Experimento Actor Critic 2 - Duración de los episodios}}{30}{figure.caption.28}%
-\contentsline {figure}{\numberline {4.14}{\ignorespaces Experimento Actor Critic 2 - Duración de los episodios}}{30}{figure.caption.29}%
-\contentsline {figure}{\numberline {4.15}{\ignorespaces Experimento Actor Critic 2 - Duración de los episodios}}{30}{figure.caption.30}%
-\contentsline {figure}{\numberline {4.16}{\ignorespaces Experimento Actor Critic 3 - Recompensa media en el conjunto de entrenamiento}}{32}{figure.caption.31}%
-\contentsline {figure}{\numberline {4.17}{\ignorespaces Experimento Actor Critic 3 - Función de perdida}}{32}{figure.caption.32}%
-\contentsline {figure}{\numberline {4.18}{\ignorespaces Experimento Actor Critic 3 - Número de acciones media por imagen}}{32}{figure.caption.33}%
-\contentsline {figure}{\numberline {4.19}{\ignorespaces Experimento Actor Critic 3 - Duración de los episodios}}{33}{figure.caption.34}%
-\contentsline {figure}{\numberline {4.20}{\ignorespaces Experimento \textit {Vision Transformer} - Recompensa media en el conjunto de entrenamiento}}{35}{figure.caption.36}%
-\contentsline {figure}{\numberline {4.21}{\ignorespaces Experimento \textit {Vision Transformer} - Función de perdida en el conjunto de entrenamiento}}{35}{figure.caption.37}%
-\contentsline {figure}{\numberline {4.22}{\ignorespaces Experimento \textit {Vision Transformer} - Testing reward mean}}{35}{figure.caption.38}%
-\contentsline {figure}{\numberline {4.23}{\ignorespaces Experimento \textit {Vision Transformer} - Duración de los episodios}}{36}{figure.caption.39}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Experimento Policy Gradient 1 - Recompensa media en el conjunto de entrenamiento}}{24}{figure.caption.17}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Experimento Policy Gradient 1 - Testing reward mean}}{25}{figure.caption.18}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Experimento Policy Gradient 1 - Duración de los episodios}}{25}{figure.caption.19}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Experimento Policy Gradient 2 - Recompensa media en el conjunto de entrenamiento}}{25}{figure.caption.20}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Experimento Policy Gradient 2 - Testing reward mean}}{26}{figure.caption.21}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Experimento Policy Gradient 2 - Duración de los episodios}}{26}{figure.caption.22}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Experimento Actor Critic 1 - Recompensa media en el conjunto de entrenamiento}}{27}{figure.caption.23}%
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Experimento Actor Critic 1 - Testing reward mean}}{28}{figure.caption.24}%
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Experimento Actor Critic 1 - Duración de los episodios}}{28}{figure.caption.25}%
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Experimento Actor Critic 1 - Train loss}}{28}{figure.caption.26}%
+\contentsline {figure}{\numberline {4.11}{\ignorespaces Experimento Actor Critic 2 - Recompensa media en el conjunto de entrenamiento}}{29}{figure.caption.27}%
+\contentsline {figure}{\numberline {4.12}{\ignorespaces Experimento Actor Critic 2 - Testing reward mean}}{29}{figure.caption.28}%
+\contentsline {figure}{\numberline {4.13}{\ignorespaces Experimento Actor Critic 2 - Duración de los episodios}}{30}{figure.caption.29}%
+\contentsline {figure}{\numberline {4.14}{\ignorespaces Experimento Actor Critic 2 - Duración de los episodios}}{30}{figure.caption.30}%
+\contentsline {figure}{\numberline {4.15}{\ignorespaces Experimento Actor Critic 2 - Duración de los episodios}}{30}{figure.caption.31}%
+\contentsline {figure}{\numberline {4.16}{\ignorespaces Experimento Actor Critic 3 - Recompensa media en el conjunto de entrenamiento}}{32}{figure.caption.32}%
+\contentsline {figure}{\numberline {4.17}{\ignorespaces Experimento Actor Critic 3 - Función de perdida}}{32}{figure.caption.33}%
+\contentsline {figure}{\numberline {4.18}{\ignorespaces Experimento Actor Critic 3 - Número de acciones media por imagen}}{32}{figure.caption.34}%
+\contentsline {figure}{\numberline {4.19}{\ignorespaces Experimento Actor Critic 3 - Duración de los episodios}}{33}{figure.caption.35}%
+\contentsline {figure}{\numberline {4.20}{\ignorespaces Experimento \textit {Vision Transformer} - Recompensa media en el conjunto de entrenamiento}}{35}{figure.caption.37}%
+\contentsline {figure}{\numberline {4.21}{\ignorespaces Experimento \textit {Vision Transformer} - Función de perdida en el conjunto de entrenamiento}}{35}{figure.caption.38}%
+\contentsline {figure}{\numberline {4.22}{\ignorespaces Experimento \textit {Vision Transformer} - Testing reward mean}}{35}{figure.caption.39}%
+\contentsline {figure}{\numberline {4.23}{\ignorespaces Experimento \textit {Vision Transformer} - Duración de los episodios}}{36}{figure.caption.40}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Imágenes obtenidas en los experimentos usando \textit {Policy Gradient}}}{37}{figure.caption.40}%
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Imágenes obtenidas en los experimentos usando \textit {Policy Gradient}}}{37}{figure.caption.41}%
 \contentsline {subfigure}{\numberline {(a)}{\ignorespaces {4 acciones tomadas}}}{37}{subfigure.1.1}%
 \contentsline {subfigure}{\numberline {(b)}{\ignorespaces {9 acciones tomadas}}}{37}{subfigure.1.2}%
 \contentsline {subfigure}{\numberline {(c)}{\ignorespaces {5 acciones tomadas}}}{37}{subfigure.1.3}%
 \contentsline {subfigure}{\numberline {(d)}{\ignorespaces {7 acciones tomadas}}}{37}{subfigure.1.4}%
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Imágenes obtenidas con \textit {Actor Critic} sin incentivar al agente a moverse}}{38}{figure.caption.41}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Imágenes obtenidas con \textit {Actor Critic} sin incentivar al agente a moverse}}{38}{figure.caption.42}%
 \contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{38}{subfigure.2.1}%
 \contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{38}{subfigure.2.2}%
 \contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{38}{subfigure.2.3}%
 \contentsline {subfigure}{\numberline {(d)}{\ignorespaces {}}}{38}{subfigure.2.4}%
-\contentsline {figure}{\numberline {5.3}{\ignorespaces Misma imagen en diferentes etapas del entrenamiento usando \textit {Actor Critic}}}{40}{figure.caption.43}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Misma imagen en diferentes etapas del entrenamiento usando \textit {Actor Critic}}}{40}{figure.caption.44}%
 \contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Epoch 6 - 1 acción tomada, recompensa 0.9375}}}{40}{subfigure.3.1}%
 \contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Epoch 10 - 2 acciones tomadas, recompensa 0.96875}}}{40}{subfigure.3.2}%
 \contentsline {subfigure}{\numberline {(c)}{\ignorespaces {Epoch 14 - 3 acciones tomadas, recompensa 0.875}}}{40}{subfigure.3.3}%

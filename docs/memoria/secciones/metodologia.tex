@@ -17,9 +17,6 @@ Comenzaremos hablando de los datos, cómo se obtuvieron y cómo los utilizaremos
 La toma de datos se hace mediante el análisis de archivos de vídeo tomados desde el propio dispositivo en un entorno controlado. Es importante destacar que la calidad de las imágenes no es alta, sobre todo en entornos en los cuales la iluminación no es favorable, por ejemplo en entornos con iluminación artificial. 
 \medskip
 
-El dispositivo nos proporciona una aplicación móvil para controlar la grabación y el almacenamiento de los videos que luego serán volcados en el ordenador para su posterior procesamiento, del cual hablaremos posteriormente.
-\medskip
-
 \begin{figure}[H]
     \centering
 	\subfloat[]{\includegraphics[width = 0.4\linewidth]{figuras/dataset/image2.jpg}}
@@ -34,6 +31,11 @@ El dispositivo nos proporciona una aplicación móvil para controlar la grabaci�
     \label{fig-dataset-imagenes-ejemplo}
 \end{figure}
 \medskip
+
+El dispositivo nos proporciona una aplicación móvil para controlar la grabación y el almacenamiento de los videos que luego serán volcados en el ordenador para su posterior procesamiento, del cual hablaremos posteriormente.
+\medskip
+
+
 Se ha decidido también utilizar sólo imágenes procedentes del dispositivo y no incluir imágenes de terceras fuentes que podrían haber ayudado a mejorar el tamaño final de nuestro conjunto de datos ya que la idea es acercarse lo máximo posible a un entorno final real.
 \medskip
 
@@ -57,24 +59,15 @@ En la siguiente sección hablaremos de la implementación de cada uno de los ele
 Para entrenar nuestro agente utilizaremos métodos que optimicen la \textit{policy} del agente, es decir, que optimicen la toma decisiones para maximizar la \textit{reward} del entorno.
 \medskip
 
-Comenzaremos utilizando el algoritmo \textit{REINFORCE Policy Gradient}, el cual se considera de los más sencillos dentro de la familia de \textit{Policy Gradient} y nos servirá como punto de partida para analizar los posibles problemas y limitaciones de nuestro entorno y nuestras definiciones. Con este algoritmo, el agente colecciona ejemplos del episodio utilizando para ello la \textit{policy} actual. La figura \ref{fig-algoritmo-reinforce} muestra dicho algoritmo:
+Comenzaremos utilizando el algoritmo \textit{REINFORCE Policy Gradient}, el cual se considera de los más sencillos dentro de la familia de \textit{Policy Gradient} y nos servirá como punto de partida para analizar los posibles problemas y limitaciones de nuestro entorno y nuestras definiciones. Con este algoritmo, el agente colecciona ejemplos del episodio utilizando para ello la \textit{policy} actual.
 \medskip
-\begin{figure}[ht!]
-	\centering
-	\includegraphics[scale=0.5]{figuras/reinforce_policy_gradient.png}
-	\caption[Algoritmo REINFORCE Policy Gradient]{Algoritmo REINFORCE Policy Gradient. Obtenida de la \href{http://www.cs.toronto.edu/~tingwuwang/REINFORCE.pdf}{UToronto}}
-	\label{fig-algoritmo-reinforce}
-\end{figure}
+
+\input{algoritmos/reinforce-policy-gradient.tex}
 
 Como siguiente paso, escogeremos nuevamente un algoritmo de la familia de \textit{policy gradient} para el entrenamiento del agente. En este caso, el algoritmo \textit{Actor-Critic} \citep{DBLP:journals/corr/abs-1801-01290}. La mayor diferencia entre este algoritmo y el anterior, es que en este caso contamos con 2 componentes separados: el \textit{Actor}, que será el responsable de devolver la distribución de probabilidades de cada una de las acciones del agente y el \textit{Critic}, que será el encargado d estimar el valor del estado en el que se encuentra dicho agente. El algoritmo utilizado puede verse en la figura \ref{fig-algoritmo-actor-critic}.
 \medskip
 
-\begin{figure}[ht!]
-	\centering
-	\includegraphics[width=1\linewidth]{figuras/algoritmo_actor_critic.png}
-	\caption[Algoritmo \textit{Actor-Critic}]{Algoritmo \textit{Actor-Critic}. Obtenida de \href{https://preview.redd.it/6dfwcx17zwi21.png?width=971&format=png&auto=webp&s=e1f13781cf1b436425b8e7e802fc24b6a6951e8e}{Reddit}}
-	\label{fig-algoritmo-actor-critic}
-\end{figure}
+\input{algoritmos/actor-critic-algorithm.tex}
 
 \subsection{Definición del estado}
 \label{definicion-del-estado}
@@ -164,13 +157,21 @@ Durante las fases de entrenamiento, testeo y validación de nuestro agente, cada
 \subsection{Definición del agente}
 \label{definicion-del-agente}
 
-El agente es el componente que se encarga de tomar decisiones. En este caso, el agente será el encargado de tomar la decisión de girar la cámara del dron a la izquierda, a la derecha o de permanecer quieto, dado un estado del entorno, el cual está definido como se detalla en la sección \ref{definicion-del-estado}.
+El agente es el componente de nuestra solución que se encarga de interactuar con el entorno. En este caso, el agente será el encargado de tomar la decisión de girar la cámara del dron a la izquierda, a la derecha o de permanecer quieto, dado un estado del entorno, el cual está definido como se detalla en la sección \ref{definicion-del-estado}.
 \medskip
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{figuras/agent_responsabilities.png}
+    % \caption[Así aparece el rótulo en el índice]{Así aparece el rótulo en el texto.}
+    \caption[Interacción agente-entorno.]{Interacción agente-entorno. Imagen tomada del libro \textit{Grokking Deep Reinforcement Learning} \citet{grokkingreinforcementlearning}.}
+    \label{fig-agent-picture}
+\end{figure}
 
 El objetivo de nuestro agente será encontrar aquellas acciones que maximicen las recompensas obtenidas. Este objetivo será alcanzado dependiendo del algoritmo que utilicemos para ello, pero independientemente de esto, las recompensas obtenidas y el conjunto de acciones será el mismo.
 \medskip
 
-En cuanto a la implementación, el agente será una red neuronal cuya arquitectura iremos variando según los diferentes experimentos, que extenderá de la clase nn.Module de PyTorch y a la cual le añadiremos métodos propios para facilitar la lectura del código.
+En cuanto a la implementación, el agente será una red neuronal cuya arquitectura iremos variando según los diferentes experimentos, que extenderá de la clase \textit{nn.Module} de \textit{PyTorch} y a la cual le añadiremos métodos propios para facilitar la lectura del código.
 
 
 \subsection{Entrenamiento}

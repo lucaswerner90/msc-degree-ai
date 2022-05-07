@@ -34,6 +34,11 @@ Luo, W., Sun, P., Zhong, F., Liu, W., Zhang, T., y Wang, Y. (2019).
 \newblock {\em IEEE transactions on pattern analysis and machine intelligence},
   42(6):1317--1332.
 
+\bibitem[\protect\astroncite{Morales}{2020}]{grokkingreinforcementlearning}
+Morales, M. (2020).
+\newblock {\em Grokking Deep Reinforcement Learning}.
+\newblock Manning.
+
 \bibitem[\protect\astroncite{Redmon et~al.}{2016}]{youonlylookonce}
 Redmon, J., Divvala, S., Girshick, R., y Farhadi, A. (2016).
 \newblock You only look once: Unified, real-time object detection.

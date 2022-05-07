@@ -16,8 +16,16 @@ Este primer paso de filtrado es posible gracias a los algoritmos de detección d
 Durante el transcurso de nuestro proyecto utilizaremos \textit{YOLOv5}(\citep{youonlylookonce}), cuya implementación se encuentra disponible de forma gratuita como librería open source. Dicha implementación nos proporciona además múltiples configuraciones de la red. En nuestro caso, esto no fue muy relevante dado que solo lo utilizaríamos para una primera fase de preprocesamiento de las imágenes.
 \medskip
 
+
 Debido a que la red \textit{YOLOv5} fue entrenada sobre el conjunto de datos \textit{ImageNet} \citep{imagenet} para detectar 1000 clases de objetos diferentes, debemos modificarla para que sea capaz de detectar tan solo una persona en las imágenes que le pasamos, si es que la hay. La documentación de la librería nos ayuda a conseguir esto, de manera que tras una serie de pruebas tanto de diferentes arquitecturas de \textit{YOLO} como de configuración de los parámetros, en concreto: el intervalo de confianza y  el IoU threshold, la red nos devuelve la ubicación de la bounding box en donde se encuentra la persona si es que la hubiese.
 \medskip
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=1\linewidth]{figuras/yolov5_output_example.jpeg}
+    \caption[Visualización de la salida de la red YOLO]{Salida de la red YOLOv5 en donde se pueden observar las \textit{bounding boxes} de los objetos reconocidos en esta. Obtenida de \href{https://colab.research.google.com/github/ultralytics/yolov5/blob/master/tutorial.ipynb}{Yolov5 Tutorial}.}
+    \label{fig-yolov5-output-example}
+\end{figure}
 
 Sin embargo, para poder adaptar la salida de la red a nuestras necesidades, lo que hicimos fue calcular el punto central de la bounding box en coordenadas X e Y, para que nuestro agente intente acercarse a ese punto durante el entrenamiento en el menor número de pasos posible.
 El resultado fue por un lado, un dataframe de Pandas que contenia la ruta de la imagen que \textit{YOLO} había filtrado y las coordenadas X e Y del punto central de la bounding box.

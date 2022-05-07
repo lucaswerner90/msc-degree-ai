@@ -3,16 +3,25 @@ import torch
 import os
 import cv2
 import numpy as np
+import torchvision.models as models
 from tqdm import tqdm
 from model.visual_transformer_actor_critic import VisualEncoderActorCritic
 from model.encoder_vit import EncoderViT
-
 from model.actor_critic import ActorCritic
 
 torch.manual_seed(42)
 
 (IMAGE_WIDTH, IMAGE_HEIGHT) = (640, 360)
 ACTIONS_PER_FRAME = 1
+
+pretrained_model = models.vgg19(pretrained=True)
+
+pretrained_model.classifier = torch.nn.Sequential(
+	*list(pretrained_model.classifier.children())[:-2]
+)
+for params in pretrained_model.parameters():
+	params.requires_grad = False
+
 
 def get_image(image, current_point):
 	original_image = np.copy(image)
@@ -51,7 +60,14 @@ def predict_frame_vit(frame, point):
 	point = execute_action(int(point.item()*IMAGE_WIDTH), model.actions[action])
 	return point
 
-experiment_name = 'ac_ac-vit-encoder_epoch_4'
+def predict_frame(frame, point):
+	image = frame.view(frame.size(0), -1)
+	logits, _ = model(image, point)
+	_, action = model.select_action(logits)
+	point = execute_action(int(point.item()*IMAGE_WIDTH), model.actions[action])
+	return point
+
+experiment_name = 'ac_ac-no-rewards-till-complete_epoch_2'
 encoder = EncoderViT()
 model_file = f'checkpoints/{experiment_name}.pth'
 model = ActorCritic()
@@ -87,7 +103,8 @@ while video.isOpened():
 	
 	resized_frame = cv2.resize(frame, (IMAGE_WIDTH, IMAGE_HEIGHT))
 
-	point = predict_frame_vit(resized_frame, point)
+	point = predict_frame(resized_frame, point)
+	# point = predict_frame_vit(resized_frame, point)
 
 	video_frame = get_image(resized_frame, point)
 	writer.write(video_frame)
