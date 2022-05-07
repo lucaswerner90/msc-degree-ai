@@ -5,13 +5,17 @@
 \chapter{Introducción}
 \label{introduccion}
 
-El objetivo es poder realizar el seguimiento a tiempo real de una persona a través de la cámara del dispositivo utilizando para ello visión por computador y técnicas de aprendizaje por refuerzo para controlar las acciones a tomar en cada momento. Lo que se conoce como active tracking. 
+Cuando pensamos en drones, estamos pensando en dispositivos que podemos pilotar con un \textit{smartphone} y que nos permiten realizar videos y fotos a vista de pájaro. Lo que no siempre se tiene en cuenta es la capacidad de estos dispositivos para poder ejecutar algoritmos complejos, como son por el ejemplo aquellos que permiten al dispositivo hacer el seguimiento de un objeto a través de la cámara a tiempo real. Esto es lo que se conoce como \textit{object tracking} y es el punto fundamental de nuestro trabajo.
 \medskip
 
-Los recientes algoritmos y estudios alrededor del \textit{active tracking}, entre ellos \citet{activetracking} o \citet{zhou2021space}, se centran fundamentalmente en el reconocimiento del objeto y en la posición de éste con respecto a las coordenadas X e Y en relación al centro de la imagen a través de la cámara incorporada para guiar las acciones del dispositivo. Es lo que se conoce como \textit{passive tracking}. Este tipo de algoritmos han ganado más atención debido a la simplicidad del problema y los avances en reconocimiento de objetos.
+
+Recientes algoritmos y estudios alrededor del \textit{object tracking}, entre ellos \citet{activetracking} o \citet{zhou2021space}, se centran fundamentalmente en el reconocimiento del objeto y en la posición de éste con respecto a las coordenadas X e Y en relación al centro de la imagen a través de la cámara incorporada para guiar las acciones del dispositivo. Es lo que se conoce como \textit{passive tracking}. Este tipo de algoritmos han ganado más atención debido a la simplicidad del problema y los avances en reconocimiento de objetos. Lo cual los hace idóneos para una aplicación industrial.
 \medskip
 
 Otros intentos de realizar \textit{object tracking} con aprendizaje supervisado se realizan utilizando modelos en simuladores tanto del dron como de las personas. Sin embargo, la idea del presente trabajo es la aplicación de diferentes técnicas de inteligencia artificial para lograr un agente que sea capaz de realizar el seguimiento utilizando simplemente imágenes que provengan del propio dispositivo en el cual se desplegará el agente.
+\medskip
+
+Sin embargo, el objetivo en nuestro caso es poder realizar el seguimiento a tiempo real de una persona a través de la cámara del dispositivo utilizando para ello visión por computador y técnicas de aprendizaje por refuerzo para controlar las acciones a tomar en cada momento. Lo que se conoce como \textit{active tracking}. 
 \medskip
 
 \begin{figure}[ht!]
@@ -22,7 +26,7 @@ Otros intentos de realizar \textit{object tracking} con aprendizaje supervisado 
 \end{figure}
 \medskip
 
-Para ello, no solo utilizaremos técnicas de aprendizaje por refuerzo, sino también técnicas de aprendizaje supervisado para la obtención de nuestro conjunto inicial.
+Para ello, no solo utilizaremos técnicas de aprendizaje por refuerzo, sino también técnicas de aprendizaje supervisado sobre imágenes para la obtención de nuestro conjunto de datos inicial, tal y como explicaremos en las siguientes secciones.
 \medskip
 
 El desarrollo del proyecto se llevará a cabo utilizando lenguaje Python y la librería \href{https://pytorch.org/}{PyTorch} para el desarrollo de los modelos. El código completo estará disponible para su visualización en un repositorio de \href{https://github.com/lucaswerner90/msc-degree-ai}{GitHub}, a excepción de los pesos de los diferentes agentes que se vayan guardando durante el entrenamiento debido al tamaño individual de cada uno de estos archivos.
@@ -31,7 +35,7 @@ El desarrollo del proyecto se llevará a cabo utilizando lenguaje Python y la li
 \section{Acotación del problema}
 \label{acotacion-del-problema}
 
-Debido a que nos movemos en un entorno real, en el cual las posibilidades son muy amplias, no solo debido a la aleatoriedad del mismo sino también al número de acciones que podemos tomar, debemos definir ciertas restricciones.
+Debido a que nos movemos en un entorno real, en el cual las posibilidades tanto de actuación sobre el entorno como de error son muy amplias, no solo debido a la aleatoriedad del mismo sino también al número de acciones que podemos tomar, debemos definir ciertas restricciones.
 \medskip
 
 En primer lugar, nos centraremos en obtener una solución que sea viable en entornos en los cuales las condiciones externas no sean un impedimento para el buen funcionamiento de nuestro algoritmo. Esto quiere decir que durante el desarrollo y testeo de los algoritmos obviamos factores tales como el viento, las condiciones de humedad o el grado de iluminación en un momento dado, que pudiesen afectar al rendimiento del dispositivo.
@@ -95,8 +99,41 @@ Por último comentaremos los \textit{Transformers}\citep{transformers} y en espe
 \subsection{Aprendizaje por refuerzo}
 \label{aprendizaje-por-refuerzo}
 
-\subsection{Algoritmo Policy Gradient}
+\textit{"La idea de que nosotros aprendemos a través de la interacción con nuestro entorno es probablemente lo primero que se nos ocurre cuando pensamos en la naturaleza del aprendizaje"}, Sutton y Barto \citep{sutton2018reinforcement}.
+\medskip
+
+El aprendizaje por refuerzo es la formalización de esta idea, en concreto, es la rama de la inteligencia artificial cuyo principio se basa en la interacción de un agente con un entorno a través de lo que llamamos acciones. Dichas acciones obtienen una recompensa que el agente recibe y en base a estas recompensas, se refuerzan las acciones positivas y se penalizan las negativas, es decir, el objetivo del agente es maximizar las recompensas obtenidas a lo largo del tiempo.
+\medskip
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=1\textwidth]{figuras/RL_diagram.png}
+  % \caption[Así aparece el rótulo en el índice]{Así aparece el rótulo en el texto.}
+  \caption[Componentes del aprendizaje por refuerzo y la interacción entre ellos.]{Componentes del aprendizaje por refuerzo y la interacción entre ellos.}
+  \label{fig-reinforcement-learning-components}
+\end{figure}
+
+Durante los últimos años se pudo ver cómo está rama fue cobrando más importancia por casos exitosos como el de \textit{AlphaGo} \citep{silver2016mastering}, creado por la empresa \href{deepmind.com}{DeepMind}, que derrotó al campeón mundial en el juego Go, un hito que era considerado como extraordinario debido al número de combinaciones por movimiento que el juego contiene.
+\medskip
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=1\textwidth]{figuras/alphago.png}
+  % \caption[Así aparece el rótulo en el índice]{Así aparece el rótulo en el texto.}
+  \caption[Imagen tomada durante una de las partidas entre \textit{AlphaGO} y Lee Sedol.]{Imagen tomada durante una de las partidas entre \textit{AlphaGO} y Lee Sedol. Obtenida de \href{https://www.theguardian.com/technology/2016/mar/15/alphago-what-does-google-advanced-software-go-next}{The Guardian}.}
+  \label{fig-alphago}
+\end{figure}
+
+Y aunque se suele asociar al aprendizaje por refuerzo con aplicaciones como \textit{AlphaGo}, o el aún más reciente caso de \textit{AlphaStar} \citep{alphastar}, gracias a los avances tanto en algoritmos como en el campo del \textit{deep learning}, vemos que con más frecuencia nos encontramos con ejemplos reales en el uso de estas técnicas, lo cual nos anima a realizar nuestro trabajo sobre ellas.
+\medskip
+
+\subsection{Algoritmos \textit{Policy Gradient}}
 \label{algoritmo-policy-gradient}
+
+El subgrupo de algoritmos \textit{Policy Gradient} \citep{sutton1999policy} se basan en la optimización de la política de elección de acciones del agente, es decir, producen politicas de acción estocásticas. Esto contrasta con el subgrupo de algoritmos \textit{Q-Learning} \citep{mnih2013playing} que se basan en la optimización de la función de valor y que producen políticas deterministas.
+\medskip
+
+Una ventaja de estos algoritmos es que por lo general son más estables y confiables que los basados en \textit{Q-Learning}. 
 
 \subsection{Algoritmo Actor-Critic}
 \label{algoritmo-actor-critic}
@@ -104,7 +141,7 @@ Por último comentaremos los \textit{Transformers}\citep{transformers} y en espe
 \subsection{Transformers y Vision Transformers}
 \label{vision-transformers}
 
-Sin entrar en muchos detalles en cuanto a cómo funcionan los \textit{Transformers} y los \textit{Vision Transformers}, haremos un breve repaso de las características unicas de estas redes, ya que uno de los experimentos nombrados en la sección \ref{resultados-vision-transformers} será el de un agente con una red de tipo \textit{Vision Transformer} \citep{visiontransformers}, que se encargará de realizar la transformación de la imagen de entrada.
+Sin entrar en muchos detalles en cuanto a cómo funcionan los \textit{Transformers} y los \textit{Vision Transformers}, haremos un breve repaso de las características unicas de estas redes, ya que uno de los experimentos nombrados en la sección \ref{resultados-actor-critic-vision-transformers} será el de un agente con una red de tipo \textit{Vision Transformer} \citep{visiontransformers}, que se encargará de realizar la transformación de la imagen de entrada.
 \medskip
 
 \begin{figure}[H]

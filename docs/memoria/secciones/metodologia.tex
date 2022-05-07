@@ -64,7 +64,7 @@ Comenzaremos utilizando el algoritmo \textit{REINFORCE Policy Gradient}, el cual
 
 \input{algoritmos/reinforce-policy-gradient.tex}
 
-Como siguiente paso, escogeremos nuevamente un algoritmo de la familia de \textit{policy gradient} para el entrenamiento del agente. En este caso, el algoritmo \textit{Actor-Critic} \citep{DBLP:journals/corr/abs-1801-01290}. La mayor diferencia entre este algoritmo y el anterior, es que en este caso contamos con 2 componentes separados: el \textit{Actor}, que será el responsable de devolver la distribución de probabilidades de cada una de las acciones del agente y el \textit{Critic}, que será el encargado d estimar el valor del estado en el que se encuentra dicho agente. El algoritmo utilizado puede verse en la figura \ref{fig-algoritmo-actor-critic}.
+Como siguiente paso, escogeremos nuevamente un algoritmo de la familia de \textit{policy gradient} para el entrenamiento del agente. En este caso, el algoritmo \textit{Actor-Critic} \citep{DBLP:journals/corr/abs-1801-01290}. La mayor diferencia entre este algoritmo y el anterior, es que en este caso contamos con 2 componentes separados: el \textit{Actor}, que será el responsable de devolver la distribución de probabilidades de cada una de las acciones del agente y el \textit{Critic}, que será el encargado d estimar el valor del estado en el que se encuentra dicho agente.
 \medskip
 
 \input{algoritmos/actor-critic-algorithm.tex}

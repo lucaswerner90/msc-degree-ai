@@ -3,7 +3,7 @@
 \chapter{Resultados}
 \label{resultados}
 
-En este capítulo discutiremos los resultados obtenidos a lo largo de los diferentes experimentos realizados, utilizando para ello las imágenes de test y finalmente mostraremos unas capturas de pantalla sobre un video grabado posteriormente con el dron.
+En este capítulo discutiremos los resultados obtenidos a lo largo de los diferentes experimentos realizados, utilizando para ello las imágenes del conjunto de validación.
 \medskip
 
 Comenzaremos evaluando los resultados obtenidos con el algoritmo de \textit{Policy Gradient}. Podemos observar en la figura \ref{fig-resultados-experimentos-policy-gradient} que los resultados fueron en general satisfactorios con lo que buscábamos en un principio y en general el entrenamiento se mantuvo particularmente estable con respecto a los demás experimentos.
@@ -29,7 +29,7 @@ Sin embargo, en algunas ocasiones se aprecia que si el sujeto se encuentra en un
 A continuación analizaremos los resultados obtenidos con el algoritmo \textit{Actor Critic}. En la figura \ref{fig-resultados-experimentos-actor-critic-no-movement} vemos un ejemplo del comportamiento que comentamos durante el análisis en la sección anterior y es que el agente decide no moverse al principio del entrenamiento. En las 4 imágenes presentadas el agente decidió no tomar ninguna acción sino directamente permanecer quieto y con ello terminar el episodio.
 \medskip
 
-\begin{figure}[H]
+\begin{figure}[ht!]
     \centering
 	\subfloat[]{\includegraphics[width = 0.4\linewidth]{figuras/experiments/actor_critic/results/no_movement/image_11_actions_taken_0_reward_0.71875.png}}
 	\hspace{0.05\linewidth}

@@ -6,6 +6,12 @@ Brockman, G., Cheung, V., Pettersson, L., Schneider, J., Schulman, J., Tang,
 \newblock Openai gym.
 \newblock {\em arXiv preprint arXiv:1606.01540}.
 
+\bibitem[\protect\astroncite{Cai et~al.}{2018}]{cai2018efficient}
+Cai, H., Chen, T., Zhang, W., Yu, Y., y Wang, J. (2018).
+\newblock Efficient architecture search by network transformation.
+\newblock In {\em Proceedings of the AAAI Conference on Artificial
+  Intelligence}, volume~32.
+
 \bibitem[\protect\astroncite{Deng et~al.}{2009}]{imagenet}
 Deng, J., Dong, W., Socher, R., Li, L.-J., Li, K., y Fei-Fei, L. (2009).
 \newblock Imagenet: A large-scale hierarchical image database.
@@ -34,6 +40,19 @@ Luo, W., Sun, P., Zhong, F., Liu, W., Zhang, T., y Wang, Y. (2019).
 \newblock {\em IEEE transactions on pattern analysis and machine intelligence},
   42(6):1317--1332.
 
+\bibitem[\protect\astroncite{Mnih
+  et~al.}{2016}]{DBLP:journals/corr/MnihBMGLHSK16}
+Mnih, V., Badia, A.~P., Mirza, M., Graves, A., Lillicrap, T.~P., Harley, T.,
+  Silver, D., y Kavukcuoglu, K. (2016).
+\newblock Asynchronous methods for deep reinforcement learning.
+\newblock {\em CoRR}, abs/1602.01783.
+
+\bibitem[\protect\astroncite{Mnih et~al.}{2013}]{mnih2013playing}
+Mnih, V., Kavukcuoglu, K., Silver, D., Graves, A., Antonoglou, I., Wierstra,
+  D., y Riedmiller, M. (2013).
+\newblock Playing atari with deep reinforcement learning.
+\newblock {\em arXiv preprint arXiv:1312.5602}.
+
 \bibitem[\protect\astroncite{Morales}{2020}]{grokkingreinforcementlearning}
 Morales, M. (2020).
 \newblock {\em Grokking Deep Reinforcement Learning}.
@@ -50,16 +69,41 @@ Ridnik, T., Ben-Baruch, E., Noy, A., y Zelnik-Manor, L. (2021).
 \newblock Imagenet-21k pretraining for the masses.
 \newblock {\em arXiv preprint arXiv:2104.10972}.
 
+\bibitem[\protect\astroncite{Silver et~al.}{2016}]{silver2016mastering}
+Silver, D., Huang, A., Maddison, C.~J., Guez, A., Sifre, L., Van Den~Driessche,
+  G., Schrittwieser, J., Antonoglou, I., Panneershelvam, V., Lanctot, M.,
+  et~al. (2016).
+\newblock Mastering the game of go with deep neural networks and tree search.
+\newblock {\em nature}, 529(7587):484--489.
+
 \bibitem[\protect\astroncite{Simonyan y Zisserman}{2014}]{vgg19}
 Simonyan, K. y Zisserman, A. (2014).
 \newblock Very deep convolutional networks for large-scale image recognition.
 \newblock {\em arXiv preprint arXiv:1409.1556}.
+
+\bibitem[\protect\astroncite{Sutton y Barto}{2018}]{sutton2018reinforcement}
+Sutton, R.~S. y Barto, A.~G. (2018).
+\newblock {\em Reinforcement learning: An introduction}.
+\newblock MIT press.
+
+\bibitem[\protect\astroncite{Sutton et~al.}{1999}]{sutton1999policy}
+Sutton, R.~S., McAllester, D., Singh, S., y Mansour, Y. (1999).
+\newblock Policy gradient methods for reinforcement learning with function
+  approximation.
+\newblock {\em Advances in neural information processing systems}, 12.
 
 \bibitem[\protect\astroncite{Vaswani et~al.}{2017}]{transformers}
 Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.~N.,
   Kaiser, {\L}., y Polosukhin, I. (2017).
 \newblock Attention is all you need.
 \newblock {\em Advances in neural information processing systems}, 30.
+
+\bibitem[\protect\astroncite{Vinyals et~al.}{2019}]{alphastar}
+Vinyals, O., Babuschkin, I., Czarnecki, W.~M., Mathieu, M., Dudzik, A., Chung,
+  J., Choi, D.~H., Powell, R., Ewalds, T., Georgiev, P., et~al. (2019).
+\newblock Grandmaster level in starcraft ii using multi-agent reinforcement
+  learning.
+\newblock {\em Nature}, 575(7782):350--354.
 
 \bibitem[\protect\astroncite{Zhao et~al.}{2021}]{activetracking}
 Zhao, W., Meng, Z., Wang, K., Zhang, J., y Lu, S. (2021).
