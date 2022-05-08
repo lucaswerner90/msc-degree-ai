@@ -9,7 +9,10 @@ En este capítulo discutiremos los resultados obtenidos a lo largo de los difere
 Comenzaremos evaluando los resultados obtenidos con el algoritmo de \textit{Policy Gradient}. Podemos observar en la figura \ref{fig-resultados-experimentos-policy-gradient} que los resultados fueron en general satisfactorios con lo que buscábamos en un principio y en general el entrenamiento se mantuvo particularmente estable con respecto a los demás experimentos.
 \medskip
 
-Sin embargo, en algunas ocasiones se aprecia que si el sujeto se encuentra en un extremo de la imagen, el agente no es capaz de moverse con soltura hacia ese lado tal y como vemos en la figura \ref{fig-resultados-experimentos-policy-gradient} (b) y (c). Por lo general podemos decir que el agente se comporta de manera correcta, pero el número de acciones y su rendimiento en imágenes que podemos denominar "extremas" todavía tiene un margen considerable de mejora.
+Sin embargo, en algunas ocasiones se aprecia que si el sujeto se encuentra en un extremo de la imagen, el agente no es capaz de moverse con soltura hacia ese lado tal y como vemos en la figura \ref{fig-resultados-experimentos-policy-gradient} (b) y (c).
+\medskip
+
+Por lo general podemos decir que el agente se comporta de manera correcta, pero el número de acciones y su rendimiento en imágenes que podemos denominar extremas, todavía tiene un margen considerable de mejora.
 \medskip
 
 \begin{figure}[H]
@@ -26,7 +29,10 @@ Sin embargo, en algunas ocasiones se aprecia que si el sujeto se encuentra en un
     \label{fig-resultados-experimentos-policy-gradient}
 \end{figure}
 
-A continuación analizaremos los resultados obtenidos con el algoritmo \textit{Actor Critic}. En la figura \ref{fig-resultados-experimentos-actor-critic-no-movement} vemos un ejemplo del comportamiento que comentamos durante el análisis en la sección anterior y es que el agente decide no moverse al principio del entrenamiento. En las 4 imágenes presentadas el agente decidió no tomar ninguna acción sino directamente permanecer quieto y con ello terminar el episodio.
+A continuación analizaremos los resultados obtenidos con el algoritmo \textit{Actor Critic}. En la figura \ref{fig-resultados-experimentos-actor-critic-no-movement} vemos un ejemplo del comportamiento que comentamos durante el análisis en la sección anterior y es que el agente decide no moverse al principio del entrenamiento.
+\medskip
+
+En las 4 imágenes presentadas el agente decidió no tomar ninguna acción sino directamente permanecer quieto y con ello terminar el episodio.
 \medskip
 
 \begin{figure}[ht!]
@@ -48,7 +54,7 @@ La dificultad de diagnosticar este problema fue que, siguiendo las gráficas del
 
 \input{tablas/tabla_resultados_actor_critic_movements.tex}
 
-La tabla \ref{table-resultados-actor-critic-numero-movimientos-imagenes-test} muestra un ejemplo de la evolución de la media de acciones tomadas por el agente sobre el conjunto de test en las diferentes etapas del entrenamiento:
+La tabla \ref{table-resultados-actor-critic-numero-movimientos-imagenes-test} muestra un ejemplo de la evolución de la media de acciones tomadas por el agente sobre el conjunto de test en las diferentes etapas del entrenamiento.
 \medskip
 
 Cabe destacar que este patrón se produjo desde los primeros experimentos con \textit{Actor Critic}, y que como vemos en la anterior tabla, la recompensa media no baja significativamente, mientras que el número de acciones media si lo hace. Lo cual también nos hizo recapacitar en cuanto a las diferentes opciones de recompensa de nuestro agente tal y como comentamos en el capítulo previo.

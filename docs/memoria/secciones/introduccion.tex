@@ -26,16 +26,16 @@ Sin embargo, el objetivo en nuestro caso es poder realizar el seguimiento a tiem
 \end{figure}
 \medskip
 
-Para ello, no solo utilizaremos técnicas de aprendizaje por refuerzo, sino también técnicas de aprendizaje supervisado sobre imágenes para la obtención de nuestro conjunto de datos inicial, tal y como explicaremos en las siguientes secciones.
+Para ello, no solo utilizaremos técnicas de aprendizaje por refuerzo, sino también técnicas de aprendizaje supervisado (redes convolucionales para el reconocimiento de objetos) sobre imágenes, para la obtención de nuestro conjunto de datos inicial, tal y como explicaremos en las siguientes secciones.
 \medskip
 
-El desarrollo del proyecto se llevará a cabo utilizando lenguaje Python y la librería \href{https://pytorch.org/}{PyTorch} para el desarrollo de los modelos. El código completo estará disponible para su visualización en un repositorio de \href{https://github.com/lucaswerner90/msc-degree-ai}{GitHub}, a excepción de los pesos de los diferentes agentes que se vayan guardando durante el entrenamiento debido al tamaño individual de cada uno de estos archivos.
+El desarrollo del proyecto se llevará a cabo utilizando lenguaje Python y la librería \href{https://pytorch.org/}{PyTorch} para el desarrollo de los modelos. El código completo estará disponible para su visualización en un repositorio de \href{https://github.com/lucaswerner90/msc-degree-ai}{GitHub}, a excepción de los pesos de los diferentes agentes que se vayan guardando durante el entrenamiento debido al tamaño individual de cada uno de estos archivos y a las imágenes que se fueron registrando durante el entrenamiento.
 
 
 \section{Acotación del problema}
 \label{acotacion-del-problema}
 
-Debido a que nos movemos en un entorno real, en el cual las posibilidades tanto de actuación sobre el entorno como de error son muy amplias, no solo debido a la aleatoriedad del mismo sino también al número de acciones que podemos tomar, debemos definir ciertas restricciones.
+Debido a que nos movemos en un entorno real en el cual las posibilidades tanto de actuación sobre el entorno como de error son muy amplias, no solo debido a la aleatoriedad del mismo sino también al número de acciones que podemos tomar, debemos definir ciertas restricciones que nos permitan abordar el problema de una manera más sencilla.
 \medskip
 
 En primer lugar, nos centraremos en obtener una solución que sea viable en entornos en los cuales las condiciones externas no sean un impedimento para el buen funcionamiento de nuestro algoritmo. Esto quiere decir que durante el desarrollo y testeo de los algoritmos obviamos factores tales como el viento, las condiciones de humedad o el grado de iluminación en un momento dado, que pudiesen afectar al rendimiento del dispositivo.
@@ -50,10 +50,13 @@ Por otro lado, debido a que el espacio de acciones disponibles es muy alto, en u
 \end{itemize}
 \medskip
 
-Tanto el giro a la derecha como el giro a la izquierda se realizará en el dispositivo de manera controlada, esto quiere decir que nos moveremos siempre utilizando el mismo ángulo de giro. Si quisiéramos añadir además un ángulo de giro variable junto con la acción a tomar podríamos hacerlo como parte de la salida de nuestro algoritmo, aunque involucraría un entrenamiento más prolongado en el tiempo y se escaparía a las restricciones de tiempo de este proyecto.
+Tanto el giro a la derecha como el giro a la izquierda se realizará en el dispositivo de manera controlada, esto quiere decir que nos moveremos siempre utilizando el mismo ángulo de giro. 
 \medskip
 
-De tal forma que nuestra solución será valorada positiva o negativamente con respecto al eje X exclusivamente. Esto quiere decir que consideraremos que el algoritmo funciona de forma correcta si es capaz de moverse de tal manera que la persona se encuentre siempre centrada en el eje horizontal y no en el eje vertical.
+Si quisiéramos añadir además un ángulo de giro variable junto con la acción a tomar podríamos hacerlo como parte de la salida de nuestro algoritmo, aunque involucraría un entrenamiento más prolongado en el tiempo, lo cual es un factor importante tal y como detallaremos más adelante.
+\medskip
+
+Teniendo en cuenta este espacio inicial de acciones, la evaluación de los diferentes agentes será valorada positiva o negativamente con respecto al eje X exclusivamente. Esto quiere decir que consideraremos que el algoritmo funciona de forma correcta si es capaz de moverse de tal manera que la persona se encuentre siempre centrada en el eje horizontal y no en el eje vertical.
 \medskip
 
 En cuanto a la detección de la persona, tenemos en cuenta que nuestro dispositivo solo realizará el seguimiento de una sola persona, debido a la complejidad que esto supondría en cuanto al funcionamiento de nuestro algoritmo. Obviamos un escenario real y plausible que es el de encontrarnos en una misma imagen con múltiples personas, en cuyo caso deberíamos también de desarrollar un mecanismo de selección de la persona a la cual quisiéramos seguir.
@@ -81,7 +84,7 @@ Para el desarrollo del proyecto se utilizará el dispositivo \href{https://store
 El dispositivo cuenta con una cámara integrada con una resolución máxima de 1280x720 píxeles, la cual creemos que es suficiente para el desarrollo del trabajo.
 \medskip
 
-Un punto negativo del uso de drones como dispositivo de captura es el poco rendimiento de las baterías durante el vuelo. Concretamente, el dron utilizado permanece en vuelo unos 13 minutos como máximo.
+Un punto negativo del uso de drones como dispositivo de captura es el poco rendimiento de las baterías durante el vuelo. Concretamente, el dron utilizado permanece en vuelo unos 13 minutos como máximo. Por este motivo es importante mencionar que el entrenamiento no se realizará directamente en el dron, sino que se usará en una fase inicial y final del proyecto para evaluar a los agentes una vez que estos estén entrenados.
 \medskip
 
 Además, durante el desarrollo inicial del proyecto se pudo observar una latencia reseñable al intentar comunicar el dispositivo con el ordenador a la hora de transmitir las imágenes y de poder enviar señales de control debido a la débil conexión WiFi entre ambos puntos de comunicación. El intentar solucionar este problema no solo consumió tiempo de ejecución del proyecto sino que también nos impide poder llevar a cabo pruebas de control más realistas y nos acotará el margen de ejecución de nuestras pruebas finales.
@@ -99,19 +102,19 @@ Por último comentaremos los \textit{Transformers}\citep{transformers} y en espe
 \subsection{Aprendizaje por refuerzo}
 \label{aprendizaje-por-refuerzo}
 
-\textit{"La idea de que nosotros aprendemos a través de la interacción con nuestro entorno es probablemente lo primero que se nos ocurre cuando pensamos en la naturaleza del aprendizaje"}, Sutton y Barto \citep{sutton2018reinforcement}.
+\textit{"La idea de que nosotros aprendemos a través de la interacción con nuestro entorno es probablemente lo primero que se nos ocurre cuando pensamos en la naturaleza del aprendizaje"}, \citep{sutton2018reinforcement}.
 \medskip
 
-El aprendizaje por refuerzo es la formalización de esta idea, en concreto, es la rama de la inteligencia artificial cuyo principio se basa en la interacción de un agente con un entorno a través de lo que llamamos acciones. Dichas acciones obtienen una recompensa que el agente recibe y en base a estas recompensas, se refuerzan las acciones positivas y se penalizan las negativas, es decir, el objetivo del agente es maximizar las recompensas obtenidas a lo largo del tiempo.
-\medskip
-
-\begin{figure}[ht!]
+\begin{figure}[H]
   \centering
   \includegraphics[width=1\textwidth]{figuras/RL_diagram.png}
   % \caption[Así aparece el rótulo en el índice]{Así aparece el rótulo en el texto.}
   \caption[Componentes del aprendizaje por refuerzo y la interacción entre ellos.]{Componentes del aprendizaje por refuerzo y la interacción entre ellos.}
   \label{fig-reinforcement-learning-components}
 \end{figure}
+
+Podemos decir que el aprendizaje por refuerzo es la formalización de la idea anterior, en concreto, es la rama de la inteligencia artificial cuyo principio se basa en la interacción de un agente con un entorno a través de lo que llamamos acciones. Dichas acciones obtienen una recompensa que el agente recibe y en base a estas recompensas, se refuerzan las acciones positivas y se penalizan las negativas, es decir, el objetivo del agente es maximizar las recompensas obtenidas a lo largo del tiempo.
+\medskip
 
 Durante los últimos años se pudo ver cómo está rama fue cobrando más importancia por casos exitosos como el de \textit{AlphaGo} \citep{silver2016mastering}, creado por la empresa \href{deepmind.com}{DeepMind}, que derrotó al campeón mundial en el juego Go, un hito que era considerado como extraordinario debido al número de combinaciones por movimiento que el juego contiene.
 \medskip
@@ -120,11 +123,11 @@ Durante los últimos años se pudo ver cómo está rama fue cobrando más import
   \centering
   \includegraphics[width=1\textwidth]{figuras/alphago.png}
   % \caption[Así aparece el rótulo en el índice]{Así aparece el rótulo en el texto.}
-  \caption[Imagen tomada durante una de las partidas entre \textit{AlphaGO} y Lee Sedol.]{Imagen tomada durante una de las partidas entre \textit{AlphaGO} y Lee Sedol. Obtenida de \href{https://www.theguardian.com/technology/2016/mar/15/alphago-what-does-google-advanced-software-go-next}{The Guardian}.}
+  \caption[Imagen tomada durante una de las partidas entre \textit{AlphaGO} y Lee Sedol.]{Imagen tomada durante una de las partidas entre \textit{AlphaGO} y Lee Sedol. Fuente: \href{https://www.theguardian.com/technology/2016/mar/15/alphago-what-does-google-advanced-software-go-next}{The Guardian}.}
   \label{fig-alphago}
 \end{figure}
 
-Y aunque se suele asociar al aprendizaje por refuerzo con aplicaciones como \textit{AlphaGo}, o el aún más reciente caso de \textit{AlphaStar} \citep{alphastar}, gracias a los avances tanto en algoritmos como en el campo del \textit{deep learning}, vemos que con más frecuencia nos encontramos con ejemplos reales en el uso de estas técnicas, lo cual nos anima a realizar nuestro trabajo sobre ellas.
+Aunque se suele asociar al aprendizaje por refuerzo con aplicaciones como \textit{AlphaGo}, o el aún más reciente caso de \textit{AlphaStar} \citep{alphastar}, gracias a los avances tanto en algoritmos como en el campo del \textit{deep learning}, vemos que con más frecuencia nos encontramos con ejemplos reales en el uso de estas técnicas, lo cual nos anima a realizar nuestro trabajo sobre ellas.
 \medskip
 
 \subsection{Algoritmos \textit{Policy Gradient}}
@@ -133,10 +136,34 @@ Y aunque se suele asociar al aprendizaje por refuerzo con aplicaciones como \tex
 El subgrupo de algoritmos \textit{Policy Gradient} \citep{sutton1999policy} se basan en la optimización de la política de elección de acciones del agente, es decir, producen politicas de acción estocásticas. Esto contrasta con el subgrupo de algoritmos \textit{Q-Learning} \citep{mnih2013playing} que se basan en la optimización de la función de valor y que producen políticas deterministas.
 \medskip
 
-Una ventaja de estos algoritmos es que por lo general son más estables y confiables que los basados en \textit{Q-Learning}. 
+Una ventaja de estos algoritmos es que por lo general son más estables y confiables que los basados en \textit{Q-Learning} y que pueden actuar sobre espacio de acciones continuos (aunque finalmente nosotros nos centraremos en un espacio discreto). Es por ello que serán nuestro foco durante la ejecución del proyecto.
+\medskip
+
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=1\textwidth]{figuras/rl_algorithms_classification.png}
+  % \caption[Así aparece el rótulo en el índice]{Así aparece el rótulo en el texto.}
+  \caption[Categorización de algoritmos de aprendizaje por refuerzo.]{Categorización de algoritmos de aprendizaje por refuerzo. Fuente: \href{https://spinningup.openai.com/en/latest/spinningup/rl_intro2.html}{OpenAI}.}
+  \label{fig-rl-algorithms-family}
+\end{figure}
 
 \subsection{Algoritmo Actor-Critic}
 \label{algoritmo-actor-critic}
+
+Siguiendo con la misma familia de algoritmos, la diferencia en este caso es que el agente tiene que aprender no solamente qué acción tomar en cada observación del estado sino que también aprende a calcular cuál es la recompensa estimada a futuro. Para lo cual, necesitamos dos redes neuronales. La parte responsable de calcular la acción recomendada se llama \textit{actor}, mientras que aquella que se encarga de decirnos la recompensa futura se llama \textit{critic}.
+\medskip
+
+Una forma sencilla de entenderlo sería verlo como que nuestra parte \textit{actor} nos dice qué hacer, mientras que la red \textit{critic} nos indica cuánto de bien lo estamos haciendo.
+\medskip
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=.5\textwidth]{figuras/actor_critic_arquitecture.png}
+  % \caption[Así aparece el rótulo en el índice]{Así aparece el rótulo en el texto.}
+  \caption[Visualización de una red \textit{Actor Critic}.]{Visualización de una red \textit{Actor Critic}. Fuente: \href{https://www.datahubbs.com/two-headed-a2c-network-in-pytorch/}{DataHubbs}.}
+  \label{fig-actor-critic-arquitecture}
+\end{figure}
 
 \subsection{Transformers y Vision Transformers}
 \label{vision-transformers}
@@ -153,10 +180,16 @@ Sin entrar en muchos detalles en cuanto a cómo funcionan los \textit{Transforme
   \label{fig-vision-transformer}
 \end{figure}
 
-Las redes basadas en \textit{Attention}, en particular las redes \textit{Transformers}, desarrolladas inicialmente por Google, se han convertido en la elección por defecto en problemas de lenguaje natural o NLP, ya que gracias a su eficiencia computacional y su escalabilidad, es posible entrenar modelos de más de 100 billones de parámetros. La idea detrás de estas redes es solucionar los problemas que presentan las redes neuronales recurrentes o RNN, tales como las redes LSTM o GRU, las cuales no son capaces de captar dependencias a largo plazo, tal y como podemos encontrarnos en un texto de una novela.
+Las redes basadas en \textit{Attention}, en particular las redes \textit{Transformers}, desarrolladas inicialmente por Google, se han convertido en la elección por defecto en problemas de lenguaje natural o \glossary{NLP}, ya que gracias a su eficiencia computacional y su escalabilidad, es posible entrenar modelos de más de 100 billones de parámetros. La idea detrás de estas redes es solucionar los problemas que presentan las redes neuronales recurrentes o \glossary{RNN}, tales como las redes \glossary{LSTM} o \glossary{GRU}, las cuales no son capaces de captar dependencias a largo plazo, tal y como podemos encontrarnos en un texto de una novela.
 \medskip
 
-Aunque los \textit{Transformers} son ampliamente utilizados en procesamiento de lenguaje natural, las arquitecturas de redes convolucionales o \glossary{CNN} seguian siendo el tipo de red dominante en el campo de la visión por computador. Es por ello que, inspirados en la arquitectura original de Transformer y en el éxito que estas contaban (y aún cuentan), se buscó aplicar los mismos principios en la visión por computador. Esto es lo que dio lugar a los Vision Transformer, cuya idea principal es la de partir una imagen en segmentos o \textit{patches} y ser capaces de aplicar capas de Attention a cada uno de ellos. 
+Aunque los \textit{Transformers} son ampliamente utilizados en procesamiento de lenguaje natural, las arquitecturas de redes convolucionales o \glossary{CNN} seguian siendo el tipo de red dominante en el campo de la visión por computador. Es por ello que, inspirados en la arquitectura original de \textit{Transformer} y en el éxito que estas contaban (y aún cuentan), se buscó aplicar los mismos principios en la visión por computador. Esto es lo que dio lugar a los \textit{Vision Transformer}, cuya idea principal es la de partir una imagen en segmentos o \textit{patches} y ser capaces de aplicar capas de Attention a cada uno de ellos. 
 \medskip
 
-A día de hoy nos encontramos muchas versiones disponibles y preentrenadas. Durante la ejecución de nuestro experimento utilizaremos un modelo disponible en la web \href{https://huggingface.co/docs/transformers/model_doc/vit#transformers.ViTModel}{HuggingFace}. En concreto utilizamos un modelo entrenado por Google, cuya entrada es una imagen de 224x224 píxeles, que será luego dividida en 16 parches de 14x14 píxeles y que fue entrenada en el conjunto de datos \textit{ImageNet21k} \citep{imagenet21k}. La salida de este modelo, es decir, la entrada a nuestro agente será un vector de tamaño 197x512, donde la primera dimensión representa el tamaño de la secuencia en la cual nuestra imagen ha sido partida tras el paso por el \textit{Vision Transformer}, y cada elemento de esa secuencia consta de un total de 512 características.
+A día de hoy nos encontramos muchas versiones disponibles y preentrenadas. Durante la ejecución de nuestro experimento utilizaremos un modelo disponible en la web \href{https://huggingface.co/docs/transformers/model_doc/vit#transformers.ViTModel}{HuggingFace}.
+\medskip
+
+En concreto utilizamos un modelo entrenado por Google, cuya entrada es una imagen de 224x224 píxeles, que será luego dividida en 16 parches de 14x14 píxeles y que fue entrenada en el conjunto de datos \textit{ImageNet21k} \citep{imagenet21k}.
+\medskip
+
+La salida de este modelo, es decir, la entrada a nuestro agente será un vector de tamaño 197x512, donde la primera dimensión representa el tamaño de la secuencia en la cual nuestra imagen ha sido partida tras el paso por el \textit{Vision Transformer}, y cada elemento de esa secuencia consta de un total de 512 características.

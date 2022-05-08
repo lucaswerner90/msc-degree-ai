@@ -1,0 +1,38 @@
+;; This logfile was generated automatically by `xindy'
+;; at 08.05.2022  12:18:33
+;; Indexstyle: "/var/folders/m3/_my7yl913gs59vc5prp0lrzh0000gn/T/vJZ_w5sLhw", Rawindex: "/var/folders/m3/_my7yl913gs59vc5prp0lrzh0000gn/T/2lLhyofe0j", Output: "memoria.gls"
+
+ERROR: EVAL: variable CNN has no value
+
+
+*** Unable to execute: '"xindy"  -L spanish-traditional -C utf8 -I xindy -M "memoria" -t "memoria.glg" -o "memoria.gls" "memoria.glo"' ***
+
+Failed with error code 1.
+
+Status report:
+
+Opening logfile "memoria.glg" (done)
+Reading indexstyle...
+Loading module "/var/folders/m3/_my7yl913gs59vc5prp0lrzh0000gn/T/vJZ_w5sLhw"...
+Loading module "lang/spanish/traditional-utf8-lang.xdy"...
+Loading module "lang/spanish/traditional-utf8.xdy"...
+Finished loading module "lang/spanish/traditional-utf8.xdy".
+Finished loading module "lang/spanish/traditional-utf8-lang.xdy".
+Loading module "./memoria.xdy"...
+Loading module "tex.xdy"...
+Finished loading module "tex.xdy".
+Finished loading module "./memoria.xdy".
+Finished loading module "/var/folders/m3/_my7yl913gs59vc5prp0lrzh0000gn/T/vJZ_w5sLhw".
+Finished reading indexstyle.
+Finalizing indexstyle... (done)
+
+Reading raw-index "/var/folders/m3/_my7yl913gs59vc5prp0lrzh0000gn/T/2lLhyofe0j"...
+ERROR: EVAL: variable CNN has no value
+
+
+makeglossaries diagnostic messages:
+
+Style name has xdy extension, but may be in makeindex format.
+Remember to use \setStyleFile to specify the name
+of the style file rather than redefining \istfilename
+explicitly.

@@ -20,13 +20,13 @@ Debido al coste computacional de ejecutar cada experimento sobre el conjunto de 
 La idea detrás de esta subexperimentación era conseguir un modelo de agente que sea capaz de realizar \textit{overfitting} sobre el conjunto de datos de manera relativamente rápida y que obtuviese una convergencia tanto en la recompensa obtenida tanto en las imágenes del conjunto de entrenamiento como en el conjunto de test como en el número de pasos que realizaba sobre cada una de las imágenes. Esto nos permitió también acortar el tiempo entre las diferentes pruebas, ya que el conseguir este overfitting nos aseguraba que el agente seguiría en un principio las ideas que queríamos implementar y además provocó que pudiesemos experimentar con diferentes definiciones tanto de nuestra recompensa como de nuestro entorno, así como hacer \textit{fine tunning} de nuestros hiperparámetros.
 \medskip
 
-Ligado a la subexperimentación comentada, en cuanto a los hiperparámetros, vimos como el learning rate jugaba un papel muy importante en todos y cada uno de los algoritmos usados. Un \textit{learning rate} muy alto hacía que nuestros agentes solo tomasen una decisión, llevando a escorarse practicamente hacia un lado en todas las ocasiones. Por otro lado, un \textit{learning rate} muy bajo no permitía que nuestro agente fuese capaz muchas veces de tomar una decisión clara, y aunque esto pueda entenderse como parte de la exploración del agente muchas veces no permitía al agente obtener la recompensa máxima del entorno en el número máximo de pasos que se había establecido y obtenía por lo tanto solo recompensas parciales.
+Ligado a la subexperimentación comentada, en cuanto a los hiperparámetros, vimos como el \textit{learning rate} jugaba un papel muy importante en todos y cada uno de los algoritmos usados. Un \textit{learning rate} muy alto hacía que nuestros agentes solo tomasen una decisión, llevando a escorarse practicamente hacia un lado en todas las ocasiones. Por otro lado, un \textit{learning rate} muy bajo no permitía que nuestro agente fuese capaz muchas veces de tomar una decisión clara, y aunque esto pueda entenderse como parte de la exploración del agente muchas veces no permitía al agente obtener la recompensa máxima del entorno en el número máximo de pasos que se había establecido y obtenía por lo tanto solo recompensas parciales.
 \medskip
 
 Durante los experimentos podremos comprobar que en alguno de ellos el número de métricas que mostraremos es más alto que en otros, esto no es solo debido a que queramos destacar una cualidad específica del experimento, sino que tambien formó parte de la experimentación y el descubrimiento de algunos de los problemas que nos fuimos encontrando, que nos llevó a tener que realizar el seguimiento de algunos aspectos del entrenamiento que no estaban contemplados en experimentos anteriores. Estos problemas estuvieron relacionados principalmente con la convergencia en la toma de decisiones del agente tal y como se discutirá más adelante.
 \medskip
 
-Por último también mostraremos algunos resultados de las imágenes que fuimos obteniendo en cada caso. Cabe recordar que la ejecución del agente durante el test se detiene cuando decide ejecutar la acción de permanecer quieto, y que tanto esta recompensa como el número de acciones hasta llegar a ella se tienen en cuenta como medidas subjetivas de la eficacia del agente, tal y como comentamos en la sección \ref{evaluacion}.
+Por último también mostraremos algunos resultados de las imágenes que fuimos obteniendo en cada caso. Cabe recordar que la ejecución del agente durante el test y la validación se detiene cuando decide ejecutar la acción de permanecer quieto, y que tanto esta recompensa como el número de acciones hasta llegar a ella se tienen en cuenta como medidas subjetivas de la eficacia del agente, tal y como comentamos en la sección \ref{evaluacion}.
 \medskip
 
 El total de los experimentos está disponible en el repositorio de \href{https://github.com/lucaswerner90/msc-degree-ai}{GitHub} para un análisis más extenso y se adjunta el título de cada uno de ellos en el Apéndize \ref{apendize-a}. 
@@ -113,16 +113,14 @@ Por concluir, podemos decir que este primer conjunto de experimentos nos permiti
 \section{Actor-Critic}
 \label{resultados-actor-critic}
 
-Usando los resultados previos con el algoritmo Policy Gradient, lo que buscamos con estos nuevos experimentos es obtener una mejora en cuanto a resultados y en cuanto a la estabilización de nuestro entrenamiento, gracias a la doble salida que obtiene nuestro agente, por un lado la distribución de probabilidad de las acciones a tomar y por otro lado el valor del estado en el que se encuentra.
+Usando los resultados previos con el algoritmo \textit{Policy Gradient}, lo que buscamos con estos nuevos experimentos es obtener una mejora en cuanto a resultados y en cuanto a la estabilización de nuestro entrenamiento, gracias a la doble salida que obtiene nuestro agente, por un lado la distribución de probabilidad de las acciones a tomar y por otro lado el valor del estado en el que se encuentra.
 \medskip
 
-Para intentar evitar los problemas mencionados en los experimentos anteriores, en esta fase nos centramos ya no tanto en la búsqueda de los hiperparámetros correctos para el entrenamiento del agente, ya que usaremos las mismas técnicas utilizadas previamente, sino en refinar y construir un sistema de recompensa que se adecuase más al objetivo que queríamos lograr: llegar al punto objetivo con el menor de acciones posibles.
+Para intentar evitar los problemas mencionados en los experimentos anteriores, en esta fase nos centramos ya no tanto en la búsqueda de los hiperparámetros correctos para el entrenamiento del agente, ya que usaremos las mismas técnicas utilizadas previamente, sino en refinar y construir un sistema de recompensa que se adecue más al objetivo que queríamos lograr: llegar al punto objetivo con el menor de acciones posibles.
 \medskip
 
 \subsection{Experimento 1}
 \label{resultados-actor-critic-experimento-1}
-
-(temporal) Tensorboard: Actor-Critic-v2
 
 Para este primer experimento, dejamos el sistema de recompensa previo, pero modificamos el número total de acciones por imagen, aumentándolo de 50 a 100.
 \medskip
@@ -165,7 +163,6 @@ Sin embargo, observamos que la función de coste en el entrenamiento desciende r
 \subsection{Experimento 2}
 \label{resultados-actor-critic-experimento-2}
 
-(temporal) (temporal) Tensorboard: Actor-Critic-ac-no-rewards-till-complete
 Para este ejemplo decidimos incrementar el número de \textit{epochs}, de las 20 del experimento anterior hasta las 100, esperando que se produjese un salto en cuanto a la calidad del entrenamiento. Además disminuimos levemente el \textit{learning rate}.
 
 \begin{figure}[H]
@@ -205,13 +202,14 @@ En este caso, cambiamos el sistema de recompensa al agente. Lo que hicimos fue d
 Sin embargo, para disminuir la dificultad del episodio, lo que hicimos fue crear una zona de unos 30 píxeles tanto a la izquierda como a la derecha del punto objetivo, de manera que si el agente se acercaba por alguno de los lados, el episodio acabaría de manera satisfactoria.
 \medskip
 
-Al igual que en el experimento anterior, lo que podemos observar es que el agente aprende rápido durante las primeras iteraciones pero luego no se ve ninguna mejora significativa. En la figura \ref{fig-experimento-actor-critic-2-value-loss} vemos como la función de coste del agente si bien se mantiene prácticamente estable, va disminuyendo lentamente durante todo el entrenamiento, mientras que la \textit{policy loss} (fig. \ref{fig-experimento-actor-critic-2-policy-loss}) es prácticamente la misma.
+Al igual que en el experimento anterior, lo que podemos observar es que el agente aprende rápido durante las primeras iteraciones pero luego no se ve ninguna mejora significativa. 
+\medskip
+
+En la figura \ref{fig-experimento-actor-critic-2-value-loss} vemos como la función de coste del agente si bien se mantiene prácticamente estable, va disminuyendo lentamente durante todo el entrenamiento, mientras que la \textit{policy loss} (fig. \ref{fig-experimento-actor-critic-2-policy-loss}) es prácticamente la misma.
 \medskip
 
 \subsection{Experimento 3}
 \label{resultados-actor-critic-experimento-3}
-
-(temporal) Tensorboard: Actor-Critic-ac-reward-2-rew-by-two-stop-with-none
 
 En este experimento lo que haremos será intentar atacar varias situaciones que nos encontramos en experimentos anteriores. Entre ellas el problema que también comentamos durante el análisis de los experimentos con \textit{Policy Gradient} y es el hecho de que el agente decide permanecer quieto nada más comenzar el episodio cuando se ejecuta el conjunto de test, llevando por un lado a una rapida finalización de los episodios, pero limitando la opción de explorar más allá del punto inicial. Como comentamos en un principio, idealmente nuestro agente debería finalizar, o lo que es lo mismo, decidir no moverse cuando está seguro de que el punto en el que se encuentra es óptimo. Esta situación en particular se discutirá en el apartado \ref{resultados-conclusiones-actor-critic-experimentos}.
 \medskip
@@ -258,14 +256,23 @@ El siguiente objetivo, relacionado directamente con el anterior, es desfavorecer
 Como podemos observar, los cambios aplicados sobre nuestro sistema de recompensa tuvo un gran impacto en el entrenamiento del agente. Si observamos la figura \ref{fig-experimento-actor-critic-3-training-reward-mean} vemos que la recompensa media no siguió una tendencia, sino que fue variando hasta llegar a un pico casi al final del entrenamiento para finalmente descender. En ese mismo punto vemos que la función de perdida en el conjnuto de entrenamiento disminuye (fig. \ref{fig-experimento-actor-critic-3-training-loss}), lo cual en general nos podría indicar un buen rendimiento de nuestro agente en ese punto.
 \medskip
 
-Durante este experimento, dados los cambios realizados sobre el \textit{reward}, nos pareció interesante realizar un seguimiento al número de acciones que el agente realizaba sobre las imágenes del conjunto de testeo, lo que se puede ver en la figura \ref{fig-experimento-actor-critic-3-testing-actions-till-finish}. Lo que observamos en la gráfica es que, si bien nuestro objetivo era incrementar la confianza del agente a la hora de tomar la acción de permanecer quieto, lo que conseguimos fue que el número de acciones por episodio en el conjunto de test se disparara sustancialmente, llegando practicamente a las 2000 acciones de media por imagen, lo que haría prácticamente inviable su despliegue en un entorno real. Este resultado nos lleva a pensar que nuestra hipótesis desarrollo una desconfianza en el agente a la hora de tomar la decisión de no moverse, lo que hace que prefiera moverse hacía la izquierda o hacía a la derecha.
+Durante este experimento, dados los cambios realizados sobre el \textit{reward}, nos pareció interesante realizar un seguimiento al número de acciones que el agente realizaba sobre las imágenes del conjunto de testeo, lo que se puede ver en la figura \ref{fig-experimento-actor-critic-3-testing-actions-till-finish}.
+\medskip
+
+Lo que observamos en la gráfica es que, si bien nuestro objetivo era incrementar la confianza del agente a la hora de tomar la acción de permanecer quieto, lo que conseguimos fue que el número de acciones por episodio en el conjunto de test se disparara sustancialmente, llegando practicamente a las 2000 acciones de media por imagen, lo que haría prácticamente inviable su despliegue en un entorno real.
+\medskip
+
+Este resultado nos lleva a pensar que nuestra hipótesis desarrollo una desconfianza en el agente a la hora de tomar la decisión de no moverse, lo que hace que prefiera moverse hacía la izquierda o hacía a la derecha.
 \medskip
 
 Esta tendencia queda confirmada cuando observamos el archivo de registro del experimento (disponible en el repositorio del proyecto) en el que muestra las acciones escogidas por el agente en cada imagen:
 
 \input{tablas/tabla_ejecucion_acciones.tex}
 
-Al principio del entrenamiento el agente comienza tomando acciones aleatorias, lo cual es esperable debido a que no tiene experiencias previas con el entorno. Según va avanzando su conocimiento, vemos que incluso ya durante la primera época, el agente aprende a relacionar la acción de no moverse con una recompensa negativa y por lo tanto decide cada vez con mayor frecuencia no usarla, lo cual implica disminuir la probabilidad de esa acción en particular. Al cabo de la primera época ya observamos que la acción prácticamente ya no es escogida, lo cual nos lleva a confirmar nuestra teoría de que nuestro nuevo sistema de recompensa no está produciendo los resultados esperados.
+Al principio del entrenamiento el agente comienza tomando acciones aleatorias, lo cual es esperable debido a que no tiene experiencias previas con el entorno. Según va avanzando su conocimiento, vemos que incluso ya durante la primera época, el agente aprende a relacionar la acción de no moverse con una recompensa negativa y por lo tanto decide cada vez con mayor frecuencia no usarla, lo cual implica disminuir la probabilidad de esa acción en particular.
+\medskip
+
+Al cabo de la primera época ya observamos que la acción prácticamente ya no es escogida, lo cual nos lleva a confirmar nuestra teoría de que nuestro nuevo sistema de recompensa no está produciendo los resultados esperados.
 \medskip
 
 La investigación alrededor de este problema fue un punto clave en el desarrollo del proyecto y fue lo que nos llevó a probar diferentes alternativas no solo en cuanto al sistema de recompensa/castigo, probando con diferentes opciones como castigar al agente si el número de acciones era demasiado bajo o penalizar la trayectoria del episodio si no se terminó este con la recompensa máxima, sino también a explorar diferentes criterios de parada en el episodio.
@@ -315,7 +322,10 @@ Debido a la carga computacional de este modelo y las restricciones en cuanto a t
 Lo que se puede apreciar en las gráficas del entrenamiento anteriores es que no obtuvimos ninguna ventaja significativa con el uso de \textit{Vision Transformers}, y aunque esto puede deberse a múltiples factores distintos, descartamos la posibilidad de seguir realizando experimentos con esta arquitectura dado el tiempo de entrenamiento que conllevaba y que no veíamos con claridad que fuesemos a obtener una convergencia o un mejor resultado que usando la red \textit{VGG19} preentrenada.
 \medskip
 
-Al igual que con los experimentos anteriores, vemos en la figura \ref{fig-experimento-vision-transformer-1-testing-reward-mean} que la recompensa sobre el conjunto de test disminuye con el paso del entrenamiento, lo cual nos indicaria que nuestro problema no se encuentra en un principio en la capacidad de abstracción de características de la imagen, sino que podría deberse a una falta de datos en general o incluso a que este tipo de redes necesitan un mayor tiempo de entrenamiento hasta conseguir buenos resultados. Sin embargo, y dado que esto es solamente el paso previo a nuestro agente, podríamos afirmar que la inestabilidad del entrenamiento y el no avance en la recompensa en el conjunto de entrenamiento (figura \ref{fig-experimento-vision-transformer-1-training-reward-mean}), se debe a una falta de capacidad en la red de nuestro agente.
+Al igual que con los experimentos anteriores, vemos en la figura \ref{fig-experimento-vision-transformer-1-testing-reward-mean} que la recompensa sobre el conjunto de test disminuye con el paso del entrenamiento, lo cual nos indicaria que nuestro problema no se encuentra en un principio en la capacidad de abstracción de características de la imagen, sino que podría deberse a una falta de datos en general o incluso a que este tipo de redes necesitan un mayor tiempo de entrenamiento hasta conseguir buenos resultados.
+\medskip
+
+Sin embargo, y dado que esto es solamente el paso previo a nuestro agente, podríamos afirmar que la inestabilidad del entrenamiento y el no avance en la recompensa en el conjunto de entrenamiento (figura \ref{fig-experimento-vision-transformer-1-training-reward-mean}), se debe a una falta de capacidad en la red de nuestro agente.
 \medskip
 
 \subsection{Conclusiones}

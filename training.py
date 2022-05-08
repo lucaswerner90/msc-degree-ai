@@ -20,7 +20,7 @@ MAX_STEPS = 50
 GAMMA = 0.99
 
 parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
-parser.add_argument('--experiment-name', type=str, default='ac-dropout', metavar='N',
+parser.add_argument('--experiment-name', type=str, default='ac-dropout-model', metavar='N',
                     help='Whatever name you want')
 parser.add_argument('--epochs', type=int, default=20, metavar='N',
                     help='epochs (default: 100)')
@@ -77,6 +77,7 @@ def main():
             for t in range(MAX_STEPS):
                 image, point = state
                 logits, state_value = model(image,point)
+                writer.add_graph(model, (image,point))
                 logits, state_value = logits.squeeze(), state_value.squeeze()
                 log_prob,action = model.select_action(logits)
                 # take the action
